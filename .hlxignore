@@ -1,0 +1,23 @@
+# Files excluded from AEM EDS website serving
+# Uses .gitignore syntax
+
+# Dependencies
+node_modules/
+
+# Build artifacts
+dist/
+build/
+.cache/
+
+# Local dev / IDE
+.claude/
+.vscode/
+.idea/
+*.local
+
+# Docs (not served as web pages)
+README.md
+
+# OS artefacts
+.DS_Store
+Thumbs.db
