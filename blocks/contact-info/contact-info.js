@@ -346,7 +346,7 @@ export default function decorate(block) {
   // ── Speak Up Line footer note ─────────────────────────────────────────
   const note = document.createElement('p');
   note.classList.add('contact-speak-up');
-  note.innerHTML = `To confidentially report a concern, visit our <a href="https://secure.ethicspoint.com/domain/media/en/gui/41279/index.html" class="contact-speak-up-link" target="_blank" rel="noopener">Speak Up Line ${EXT_ICON}</a>.`;
+  note.innerHTML = `To confidentially report a concern, visit our <a href="http://nvidiaat.ethicspoint.com/" class="contact-speak-up-link" target="_blank" rel="noopener">Speak Up Line ${EXT_ICON}</a>.`;
 
   block.textContent = '';
   block.appendChild(tabNav);
