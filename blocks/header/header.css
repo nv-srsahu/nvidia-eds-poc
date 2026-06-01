@@ -62,10 +62,13 @@ header {
   white-space: nowrap;
 }
 
-.nav-primary-btn:hover,
-.nav-primary-item.open .nav-primary-btn {
+.nav-primary-btn:hover {
   color: var(--color-text);
   border-bottom-color: var(--color-nvidia-green);
+}
+
+.nav-primary-item.open .nav-primary-btn {
+  color: var(--color-text);
 }
 
 /* ── Utility nav ─────────────────────────────────────────────────── */
@@ -88,6 +91,230 @@ header {
 
 .nav-utility a:hover {
   color: var(--color-nvidia-green-dark);
+}
+
+/* ── Icon action buttons (Search, Region, Sign In) ──────────────── */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-xs);
+  flex-shrink: 0;
+  position: relative;
+}
+
+.nav-action-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  background: none;
+  border: none;
+  color: var(--color-text);
+  cursor: pointer;
+  padding: 6px 8px;
+  border-radius: 4px;
+  font-family: var(--font-family-body);
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  transition: color var(--transition-base);
+  white-space: nowrap;
+}
+
+.nav-action-btn:hover {
+  color: var(--color-nvidia-green-dark);
+}
+
+.nav-action-label {
+  font-size: var(--font-size-sm);
+}
+
+/* ── Country selector ────────────────────────────────────────────── */
+.cs-item {
+  list-style: none;
+}
+
+.nav-cs-link {
+  display: flex;
+  align-items: center;
+  text-decoration: none;
+  color: var(--color-text);
+  padding: 6px 8px;
+  transition: color var(--transition-base);
+}
+
+.nav-cs-link:hover {
+  color: var(--color-nvidia-green-dark);
+}
+
+/* Globe icon with "US" badge overlaid at bottom-center */
+.cs-globe-wrap {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  border: 1.5px solid #c0c0c0;
+  border-radius: 50%;
+}
+
+.cs-globe-wrap svg {
+  display: block;
+}
+
+.cs-loc-txt {
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  border: 1px solid #c0c0c0;
+  border-radius: 3px;
+  font-size: 8px;
+  font-weight: 700;
+  line-height: 1;
+  padding: 1px 3px;
+  color: #333;
+  white-space: nowrap;
+  letter-spacing: 0.03em;
+}
+
+/* ── Sign In dropdown ────────────────────────────────────────────── */
+.signin-dropdown {
+  position: absolute;
+  top: calc(100% + 12px);
+  right: 0;
+  min-width: 220px;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  z-index: 160;
+  border-radius: 4px;
+}
+
+.signin-dropdown[hidden] { display: none; }
+
+.signin-dropdown-list {
+  list-style: none;
+  margin: 0;
+  padding: var(--space-xs) 0;
+}
+
+.signin-dropdown-list li {
+  display: block;
+}
+
+.signin-dropdown-link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-sm);
+  padding: var(--space-sm) var(--space-md);
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: background var(--transition-base);
+}
+
+.signin-dropdown-link:hover {
+  background: #f5f5f5;
+  color: var(--color-text);
+}
+
+.signin-dropdown-link .fa-sharp {
+  font-size: 1rem;
+  color: #5e5e5e;
+}
+
+/* Green underline on Sign In btn when dropdown is open */
+.nav-action-signin[aria-expanded="true"] .account-icon-anonuser {
+  border-bottom: 2px solid var(--color-nvidia-green);
+  padding-bottom: 2px;
+}
+
+/* ── Country selector dropdown ───────────────────────────────────── */
+.cs-dropdown {
+  position: absolute;
+  top: 64px;
+  left: 0;
+  width: 100%;
+  background: var(--color-surface);
+  box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+  z-index: 160;
+}
+
+.cs-dropdown[hidden] { display: none; }
+
+.cs-dropdown-inner {
+  max-width: var(--container-max-width);
+  margin: 0 auto;
+  padding: var(--space-2xl) var(--space-sm);
+}
+
+.cs-heading {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-xl);
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 var(--space-xl);
+}
+
+.cs-region {
+  margin-bottom: var(--space-xl);
+}
+
+.cs-region-heading {
+  font-family: var(--font-family-heading);
+  font-size: var(--font-size-base);
+  font-weight: 700;
+  color: var(--color-text);
+  margin: 0 0 var(--space-md);
+}
+
+.cs-country-grid {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: var(--space-sm) var(--space-2xl);
+}
+
+.cs-country-grid a {
+  font-size: var(--font-size-sm);
+  color: var(--color-text);
+  text-decoration: none;
+  transition: color var(--transition-base);
+}
+
+.cs-country-grid a:hover {
+  color: var(--color-nvidia-green-dark);
+  text-decoration: underline;
+}
+
+/* ── Font Awesome Sharp Light icon rendering ─────────────────────── */
+.fa-sharp.fa-light {
+  font-family: 'Font Awesome 6 Sharp';
+  font-weight: 300;
+  font-style: normal;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  display: inline-block;
+  font-variant: normal;
+  text-rendering: auto;
+  line-height: 1;
+  font-size: 1.1rem;
+}
+
+.fa-circle-user::before {
+  content: "\f2bd";
+}
+
+.account-icon-anonuser {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: var(--font-size-sm);
+  font-weight: 500;
+  color: var(--color-text);
 }
 
 /* ── Hamburger ───────────────────────────────────────────────────── */
@@ -117,7 +344,6 @@ header {
   left: 0;
   width: 100%;
   background: var(--color-surface);
-  border-top: 3px solid var(--color-nvidia-green);
   box-shadow: 0 8px 32px rgba(0,0,0,0.14);
   z-index: 160;
 }
@@ -244,6 +470,7 @@ header {
 @media (max-width: 768px) {
   .nav-hamburger { display: flex; }
   .nav-utility { display: none; }
+  .nav-actions { display: none; }
 
   .nav-links {
     display: none;
