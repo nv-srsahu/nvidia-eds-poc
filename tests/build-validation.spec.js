@@ -184,7 +184,7 @@ test.describe('Hero & Cards Section', () => {
   });
 
   test('card titles: Support, Enterprise Sales, Find a Partner', async ({ page }) => {
-    const titles = await page.locator('.cards-card-body strong, .cards-card-body h2, .cards-card-body h3').allTextContents();
+    const titles = await page.locator('.cards [data-testid="nv-card-content"] h3').allTextContents();
     const text = titles.join(' ');
     expect(text).toContain('Support');
     expect(text).toContain('Enterprise Sales');
@@ -192,7 +192,7 @@ test.describe('Hero & Cards Section', () => {
   });
 
   test('all 3 CTA buttons are visible', async ({ page }) => {
-    const buttons = page.locator('.cards a.button');
+    const buttons = page.locator('.cards a.nv-button');
     await expect(buttons).toHaveCount(3);
     for (const btn of await buttons.all()) {
       await expect(btn).toBeVisible();

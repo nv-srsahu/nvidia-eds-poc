@@ -160,6 +160,10 @@ main {
   margin: 0 auto;
 }
 
+.section > div + div {
+  margin-top: var(--space-xl);
+}
+
 .section > .default-content-wrapper {
   text-align: center;
 }
@@ -286,4 +290,5 @@ hr {
   h1 { font-size: var(--font-size-2xl); }
   h2 { font-size: var(--font-size-xl); }
   .section { padding: var(--space-lg) var(--space-sm); }
+  .section > div + div { margin-top: var(--space-lg); }
 }
