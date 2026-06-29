@@ -11,6 +11,18 @@
   <title>Contact NVIDIA</title>
   <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
   <link rel="stylesheet" href="/styles/styles.css">
+  <link rel="stylesheet" href="/scripts/kui/foundations-react.bundle.css">
+  <script nonce="aem" type="importmap">
+  {
+    "imports": {
+      "react": "https://esm.sh/react@19.2.7",
+      "react/jsx-runtime": "https://esm.sh/react@19.2.7/jsx-runtime",
+      "react-dom": "https://esm.sh/react-dom@19.2.7?external=react",
+      "react-dom/client": "https://esm.sh/react-dom@19.2.7/client?external=react",
+      "@kui/foundations-react": "/scripts/kui/foundations-react.bundle.js"
+    }
+  }
+  </script>
   <script nonce="aem" src="/scripts/scripts.js" type="module"></script>
 </head>
 <body>
@@ -20,10 +32,15 @@
     <!-- ===== HERO + CARDS (same section) ===== -->
     <div>
       <div class="hero">
-        <div>
+        <div data-hero-media-theme="dark">
           <div>
+            <picture>
+              <source media="(min-width: 900px)" srcset="https://www.nvidia.com/content/dam/en-zz/nvidiaweb/homepage/mfg/nvidia-cpu-vera-rack-wmfg-offset-l@2x.png">
+              <img src="https://www.nvidia.com/content/dam/en-zz/nvidiaweb/homepage/mfg/nvidia-cpu-vera-rack-wmfg-offset-l@2x.png" alt="" loading="eager">
+            </picture>
             <h1>Contact NVIDIA</h1>
             <p>Get Your Questions Answered.</p>
+            <p><strong><a href="https://www.nvidia.com/en-us/about-nvidia/contact-us/enterprise-sales/" target="_blank" rel="noopener" data-button-kind="primary" data-button-color="brand" data-button-size="large">Contact Sales</a></strong></p>
           </div>
         </div>
       </div>
@@ -31,32 +48,32 @@
       <div class="cards">
 
         <!-- Card: Support -->
-        <div>
+        <div data-card-kind="solid" data-card-density="standard">
           <div>
-            <img class="card-icon" src="/icons/icon-support.png" alt="Support" width="80" height="81" loading="lazy">
+            <img src="/icons/icon-support.png" alt="Support" width="80" height="81" loading="lazy">
             <h3>Support</h3>
             <p>Get help with your existing NVIDIA products and services.</p>
-            <p><strong><a href="https://www.nvidia.com/en-us/support/" target="_blank" rel="noopener">Get Support</a></strong></p>
+            <p><strong><a href="https://www.nvidia.com/en-us/support/" target="_blank" rel="noopener" data-button-kind="primary" data-button-color="brand" data-button-size="small">Get Support</a></strong></p>
           </div>
         </div>
 
         <!-- Card: Enterprise Sales -->
-        <div>
+        <div data-card-kind="solid" data-card-layout="horizontal" data-card-density="standard">
           <div>
-            <img class="card-icon" src="/icons/icon-sales.png" alt="Enterprise Sales" width="66" height="81" loading="lazy">
+            <img src="/icons/icon-sales.png" alt="Enterprise Sales" width="66" height="81" loading="lazy">
             <h3>Enterprise Sales</h3>
             <p>Connect with an NVIDIA Sales Representative and get purchase info.</p>
-            <p><strong><a href="https://www.nvidia.com/en-us/about-nvidia/contact-us/enterprise-sales/" target="_blank" rel="noopener">Contact Sales</a></strong></p>
+            <p><strong><a href="https://www.nvidia.com/en-us/about-nvidia/contact-us/enterprise-sales/" target="_blank" rel="noopener" data-button-kind="secondary" data-button-color="neutral" data-button-size="medium">Contact Sales</a></strong></p>
           </div>
         </div>
 
         <!-- Card: Find a Partner -->
-        <div>
+        <div data-card-kind="gradient" data-card-density="standard">
           <div>
-            <img class="card-icon" src="/icons/icon-partner.png" alt="Find a Partner" width="126" height="81" loading="lazy">
+            <img src="/icons/icon-partner.png" alt="Find a Partner" width="126" height="81" loading="lazy">
             <h3>Find a Partner</h3>
             <p>Find experienced, professional partners.</p>
-            <p><strong><a href="https://www.nvidia.com/en-us/about-nvidia/partners/" target="_blank" rel="noopener">Locate Partners</a></strong></p>
+            <p><strong><a href="https://www.nvidia.com/en-us/about-nvidia/partners/" target="_blank" rel="noopener" data-button-kind="tertiary" data-button-color="neutral" data-button-size="medium">Locate Partners</a></strong></p>
           </div>
         </div>
 

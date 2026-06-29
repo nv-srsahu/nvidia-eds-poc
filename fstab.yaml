@@ -12,4 +12,4 @@
 #   url: "https://drive.google.com/drive/folders/<folder-id>"
 #
 mountpoints:
-  /: # TODO: Replace with your AEM Author URL (see format above)
+  /: "https://drive.google.com/drive/folders/1VrWpwFBC43cPBn1EdpAvYXeXJpLGtXOf"
