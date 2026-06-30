@@ -1,5 +1,28 @@
 [
   {
+    "id": "accordion",
+    "fields": []
+  },
+  {
+    "id": "accordion-item",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "trigger",
+        "label": "Title",
+        "required": true
+      },
+      {
+        "component": "richtext",
+        "name": "content",
+        "label": "Content",
+        "valueType": "string",
+        "required": true
+      }
+    ]
+  },
+  {
     "id": "cards",
     "fields": []
   },
@@ -91,6 +114,52 @@
         "label": "Text",
         "valueType": "string",
         "required": true
+      }
+    ]
+  },
+  {
+    "id": "input-shell",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "label",
+        "label": "Label"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "placeholder",
+        "label": "Placeholder"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "inputType",
+        "label": "Input type",
+        "value": "text",
+        "options": [
+          {
+            "name": "Text",
+            "value": "text"
+          },
+          {
+            "name": "Email",
+            "value": "email"
+          },
+          {
+            "name": "Search",
+            "value": "search"
+          },
+          {
+            "name": "Telephone",
+            "value": "tel"
+          },
+          {
+            "name": "URL",
+            "value": "url"
+          }
+        ]
       }
     ]
   }

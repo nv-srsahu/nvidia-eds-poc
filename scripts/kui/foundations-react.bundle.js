@@ -3447,6 +3447,143 @@ var Tabs = forwardRef19(({
   ] }) });
 });
 Tabs.displayName = "Tabs";
+
+// node_modules/@kui/foundations-react-core/dist/InputShell/components/base/InputShell.js
+import { jsx as jsx31 } from "react/jsx-runtime";
+import { forwardRef as forwardRef20 } from "react";
+var inputShell = cva("nv-input-shell", {
+  variants: {
+    kind: {
+      flat: "",
+      floating: "nv-input-shell--kind-floating"
+    },
+    layout: {
+      horizontal: "",
+      vertical: "nv-input-shell--layout-vertical"
+    },
+    size: {
+      small: "nv-input-shell--size-small",
+      medium: "",
+      large: "nv-input-shell--size-large"
+    },
+    withValidation: {
+      true: "nv-input-shell--validated"
+    }
+  }
+});
+var InputShell = forwardRef20((t0, ref) => {
+  const $ = c(23);
+  let className;
+  let onClick;
+  let props;
+  let size;
+  let t1;
+  let t2;
+  let t3;
+  let withValidation;
+  if ($[0] !== t0) {
+    ({
+      className,
+      disableFocusRedirect: t1,
+      kind: t2,
+      layout: t3,
+      onClick,
+      size,
+      withValidation,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = className;
+    $[2] = onClick;
+    $[3] = props;
+    $[4] = size;
+    $[5] = t1;
+    $[6] = t2;
+    $[7] = t3;
+    $[8] = withValidation;
+  } else {
+    className = $[1];
+    onClick = $[2];
+    props = $[3];
+    size = $[4];
+    t1 = $[5];
+    t2 = $[6];
+    t3 = $[7];
+    withValidation = $[8];
+  }
+  const disableFocusRedirect = t1 === void 0 ? false : t1;
+  const kind = t2 === void 0 ? "flat" : t2;
+  const layout = t3 === void 0 ? "horizontal" : t3;
+  let t4;
+  if ($[9] !== disableFocusRedirect || $[10] !== onClick) {
+    t4 = (event) => {
+      onClick?.(event);
+      if (!disableFocusRedirect) {
+        const currentElement = event.currentTarget;
+        const focusableElement = currentElement.querySelector("input, textarea, select, [data-input-slot]");
+        if (focusableElement instanceof HTMLInputElement && focusableElement.type === "file") {
+          focusableElement.click();
+        } else {
+          focusableElement?.focus();
+        }
+      }
+    };
+    $[9] = disableFocusRedirect;
+    $[10] = onClick;
+    $[11] = t4;
+  } else {
+    t4 = $[11];
+  }
+  const handleClick = t4;
+  let t5;
+  if ($[12] !== className || $[13] !== kind || $[14] !== layout || $[15] !== size || $[16] !== withValidation) {
+    t5 = inputShell({
+      className,
+      kind,
+      layout,
+      size,
+      withValidation
+    });
+    $[12] = className;
+    $[13] = kind;
+    $[14] = layout;
+    $[15] = size;
+    $[16] = withValidation;
+    $[17] = t5;
+  } else {
+    t5 = $[17];
+  }
+  let t6;
+  if ($[18] !== handleClick || $[19] !== props || $[20] !== ref || $[21] !== t5) {
+    t6 = /* @__PURE__ */ jsx31(Primitive.div, { className: t5, ref, onClick: handleClick, ...props });
+    $[18] = handleClick;
+    $[19] = props;
+    $[20] = ref;
+    $[21] = t5;
+    $[22] = t6;
+  } else {
+    t6 = $[22];
+  }
+  return t6;
+});
+InputShell.displayName = "InputShell";
+
+// node_modules/@kui/foundations-react-core/dist/InputShell/components/composed/InputDismissButton.js
+import { jsx as jsx32 } from "react/jsx-runtime";
+import { forwardRef as forwardRef21 } from "react";
+var inputDismissButton = cva("nv-dismiss-button");
+var InputDismissButton = forwardRef21(({
+  className,
+  children = /* @__PURE__ */ jsx32(Icon, { name: "close" }),
+  kind = "tertiary",
+  size = "small",
+  ...props
+}, ref) => {
+  return /* @__PURE__ */ jsx32(Button, { "aria-label": "Clear", ref, className: inputDismissButton({
+    className
+  }), kind, size, ...props, children });
+});
+InputDismissButton.displayName = "InputDismissButton";
 export {
   Accordion,
   Button,
@@ -3454,6 +3591,8 @@ export {
   Flex,
   Grid,
   Hero,
+  InputDismissButton,
+  InputShell,
   Tabs,
   Text
 };

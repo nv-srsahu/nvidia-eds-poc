@@ -3422,3 +3422,256 @@
   color: var(--text-color-primary);
   font-weight: var(--font-weight-semibold);
 }
+
+/* node_modules/@kui/foundations-css/dist/components/input-shell.css */
+.nv-input-shell textarea,
+.nv-input-shell input {
+  font: inherit;
+  letter-spacing: inherit;
+  word-spacing: inherit;
+}
+.nv-input-shell {
+  --nv-input-height:40px;
+  --nv-input-padding:12px;
+  height: var(--nv-input-height);
+  --input-gap:6px;
+  align-items: center;
+  gap: var(--input-gap);
+  border-radius: var(--radius-md);
+  width: 100%;
+  padding-inline: var(--nv-input-padding);
+  font: var(--font-sans);
+  font-size: var(--text-14);
+  font-style: normal;
+  font-weight: var(--font-weight-regular);
+  color: var(--text-color-primary);
+  outline-offset: var(--outline-offset,-2px);
+  outline: 2px solid #0000;
+  display: flex;
+}
+.nv-input-shell select,
+.nv-input-shell [data-input-slot] {
+  cursor: pointer;
+}
+.nv-input-shell:where(:not(.nv-input-shell--kind-floating)) {
+  border: 1px solid var(--border-color-interaction-base);
+  background: var(--background-color-interaction-base);
+}
+:where(.nv-input-shell svg, .nv-input-shell .nv-icon):not(.nv-button svg, .nv-button .nv-icon) {
+  --icon-font-size:var(--text-16);
+  width: calc(var(--spacing)*4);
+  height: calc(var(--spacing)*4);
+  color: var(--text-color-base);
+  flex-shrink: 0;
+}
+@media (hover: hover) {
+  .nv-input-shell:hover {
+    border-color: var(--border-color-interaction-hover);
+  }
+  .nv-input-shell:hover:has(input[type=file]) {
+    background-color: var(--background-color-interaction-hover);
+  }
+}
+.nv-input-shell:where(:has([data-status=error])) {
+  --border-color:var(--border-color-feedback-danger);
+  border-color: var(--border-color-feedback-danger);
+}
+.nv-input-shell.nv-input-shell--validated:has(:user-invalid) {
+  --border-color:var(--border-color-feedback-danger);
+  border-color: var(--border-color-feedback-danger);
+}
+.nv-input-shell:where(:has([data-status=success])) {
+  --border-color:var(--border-color-feedback-success);
+  border-color: var(--border-color-feedback-success);
+}
+.nv-input-shell.nv-input-shell--validated:has(:user-valid) {
+  --border-color:var(--border-color-feedback-success);
+  border-color: var(--border-color-feedback-success);
+}
+.nv-input-shell[data-state=open],
+.nv-input-shell:has([data-state=open]) {
+  border-color: var(--border-color-interaction-selected);
+}
+.nv-input-shell:has(select:open) {
+  border-color: var(--border-color-interaction-selected);
+}
+.nv-input-shell:has(:focus-visible) {
+  outline-color: var(--outline-color,var(--border-color,currentColor));
+}
+.nv-input-shell:has([readonly]) {
+  background-color: #0000;
+  border-color: #0000;
+}
+.nv-input-shell:has([readonly]) > .nv-dismiss-button {
+  display: none;
+}
+.nv-input-shell:where(:has([data-disabled=true]), [data-disabled=true]),
+.nv-input-shell:has(input:disabled, textarea:disabled, select:disabled, [data-input-slot]:disabled:not([readonly]), [data-input-slot][aria-disabled=true]:not([readonly])) {
+  cursor: not-allowed;
+  border-color: var(--border-color-interaction-disabled);
+  background-color: var(--background-color-interaction-disabled);
+  color: var(--text-color-disabled);
+}
+:is(.nv-input-shell:where(:has([data-disabled=true]), [data-disabled=true]), .nv-input-shell:has(input:disabled, textarea:disabled, select:disabled, [data-input-slot]:disabled:not([readonly]), [data-input-slot][aria-disabled=true]:not([readonly]))) ::file-selector-button {
+  -webkit-text-decoration-color: var(--border-color-interaction-disabled) !important;
+  text-decoration-color: var(--border-color-interaction-disabled) !important;
+}
+:is(.nv-input-shell:where(:has([data-disabled=true]), [data-disabled=true]), .nv-input-shell:has(input:disabled, textarea:disabled, select:disabled, [data-input-slot]:disabled:not([readonly]), [data-input-slot][aria-disabled=true]:not([readonly]))) > .nv-dismiss-button {
+  display: none;
+}
+.nv-input-shell input,
+.nv-input-shell textarea,
+.nv-input-shell select,
+.nv-input-shell > [data-input-slot] {
+  appearance: none;
+  text-align: left;
+  background-color: #0000;
+  border: none;
+  outline: none;
+  width: 100%;
+  height: 100%;
+}
+:is(.nv-input-shell input, .nv-input-shell textarea, .nv-input-shell select, .nv-input-shell > [data-input-slot])::placeholder,
+:is(.nv-input-shell input, .nv-input-shell textarea, .nv-input-shell select, .nv-input-shell > [data-input-slot])[data-has-selected-value=false] {
+  color: var(--text-color-placeholder);
+}
+.nv-input-shell > select:invalid {
+  color: var(--text-color-placeholder);
+}
+:is(.nv-input-shell:has(:placeholder-shown), .nv-input-shell:has(input[type=search]), .nv-input-shell:has([data-has-selected-value=false])) > .nv-dismiss-button {
+  display: none;
+}
+.nv-input-shell:has(textarea) {
+  height: auto;
+  padding-block: 8px;
+}
+.nv-input-shell:has(textarea) textarea {
+  scrollbar-width: thin;
+  scrollbar-color: var(--nv-scrollbar-color);
+  min-height: 3lh;
+}
+.nv-input-shell:has(input[type=file]:not([data-hidden=true])) {
+  cursor: pointer;
+  height: auto;
+  padding-block: 24px;
+}
+.nv-input-shell:has(input[type=file]:not([data-hidden=true])) input[type=file] {
+  width: auto;
+  margin: 0 auto;
+}
+.nv-input-shell:has(input[type=file]:not([data-hidden=true])) ::file-selector-button {
+  text-decoration: underline;
+  -webkit-text-decoration-color: var(--border-color-brand);
+  text-decoration-color: var(--border-color-brand);
+  text-underline-offset: 4px;
+  background: 0 0;
+  border: 0;
+}
+.nv-input-shell:has(button[data-input-slot]) {
+  gap: 0;
+  padding-inline: 0;
+}
+.nv-input-shell:has(button[data-input-slot]) button[data-input-slot] {
+  padding-inline: var(--input-gap);
+  line-height: 1;
+}
+.nv-input-shell:has(button[data-input-slot]) button[data-input-slot]:first-child {
+  padding-inline-start: var(--nv-input-padding);
+}
+.nv-input-shell:has(button[data-input-slot]) button[data-input-slot]:last-child {
+  padding-inline-end: var(--nv-input-padding);
+}
+.nv-input-shell:has(button[data-input-slot]):has(button[data-input-slot]:not(:first-child)) {
+  padding-inline-start: var(--nv-input-padding);
+}
+.nv-input-shell:has(button[data-input-slot]) > :last-child:not(button[data-input-slot]) {
+  padding-inline-end: var(--nv-input-padding);
+}
+.nv-input-shell > .nv-dismiss-button {
+  --nv-button-icon-margin:-4px;
+  --nv-button-icon-color:var(--text-color-base);
+}
+.nv-input-shell > button[data-input-slot],
+.nv-input-shell:is(button) {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+@media (prefers-reduced-motion: no-preference) {
+  .nv-input-shell {
+    transition-property:
+      border-color,
+      color,
+      background-color,
+      outline-color;
+    transition-duration: .25s;
+    transition-timing-function: var(--ease-out);
+  }
+}
+@media (scripting: none) {
+  .nv-input-shell .nv-dismiss-button {
+    display: none;
+  }
+}
+.nv-input-shell.nv-input-shell--size-small {
+  --nv-input-padding:8px;
+  --nv-input-height:28px;
+  font-size: var(--text-12);
+  padding-block: 6px;
+}
+:where(.nv-input-shell.nv-input-shell--size-small svg, .nv-input-shell.nv-input-shell--size-small .nv-icon):not(.nv-button svg, .nv-button .nv-icon) {
+  --icon-font-size:var(--text-12);
+  width: calc(var(--spacing)*3);
+  height: calc(var(--spacing)*3);
+}
+.nv-input-shell.nv-input-shell--size-large {
+  --nv-input-padding:16px;
+  --nv-input-height:48px;
+  font-size: var(--text-16);
+  padding-block: 12px;
+}
+.nv-input-shell.nv-input-shell--layout-vertical {
+  --nv-input-height:auto;
+  padding-block: var(--nv-input-padding,12px);
+  flex-direction: column;
+}
+.nv-input-shell input:is([type=time], [type=date], [type=datetime-local]) {
+  font-variant-numeric: tabular-nums;
+}
+.nv-input-shell input:is([type=time], [type=date], [type=datetime-local]):not(.nv-date-picker-native-fallback)::-webkit-calendar-picker-indicator {
+  display: none;
+}
+.nv-input-shell ::-webkit-datetime-edit-hour-field:focus {
+  background: var(--background-color-interaction-hover);
+  border-radius: var(--spacing);
+}
+.nv-input-shell ::-webkit-datetime-edit-minute-field:focus {
+  background: var(--background-color-interaction-hover);
+  border-radius: var(--spacing);
+}
+.nv-input-shell ::-webkit-datetime-edit-second-field:focus {
+  background: var(--background-color-interaction-hover);
+  border-radius: var(--spacing);
+}
+.nv-input-shell ::-webkit-datetime-edit-ampm-field:focus {
+  background: var(--background-color-interaction-hover);
+  border-radius: var(--spacing);
+}
+.nv-input-shell ::-webkit-datetime-edit-year-field:focus {
+  background: var(--background-color-interaction-hover);
+  border-radius: var(--spacing);
+}
+.nv-input-shell ::-webkit-datetime-edit-month-field:focus {
+  background: var(--background-color-interaction-hover);
+  border-radius: var(--spacing);
+}
+.nv-input-shell ::-webkit-datetime-edit-day-field:focus {
+  background: var(--background-color-interaction-hover);
+  border-radius: var(--spacing);
+}
+.nv-input-shell-control {
+  flex-shrink: 0;
+  align-items: center;
+  height: 100%;
+  display: flex;
+}

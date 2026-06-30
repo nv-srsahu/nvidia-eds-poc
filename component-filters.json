@@ -1,5 +1,11 @@
 [
   {
+    "id": "accordion",
+    "components": [
+      "accordion-item"
+    ]
+  },
+  {
     "id": "cards",
     "components": [
       "card"
@@ -16,7 +22,9 @@
       "cards",
       "columns",
       "fragment",
-      "contact-info"
+      "contact-info",
+      "accordion",
+      "input-shell"
     ]
   }
 ]

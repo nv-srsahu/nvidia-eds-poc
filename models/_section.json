@@ -13,7 +13,9 @@
         "cards",
         "columns",
         "fragment",
-        "contact-info"
+        "contact-info",
+        "accordion",
+        "input-shell"
       ]
     }
   ]

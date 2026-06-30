@@ -20,6 +20,7 @@ import "@kui/foundations-css/dist/components/text.css";
 import "@kui/foundations-css/dist/components/button.css";
 import "@kui/foundations-css/dist/components/accordion.css";
 import "@kui/foundations-css/dist/components/tabs.css";
+import "@kui/foundations-css/dist/components/input-shell.css";
 
 // Matches block imports such as:
 // import { Button, Card, Flex, Grid, Hero, Text } from "@kui/foundations-react";
@@ -31,3 +32,4 @@ export { Hero } from "@kui/foundations-react/Hero";
 export { Text } from "@kui/foundations-react/Text";
 export { Accordion } from "@kui/foundations-react/Accordion";
 export { Tabs } from "@kui/foundations-react/Tabs";
+export { InputShell, InputDismissButton } from "@kui/foundations-react/InputShell";

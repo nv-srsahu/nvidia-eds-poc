@@ -1,0 +1,19 @@
+/*
+ * Layout only. The input shell, focus ring, sizing, and dismiss button are all
+ * styled by the Kaizen `input-shell.css` already in the KUI bundle.
+ */
+.input-shell.block {
+  margin-inline: auto;
+  max-width: 480px;
+  width: 100%;
+}
+
+.input-shell-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-xs);
+}
+
+.input-shell-label {
+  font-weight: 600;
+}
