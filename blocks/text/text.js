@@ -27,8 +27,7 @@ function parseStyle(styleText) {
 export default function decorate(block) {
   const row = block.firstElementChild;
   const cells = row ? [...row.children] : [];
-  const contentEl = cells[0];
-  const html = (contentEl?.innerHTML || "").trim();
+  const content = (cells[0]?.textContent || "").trim();
   const { tag, kind } = parseStyle(cells[1]?.textContent || block.dataset.style);
 
   block.textContent = "";
@@ -36,11 +35,7 @@ export default function decorate(block) {
 
   flushSync(() => {
     createRoot(block).render(
-      h(
-        Text,
-        { asChild: true, kind: kind || "body/regular/md" },
-        h(tag, { dangerouslySetInnerHTML: { __html: html } }),
-      ),
+      h(Text, { asChild: true, kind: kind || "body/regular/md" }, h(tag, null, content)),
     );
   });
 }
