@@ -34,6 +34,19 @@ function cardSelected(row) {
   return (row.dataset.cardSelected || row.firstElementChild?.dataset.cardSelected) === "true";
 }
 
+// Parse author options from the link text, e.g. "Get Support (primary, small)".
+// Returns the clean label plus any kind/color/size found inside the parentheses.
+function parseButtonOptions(text) {
+  const optsMatch = text.match(/\(([^)]*)\)/);
+  const opts = optsMatch ? optsMatch[1].split(",").map((o) => o.trim().toLowerCase()) : [];
+  return {
+    label: text.replace(/\([^)]*\)/, "").trim(),
+    kind: opts.find((o) => BUTTON_KINDS.includes(o)),
+    color: opts.find((o) => BUTTON_COLORS.includes(o)),
+    size: opts.find((o) => BUTTON_SIZES.includes(o)),
+  };
+}
+
 // EDS decorateButtons maps <strong>/<em>/<strong><em> link wrappers to the
 // primary/secondary/accent classes; translate those to KUI button kinds.
 function buttonKind(link) {
@@ -58,6 +71,9 @@ function readCard(row) {
   const body = [...row.querySelectorAll("p")].find(
     (paragraph) => !paragraph.querySelector("a[href]"),
   );
+  // Author options in the link text take priority; otherwise fall back to the
+  // bold/italic + data-attribute behaviour. Label is cleaned of any "(...)".
+  const opts = link && parseButtonOptions(link.textContent.trim());
 
   return {
     body: body?.textContent.trim(),
@@ -66,13 +82,13 @@ function readCard(row) {
     kind: cardDataOption(row, "cardKind", CARD_KINDS, "solid"),
     layout: cardDataOption(row, "cardLayout", CARD_LAYOUTS),
     link: link && {
-      color: buttonColor(link),
+      color: opts.color || buttonColor(link),
       href: link.href,
-      kind: buttonKind(link),
+      kind: opts.kind || buttonKind(link),
       rel: link.rel || undefined,
-      size: buttonSize(link),
+      size: opts.size || buttonSize(link),
       target: link.target || undefined,
-      text: link.textContent.trim(),
+      text: opts.label || link.textContent.trim(),
     },
     selected: cardSelected(row),
     title: row.querySelector("h1, h2, h3, h4, h5, h6")?.textContent.trim(),
