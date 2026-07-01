@@ -4,6 +4,7 @@ import { createRoot } from "react-dom/client";
 import { Button, Card, Flex, Grid, Text } from "@kui/foundations-react";
 
 const h = React.createElement;
+const { useState } = React;
 
 const BUTTON_COLORS = ["brand", "neutral", "danger"];
 const BUTTON_KINDS = ["primary", "secondary", "tertiary"];
@@ -139,11 +140,28 @@ function media(card) {
 
 function CardView(card) {
   const {
-    body, density, kind, layout, link, publisher, selected, subheader, title,
+    body, density, interactive, kind, layout, link, onSelect,
+    publisher, selected, subheader, title,
   } = card;
+
+  const handleKey = onSelect
+    ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(); } }
+    : undefined;
+
   return h(
     Card,
-    { density, kind, layout, selected, slotHeader: media(card) },
+    {
+      density,
+      interactive,
+      kind,
+      layout,
+      onClick: onSelect,
+      onKeyDown: handleKey,
+      role: onSelect ? "button" : undefined,
+      selected,
+      slotHeader: media(card),
+      tabIndex: onSelect ? 0 : undefined,
+    },
     h(
       Flex,
       { direction: "col", gap: "3" },
@@ -157,10 +175,43 @@ function CardView(card) {
           { className: "cards-cta" },
           h(
             Button,
-            { asChild: true, color: link.color, kind: link.kind, size: link.size },
+            {
+              asChild: true,
+              color: link.color,
+              kind: link.kind,
+              // Let the button's own link work without also toggling selection.
+              onClick: (e) => e.stopPropagation(),
+              size: link.size,
+            },
             h("a", { href: link.href, rel: link.rel, target: link.target }, link.text),
           ),
         ),
+    ),
+  );
+}
+
+// Single-select: clicking a card highlights it; clicking it again clears it.
+// The authored "[selected]" token sets the initial selection.
+function CardsApp({ cards }) {
+  const [selected, setSelected] = useState(cards.findIndex((c) => c.selected));
+
+  return h(
+    Grid,
+    { asChild: true, colMinWidth: 280, gap: "6" },
+    h(
+      "ul",
+      { style: LIST_RESET },
+      cards.map((card, index) =>
+        h(
+          "li",
+          { key: index, style: { display: "grid" } },
+          h(CardView, {
+            ...card,
+            interactive: true,
+            onSelect: () => setSelected(index === selected ? -1 : index),
+            selected: index === selected,
+          }),
+        )),
     ),
   );
 }
@@ -170,17 +221,6 @@ export default function decorate(block) {
 
   block.classList.add("nv-theme-kui11");
   flushSync(() => {
-    createRoot(block).render(
-      h(
-        Grid,
-        { asChild: true, colMinWidth: 280, gap: "6" },
-        h(
-          "ul",
-          { style: LIST_RESET },
-          cards.map((card, index) =>
-            h("li", { key: index, style: { display: "grid" } }, h(CardView, card))),
-        ),
-      ),
-    );
+    createRoot(block).render(h(CardsApp, { cards }));
   });
 }
