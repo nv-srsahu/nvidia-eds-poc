@@ -1,6 +1,6 @@
 /* KUI Button/Card/Flex/Grid/Text styles are bundled in
    /scripts/kui/foundations-react.bundle.css. Below: card extras (badge pill,
-   publisher eyebrow) that aren't shipped as standalone KUI components. */
+   publisher eyebrow, a clearer selected ring) not shipped as KUI components. */
 
 /* Media wrapper so the badge can overlay the image. */
 .cards .cards-media {
@@ -33,4 +33,11 @@
 
 .cards .cards-cta {
   margin-top: var(--space-sm, 12px);
+}
+
+/* Make "[selected]" obvious: a clear NVIDIA-green ring around the card.
+   Kaizen's default only recolors a 1px border, which is easy to miss. */
+.cards .nv-card-root--selected {
+  outline: 2px solid var(--text-color-brand, #76b900);
+  outline-offset: 2px;
 }
