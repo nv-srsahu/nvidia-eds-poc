@@ -11,6 +11,8 @@ const BUTTON_SIZES = ["tiny", "small", "medium", "large"];
 const CARD_DENSITIES = ["compact", "standard", "spacious"];
 const CARD_KINDS = ["solid", "float", "gradient"];
 const CARD_LAYOUTS = ["horizontal", "vertical"];
+// Every keyword allowed inside a per-card options line, e.g. "[gradient, selected]".
+const CARD_TOKENS = new Set([...CARD_KINDS, ...CARD_LAYOUTS, ...CARD_DENSITIES, "selected"]);
 
 const LIST_RESET = { listStyle: "none", margin: 0, padding: 0 };
 
@@ -25,8 +27,17 @@ function cardDataOption(row, key, allowed, fallback) {
   return dataOption(row.dataset[key] || row.firstElementChild?.dataset[key], allowed, fallback);
 }
 
-function cardSelected(row) {
-  return (row.dataset.cardSelected || row.firstElementChild?.dataset.cardSelected) === "true";
+// A card can carry an options line authored as "[gradient, selected]" (Normal text).
+// Returns the matching <p> (so it can be excluded from the body) plus the tokens.
+function parseCardOptions(row) {
+  const paras = [...row.querySelectorAll("p")].filter((p) => !p.querySelector("a[href]"));
+  for (const p of paras) {
+    const match = p.textContent.trim().match(/^[[(]\s*(.+?)\s*[\])]$/);
+    if (!match) continue;
+    const tokens = match[1].split(",").map((t) => t.trim().toLowerCase()).filter(Boolean);
+    if (tokens.length && tokens.every((t) => CARD_TOKENS.has(t))) return { el: p, tokens };
+  }
+  return { el: null, tokens: [] };
 }
 
 // Parse author options from the link text, e.g. "Get Support (primary, small)".
@@ -61,38 +72,43 @@ function text(el) {
   return el?.textContent.trim() || undefined;
 }
 
-// Authoring convention (per card, set via the Google Docs paragraph-style menu):
+// Authoring convention (per card, via the Google Docs paragraph-style menu):
 //   Image        -> media (Badge overlays it)
 //   Heading 5    -> Badge (pill on the image)
 //   Heading 6    -> Publisher (eyebrow above the title)
 //   Heading 3    -> Title
 //   Heading 4    -> Sub-Header
 //   Normal text  -> Body
-//   Bold link    -> CTA button  (options in parens, e.g. "Get Support (primary, small)")
+//   Normal text  -> Options line: "[gradient, selected]" (kind/layout/density/selected)
+//   Bold link    -> CTA button; options in parens, e.g. "Get Support (primary, small)"
 function readCard(row) {
   const icon = row.querySelector("img");
   const link = row.querySelector("a[href]");
-  const body = [...row.querySelectorAll("p")].find((p) => !p.querySelector("a[href]"));
-  const opts = link && parseButtonOptions(link.textContent.trim());
+  const options = parseCardOptions(row);
+  const opt = options.tokens;
+  const body = [...row.querySelectorAll("p")]
+    .find((p) => !p.querySelector("a[href]") && p !== options.el);
+  const btn = link && parseButtonOptions(link.textContent.trim());
 
   return {
     badge: text(row.querySelector("h5")),
     body: text(body),
-    density: cardDataOption(row, "cardDensity", CARD_DENSITIES),
+    density: opt.find((t) => CARD_DENSITIES.includes(t)) || cardDataOption(row, "cardDensity", CARD_DENSITIES),
     icon: icon && { alt: icon.alt || "", src: icon.currentSrc || icon.src },
-    kind: cardDataOption(row, "cardKind", CARD_KINDS, "solid"),
-    layout: cardDataOption(row, "cardLayout", CARD_LAYOUTS),
+    kind: opt.find((t) => CARD_KINDS.includes(t)) || cardDataOption(row, "cardKind", CARD_KINDS, "solid"),
+    layout: opt.find((t) => CARD_LAYOUTS.includes(t)) || cardDataOption(row, "cardLayout", CARD_LAYOUTS),
     link: link && {
-      color: opts.color || buttonColor(link),
+      color: btn.color || buttonColor(link),
       href: link.href,
-      kind: opts.kind || buttonKind(link),
+      kind: btn.kind || buttonKind(link),
       rel: link.rel || undefined,
-      size: opts.size || buttonSize(link),
+      size: btn.size || buttonSize(link),
       target: link.target || undefined,
-      text: opts.label || link.textContent.trim(),
+      text: btn.label || link.textContent.trim(),
     },
     publisher: text(row.querySelector("h6")),
-    selected: cardSelected(row),
+    selected: opt.includes("selected")
+      || (row.dataset.cardSelected || row.firstElementChild?.dataset.cardSelected) === "true",
     subheader: text(row.querySelector("h4")),
     title: text(row.querySelector("h1, h2, h3")),
   };
