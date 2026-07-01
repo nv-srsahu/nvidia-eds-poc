@@ -1,1 +1,36 @@
-/* KUI Button/Card/Flex/Grid/Text styles are bundled in /scripts/kui/foundations-react.bundle.css. */
+/* KUI Button/Card/Flex/Grid/Text styles are bundled in
+   /scripts/kui/foundations-react.bundle.css. Below: card extras (badge pill,
+   publisher eyebrow) that aren't shipped as standalone KUI components. */
+
+/* Media wrapper so the badge can overlay the image. */
+.cards .cards-media {
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+/* Badge pill on the image (Heading 5 in the Doc). */
+.cards .cards-badge {
+  position: absolute;
+  top: var(--space-sm, 12px);
+  left: var(--space-sm, 12px);
+  z-index: 1;
+  display: inline-block;
+  padding: 4px 10px;
+  border-radius: 6px;
+  background: var(--color-background, #f5f5f5);
+  color: var(--color-text, #1a1a1a);
+  font-weight: 700;
+  font-size: 13px;
+  line-height: 1.2;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 15%);
+}
+
+/* Publisher eyebrow (Heading 6 in the Doc) — muted, above the title. */
+.cards .cards-publisher {
+  color: var(--color-text-secondary, #76797c);
+  margin: 0;
+}
+
+.cards .cards-cta {
+  margin-top: var(--space-sm, 12px);
+}

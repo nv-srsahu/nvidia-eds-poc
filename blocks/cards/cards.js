@@ -14,13 +14,8 @@ const CARD_LAYOUTS = ["horizontal", "vertical"];
 
 const LIST_RESET = { listStyle: "none", margin: 0, padding: 0 };
 
-const ICON_STYLE = {
-  display: "block",
-  height: "64px",
-  marginInline: "auto",
-  objectFit: "contain",
-  width: "auto",
-};
+const MEDIA_STYLE = { display: "block", position: "relative" };
+const IMG_STYLE = { display: "block", height: "auto", objectFit: "cover", width: "100%" };
 
 function dataOption(value, allowed, fallback) {
   return allowed.includes(value) ? value : fallback;
@@ -35,7 +30,6 @@ function cardSelected(row) {
 }
 
 // Parse author options from the link text, e.g. "Get Support (primary, small)".
-// Returns the clean label plus any kind/color/size found inside the parentheses.
 function parseButtonOptions(text) {
   const optsMatch = text.match(/\(([^)]*)\)/);
   const opts = optsMatch ? optsMatch[1].split(",").map((o) => o.trim().toLowerCase()) : [];
@@ -47,8 +41,6 @@ function parseButtonOptions(text) {
   };
 }
 
-// EDS decorateButtons maps <strong>/<em>/<strong><em> link wrappers to the
-// primary/secondary/accent classes; translate those to KUI button kinds.
 function buttonKind(link) {
   const authoredKind = dataOption(link.dataset.buttonKind, BUTTON_KINDS);
   if (authoredKind) return authoredKind;
@@ -65,18 +57,27 @@ function buttonSize(link) {
   return dataOption(link.dataset.buttonSize, BUTTON_SIZES, "medium");
 }
 
+function text(el) {
+  return el?.textContent.trim() || undefined;
+}
+
+// Authoring convention (per card, set via the Google Docs paragraph-style menu):
+//   Image        -> media (Badge overlays it)
+//   Heading 5    -> Badge (pill on the image)
+//   Heading 6    -> Publisher (eyebrow above the title)
+//   Heading 3    -> Title
+//   Heading 4    -> Sub-Header
+//   Normal text  -> Body
+//   Bold link    -> CTA button  (options in parens, e.g. "Get Support (primary, small)")
 function readCard(row) {
   const icon = row.querySelector("img");
   const link = row.querySelector("a[href]");
-  const body = [...row.querySelectorAll("p")].find(
-    (paragraph) => !paragraph.querySelector("a[href]"),
-  );
-  // Author options in the link text take priority; otherwise fall back to the
-  // bold/italic + data-attribute behaviour. Label is cleaned of any "(...)".
+  const body = [...row.querySelectorAll("p")].find((p) => !p.querySelector("a[href]"));
   const opts = link && parseButtonOptions(link.textContent.trim());
 
   return {
-    body: body?.textContent.trim(),
+    badge: text(row.querySelector("h5")),
+    body: text(body),
     density: cardDataOption(row, "cardDensity", CARD_DENSITIES),
     icon: icon && { alt: icon.alt || "", src: icon.currentSrc || icon.src },
     kind: cardDataOption(row, "cardKind", CARD_KINDS, "solid"),
@@ -90,50 +91,51 @@ function readCard(row) {
       target: link.target || undefined,
       text: opts.label || link.textContent.trim(),
     },
+    publisher: text(row.querySelector("h6")),
     selected: cardSelected(row),
-    title: row.querySelector("h1, h2, h3, h4, h5, h6")?.textContent.trim(),
+    subheader: text(row.querySelector("h4")),
+    title: text(row.querySelector("h1, h2, h3")),
   };
 }
 
-const text = (kind, tag, value) =>
-  value && h(Text, { asChild: true, kind }, h(tag, null, value));
+const line = (kind, tag, value, className) =>
+  value && h(Text, { asChild: true, kind }, h(tag, className ? { className } : null, value));
 
-const button = (kind, color, size, link) =>
-  link &&
-  h(
-    Button,
-    { asChild: true, color, kind, size },
-    h("a", { href: link.href, rel: link.rel, target: link.target }, link.text),
+function media(card) {
+  const { badge, icon } = card;
+  if (!icon) return undefined;
+  return h(
+    "div",
+    { className: "cards-media", style: MEDIA_STYLE },
+    h("img", { alt: icon.alt, loading: "lazy", src: icon.src, style: IMG_STYLE }),
+    badge && h("span", { className: "cards-badge" }, badge),
   );
+}
 
-function CardView({ body, density, icon, kind, layout, link, selected, title }) {
+function CardView(card) {
+  const {
+    body, density, kind, layout, link, publisher, selected, subheader, title,
+  } = card;
   return h(
     Card,
-    {
-      density,
-      kind,
-      layout,
-      selected,
-      slotHeader:
-        icon &&
-        h("img", {
-          alt: icon.alt,
-          loading: "lazy",
-          src: icon.src,
-          style: ICON_STYLE,
-        }),
-    },
+    { density, kind, layout, selected, slotHeader: media(card) },
     h(
       Flex,
-      {
-        align: "center",
-        direction: "col",
-        gap: "4",
-        style: { textAlign: "center" },
-      },
-      text("body/bold/xl", "h3", title),
-      text("body/regular/sm", "p", body),
-      button(link?.kind || "primary", link?.color || "brand", link?.size || "medium", link),
+      { direction: "col", gap: "3" },
+      line("label/regular/sm", "p", publisher, "cards-publisher"),
+      line("title/lg", "h3", title),
+      line("body/bold/md", "h4", subheader),
+      line("body/regular/sm", "p", body),
+      link
+        && h(
+          "div",
+          { className: "cards-cta" },
+          h(
+            Button,
+            { asChild: true, color: link.color, kind: link.kind, size: link.size },
+            h("a", { href: link.href, rel: link.rel, target: link.target }, link.text),
+          ),
+        ),
     ),
   );
 }
@@ -146,17 +148,12 @@ export default function decorate(block) {
     createRoot(block).render(
       h(
         Grid,
-        { asChild: true, colMinWidth: 260, gap: "6" },
+        { asChild: true, colMinWidth: 280, gap: "6" },
         h(
           "ul",
           { style: LIST_RESET },
           cards.map((card, index) =>
-            h(
-              "li",
-              { key: index, style: { display: "grid" } },
-              h(CardView, card),
-            ),
-          ),
+            h("li", { key: index, style: { display: "grid" } }, h(CardView, card))),
         ),
       ),
     );
