@@ -27,17 +27,17 @@ function cardDataOption(row, key, allowed, fallback) {
   return dataOption(row.dataset[key] || row.firstElementChild?.dataset[key], allowed, fallback);
 }
 
-// A card can carry an options line authored as "[gradient, selected]" (Normal text).
-// Returns the matching <p> (so it can be excluded from the body) plus the tokens.
-function parseCardOptions(row) {
-  const paras = [...row.querySelectorAll("p")].filter((p) => !p.querySelector("a[href]"));
-  for (const p of paras) {
-    const match = p.textContent.trim().match(/^[[(]\s*(.+?)\s*[\])]$/);
-    if (!match) continue;
-    const tokens = match[1].split(",").map((t) => t.trim().toLowerCase()).filter(Boolean);
-    if (tokens.length && tokens.every((t) => CARD_TOKENS.has(t))) return { el: p, tokens };
+// A card can carry options like "[gradient, selected]" anywhere in its text
+// (own line, trailing spaces, or appended to the body line). Returns the matched
+// substring (to strip from the body) and the recognized tokens.
+function parseCardOptions(str) {
+  const match = (str || "").match(/[[(]\s*([^\])]+?)\s*[\])]/);
+  if (!match) return null;
+  const tokens = match[1].split(",").map((t) => t.trim().toLowerCase()).filter(Boolean);
+  if (tokens.length && tokens.every((t) => CARD_TOKENS.has(t))) {
+    return { match: match[0], tokens };
   }
-  return { el: null, tokens: [] };
+  return null;
 }
 
 // Parse author options from the link text, e.g. "Get Support (primary, small)".
@@ -84,15 +84,24 @@ function text(el) {
 function readCard(row) {
   const icon = row.querySelector("img");
   const link = row.querySelector("a[href]");
-  const options = parseCardOptions(row);
-  const opt = options.tokens;
-  const body = [...row.querySelectorAll("p")]
-    .find((p) => !p.querySelector("a[href]") && p !== options.el);
+  const textParas = [...row.querySelectorAll("p")]
+    .filter((p) => !p.querySelector("a[href], img, picture") && p.textContent.trim());
+  let opt = [];
+  let bodyText;
+  textParas.forEach((p) => {
+    let t = p.textContent.trim();
+    const found = parseCardOptions(t);
+    if (found) {
+      opt = opt.concat(found.tokens);
+      t = t.replace(found.match, "").trim();
+    }
+    if (!bodyText && t) bodyText = t;
+  });
   const btn = link && parseButtonOptions(link.textContent.trim());
 
   return {
     badge: text(row.querySelector("h5")),
-    body: text(body),
+    body: bodyText || undefined,
     density: opt.find((t) => CARD_DENSITIES.includes(t)) || cardDataOption(row, "cardDensity", CARD_DENSITIES),
     icon: icon && { alt: icon.alt || "", src: icon.currentSrc || icon.src },
     kind: opt.find((t) => CARD_KINDS.includes(t)) || cardDataOption(row, "cardKind", CARD_KINDS, "solid"),
