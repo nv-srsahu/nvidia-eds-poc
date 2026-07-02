@@ -1,9 +1,11 @@
 import React from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { Button, Text } from "@kui/foundations-react";
+import { Button, Card, Flex, Grid, Text } from "@kui/foundations-react";
 
 const h = React.createElement;
+
+const LIST_RESET = { listStyle: "none", margin: 0, padding: 0 };
 
 function text(el) {
   return el?.textContent.trim() || undefined;
@@ -11,12 +13,12 @@ function text(el) {
 
 // Parse an "article" row: [image] | [H6 tags, H5 date, H3 title, Normal desc, optional link].
 function parseArticle(row) {
-  const img = row.querySelector("img");
+  const image = row.querySelector("img");
   const details = [...row.children][1] || row;
   const tagsEl = details.querySelector("h6");
   const linkEl = details.querySelector("a[href]");
   return {
-    image: img && { alt: img.alt || "", src: img.currentSrc || img.src },
+    image: image && { alt: image.alt || "", src: image.currentSrc || image.src },
     tags: tagsEl ? tagsEl.textContent.split(",").map((t) => t.trim()).filter(Boolean) : [],
     date: text(details.querySelector("h5")),
     title: text(details.querySelector("h3, h2, h4")),
@@ -26,16 +28,12 @@ function parseArticle(row) {
   };
 }
 
-// Authoring (2-column "featured" table, rows after the name row):
-//   Row 1: [Heading 2 = section title] | [link = "View More Blogs"]
-//   Row 2: [Normal = intro paragraph]  | (empty)
-//   Row 3: hero article  [Image] | [H6 tags, H5 date, H3 title, Normal desc]
-//   Row 4+: grid articles (same shape) -> render as a 3-up card grid below
+// Authoring ("featured" table): row1 header, row2 intro, row3 hero article,
+// rows 4+ grid articles. See CLAUDE.md for the full field->style mapping.
 function readFeatured(block) {
   const rows = [...block.children];
   const [headRow, introRow] = rows;
   const moreLink = headRow?.querySelector("a[href]");
-
   return {
     heading: text(headRow?.querySelector("h1, h2, h3")) || text(headRow?.firstElementChild),
     more: moreLink && {
@@ -55,32 +53,29 @@ const tagPills = (tags) =>
   && h(
     "div",
     { className: "featured-tags" },
-    tags.map((tag, i) => h("span", { className: "featured-tag", key: i }, tag)),
+    tags.map((tag, i) => h(Text, { asChild: true, key: i, kind: "label/regular/sm" },
+      h("span", { className: "featured-tag" }, tag))),
   );
 
-function maybeLink(href, children, className) {
-  return href
-    ? h("a", { className, href }, children)
-    : h("div", { className }, children);
+const mediaImg = (image) =>
+  image && h("img", { alt: image.alt, className: "featured-img", loading: "lazy", src: image.src });
+
+// Card body (tags, date, title, optional description) built from Kaizen Text.
+function articleBody(a, titleKind) {
+  return h(
+    Flex,
+    { direction: "col", gap: "3" },
+    tagPills(a.tags),
+    a.date && h(Text, { asChild: true, kind: "label/regular/md" },
+      h("p", { className: "featured-date" }, a.date)),
+    a.title && h(Text, { asChild: true, kind: titleKind }, h("h3", null, a.title)),
+    a.desc && h(Text, { asChild: true, kind: "body/regular/md" }, h("p", null, a.desc)),
+  );
 }
 
-function GridCard(item) {
-  return maybeLink(
-    item.href,
-    [
-      item.image && h(
-        "div",
-        { className: "featured-card-media", key: "m" },
-        h("img", { alt: item.image.alt, loading: "lazy", src: item.image.src }),
-      ),
-      tagPills(item.tags),
-      item.date && h(Text, { asChild: true, key: "d", kind: "label/regular/md" },
-        h("p", { className: "featured-date" }, item.date)),
-      item.title && h(Text, { asChild: true, key: "t", kind: "title/md" },
-        h("h3", null, item.title)),
-    ],
-    "featured-card",
-  );
+function gridCard(a) {
+  const card = h(Card, { kind: "solid", slotHeader: mediaImg(a.image) }, articleBody(a, "title/md"));
+  return a.href ? h("a", { className: "featured-card-link", href: a.href }, card) : card;
 }
 
 function FeaturedView({ heading, hero, intro, items, more }) {
@@ -92,39 +87,30 @@ function FeaturedView({ heading, hero, intro, items, more }) {
       { className: "featured-head" },
       heading && h(Text, { asChild: true, kind: "display/sm" }, h("h2", null, heading)),
       more && h(
-        "div",
-        { className: "featured-more" },
-        h(
-          Button,
-          { asChild: true, color: "brand", kind: "secondary" },
-          h("a", { href: more.href, rel: more.rel, target: more.target }, more.text),
-        ),
+        Button,
+        { asChild: true, color: "brand", kind: "secondary" },
+        h("a", { href: more.href, rel: more.rel, target: more.target }, more.text),
       ),
     ),
     intro && h(Text, { asChild: true, kind: "body/regular/lg" },
       h("p", { className: "featured-intro" }, intro)),
+    // Hero: a horizontal Kaizen Card (image beside content).
     hero && h(
       "div",
-      { className: "featured-article" },
-      hero.image && h(
-        "div",
-        { className: "featured-media" },
-        h("img", { alt: hero.image.alt, loading: "lazy", src: hero.image.src }),
-      ),
-      h(
-        "div",
-        { className: "featured-details" },
-        tagPills(hero.tags),
-        hero.date && h(Text, { asChild: true, kind: "label/regular/md" },
-          h("p", { className: "featured-date" }, hero.date)),
-        hero.title && h(Text, { asChild: true, kind: "title/xl" }, h("h3", null, hero.title)),
-        hero.desc && h(Text, { asChild: true, kind: "body/regular/md" }, h("p", null, hero.desc)),
-      ),
+      { className: "featured-hero" },
+      h(Card, { kind: "solid", layout: "horizontal", slotHeader: mediaImg(hero.image) },
+        articleBody(hero, "title/xl")),
     ),
+    // 3-up row: Kaizen Grid of Kaizen Cards.
     items.length > 0 && h(
       "div",
-      { className: "featured-grid" },
-      items.map((item, i) => h(GridCard, { ...item, key: i })),
+      { className: "featured-grid-wrap" },
+      h(
+        Grid,
+        { asChild: true, colMinWidth: 300, gap: "6" },
+        h("ul", { style: LIST_RESET },
+          items.map((item, i) => h("li", { key: i, style: { display: "grid" } }, gridCard(item)))),
+      ),
     ),
   );
 }
