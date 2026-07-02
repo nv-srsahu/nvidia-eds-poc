@@ -9,4 +9,4 @@
 # (https://drive.google.com/drive/folders/<FOLDER_ID>).
 #
 mountpoints:
-  /: https://drive.google.com/drive/folders/1I_2-1fccRGhVOnAMKgRN3azw5dHXeFWE
+  /: https://drive.google.com/drive/folders/<FOLDER_ID>
