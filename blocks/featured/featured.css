@@ -1,0 +1,113 @@
+/* "Featured blog" section. KUI Text/Button come from the bundle; layout here. */
+
+.featured.block {
+  margin-inline: auto;
+  max-width: 1200px;
+  width: 100%;
+}
+
+.featured .featured-head {
+  align-items: flex-start;
+  display: flex;
+  gap: var(--space-lg, 24px);
+  justify-content: space-between;
+}
+
+.featured .featured-more {
+  flex: 0 0 auto;
+}
+
+.featured .featured-intro {
+  color: var(--color-text-secondary, #4a4f54);
+  margin: var(--space-sm, 12px) 0 0;
+  max-width: 60ch;
+}
+
+.featured .featured-article {
+  align-items: center;
+  display: grid;
+  gap: var(--space-2xl, 40px);
+  grid-template-columns: 1fr 1fr;
+  margin-top: var(--space-xl, 32px);
+}
+
+@media (width <= 800px) {
+  .featured .featured-article {
+    grid-template-columns: 1fr;
+    gap: var(--space-lg, 24px);
+  }
+}
+
+.featured .featured-media img {
+  border-radius: var(--radius-lg, 10px);
+  display: block;
+  height: auto;
+  object-fit: cover;
+  width: 100%;
+}
+
+.featured .featured-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs, 8px);
+  margin-bottom: var(--space-sm, 12px);
+}
+
+.featured .featured-tag {
+  background: var(--color-background, #eef0f2);
+  border-radius: 999px;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 4px 12px;
+}
+
+.featured .featured-date {
+  color: var(--color-text-secondary, #76797c);
+  margin: 0 0 var(--space-xs, 8px);
+}
+
+.featured .featured-details h3 {
+  margin: var(--space-xs, 8px) 0 var(--space-md, 16px);
+}
+
+/* 3-up blog grid below the featured hero. */
+.featured .featured-grid {
+  display: grid;
+  gap: var(--space-xl, 32px);
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: var(--space-2xl, 48px);
+}
+
+@media (width <= 900px) {
+  .featured .featured-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.featured .featured-card {
+  color: inherit;
+  display: block;
+  text-decoration: none;
+}
+
+.featured .featured-card-media {
+  border-radius: var(--radius-lg, 10px);
+  margin-bottom: var(--space-md, 16px);
+  overflow: hidden;
+}
+
+.featured .featured-card-media img {
+  aspect-ratio: 16 / 10;
+  display: block;
+  height: auto;
+  object-fit: cover;
+  width: 100%;
+}
+
+.featured .featured-card h3 {
+  margin: var(--space-xs, 8px) 0 0;
+}
+
+a.featured-card:hover h3 {
+  color: var(--text-color-brand, #76b900);
+}
