@@ -140,7 +140,7 @@ function media(card) {
 
 function CardView(card) {
   const {
-    body, density, interactive, kind, layout, link, onSelect,
+    body, density, kind, layout, link, onSelect,
     publisher, selected, subheader, title,
   } = card;
 
@@ -152,7 +152,6 @@ function CardView(card) {
     Card,
     {
       density,
-      interactive,
       kind,
       layout,
       onClick: onSelect,
@@ -207,7 +206,6 @@ function CardsApp({ cards }) {
           { key: index, style: { display: "grid" } },
           h(CardView, {
             ...card,
-            interactive: true,
             onSelect: () => setSelected(index === selected ? -1 : index),
             selected: index === selected,
           }),
