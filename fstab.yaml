@@ -11,5 +11,6 @@
 #   url: "https://<tenant>.sharepoint.com/sites/<site>/Shared%20Documents/<folder>"
 #   url: "https://drive.google.com/drive/folders/<folder-id>"
 #
+# trigger AEM code sync
 mountpoints:
   /: "https://drive.google.com/drive/folders/1VrWpwFBC43cPBn1EdpAvYXeXJpLGtXOf"
