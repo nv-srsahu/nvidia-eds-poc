@@ -16,14 +16,18 @@ import "@kui/foundations-css/dist/components/hero.css";
 import "@kui/foundations-css/dist/components/grid.css";
 import "@kui/foundations-css/dist/components/flex.css";
 import "@kui/foundations-css/dist/components/card.css";
+import "@kui/foundations-css/dist/components/segmented-control.css";
+import "@kui/foundations-css/dist/components/progress-bar.css";
 import "@kui/foundations-css/dist/components/text.css";
 import "@kui/foundations-css/dist/components/button.css";
 
 // Matches block imports such as:
-// import { Button, Card, Flex, Grid, Hero, Text } from "@kui/foundations-react";
+// import { Button, Card, Flex, Grid, Hero, ProgressBar, SegmentedControl, Text } from "@kui/foundations-react";
 export { Button } from "@kui/foundations-react/Button";
 export { Card } from "@kui/foundations-react/Card";
 export { Flex } from "@kui/foundations-react/Flex";
 export { Grid } from "@kui/foundations-react/Grid";
 export { Hero } from "@kui/foundations-react/Hero";
+export { ProgressBar } from "@kui/foundations-react/ProgressBar";
+export { SegmentedControl } from "@kui/foundations-react/SegmentedControl";
 export { Text } from "@kui/foundations-react/Text";

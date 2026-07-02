@@ -93,5 +93,73 @@
         "required": true
       }
     ]
+  },
+  {
+    "id": "home-banner",
+    "fields": [
+      {
+        "component": "richtext",
+        "name": "categories",
+        "label": "Category Tabs",
+        "valueType": "string",
+        "description": "Add one paragraph per category. Bold the initially selected category."
+      }
+    ]
+  },
+  {
+    "id": "home-banner-slide",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "category",
+        "label": "Category",
+        "description": "Must match one of the Home Banner categories. In Google Docs, add this as a paragraph like: Category: Gaming and Creating."
+      },
+      {
+        "component": "reference",
+        "valueType": "string",
+        "name": "image",
+        "label": "Media Image",
+        "multi": false
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "imageAlt",
+        "label": "Image alt text"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "eyebrow",
+        "label": "Eyebrow / Metadata"
+      },
+      {
+        "component": "text",
+        "name": "title",
+        "label": "Title",
+        "valueType": "string",
+        "required": true
+      },
+      {
+        "component": "richtext",
+        "name": "description",
+        "label": "Description",
+        "valueType": "string"
+      },
+      {
+        "component": "aem-content",
+        "name": "cta",
+        "label": "CTA Link",
+        "valueType": "string"
+      },
+      {
+        "component": "text",
+        "name": "ctaText",
+        "label": "CTA Label",
+        "valueType": "string"
+      }
+    ]
   }
 ]
