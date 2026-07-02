@@ -2301,6 +2301,168 @@
   display: grid;
 }
 
+/* node_modules/@kui/foundations-css/dist/components/segmented-control.css */
+.nv-segmented-control-root {
+  gap: calc(var(--spacing)*1);
+  border-radius: var(--radius-lg);
+  background-color: var(--background-color-component-track);
+  width: fit-content;
+  padding: calc(var(--spacing)*1);
+  color: var(--text-color-primary);
+  font-family: var(--font-sans);
+  font-size: var(--text-14);
+  font-weight: var(--font-weight-bold);
+  display: flex;
+  position: relative;
+}
+.nv-segmented-control-root:has(:focus-visible) {
+  outline-offset: -2px;
+  outline: 2px solid;
+}
+.nv-segmented-control-root .nv-segmented-control-item {
+  padding-inline: calc(var(--spacing)*3);
+  padding-block: 7px;
+  line-height: 1.28571;
+}
+.nv-segmented-control-root.nv-segmented-control-root--size-tiny .nv-segmented-control-item {
+  padding-inline: calc(var(--spacing)*2);
+  font-size: var(--text-12);
+  padding-block: 2px;
+  line-height: 1.33333;
+}
+.nv-segmented-control-root.nv-segmented-control-root--size-small .nv-segmented-control-item {
+  padding-inline: calc(var(--spacing)*2);
+  font-size: var(--text-12);
+  padding-block: 4px;
+  line-height: 1.33333;
+}
+.nv-segmented-control-root.nv-segmented-control-root--size-large .nv-segmented-control-item {
+  padding-inline: calc(var(--spacing)*4);
+  font-size: var(--text-16);
+  padding-block: 11px;
+  line-height: 1.125;
+}
+.nv-segmented-control-item {
+  cursor: pointer;
+  justify-content: center;
+  align-items: center;
+  gap: calc(var(--spacing)*1);
+  border-radius: var(--radius-md);
+  text-align: center;
+  flex-grow: 1;
+  display: flex;
+  position: relative;
+}
+.nv-segmented-control-item .nv-segmented-control-input {
+  clip-path: inset(50%);
+  white-space: nowrap;
+  border-width: 0;
+  width: 1px;
+  height: 1px;
+  margin: -1px;
+  padding: 0;
+  position: absolute;
+  overflow: hidden;
+}
+@media (hover: hover) {
+  .nv-segmented-control-item:hover {
+    background-color: var(--background-color-interaction-hover);
+  }
+}
+.nv-segmented-control-item:has(.nv-segmented-control-input:checked) {
+  background-color: var(--background-color-interaction-selected);
+  box-shadow: var(--shadow-sm);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .nv-segmented-control-item {
+    transition-property: color, background-color;
+    transition-duration: .25s;
+    transition-timing-function: var(--ease-out);
+  }
+}
+@supports (anchor-name:--nv-segmented-control-selected) and (position-anchor:--nv-segmented-control-selected) {
+  .nv-segmented-control-root {
+    isolation: isolate;
+  }
+  .nv-segmented-control-root:before {
+    content: "";
+    border-radius: var(--radius-md);
+    background-color: var(--background-color-interaction-selected);
+    position-anchor: --nv-segmented-control-selected;
+    top: anchor(top);
+    left: anchor(left);
+    width: anchor-size(width);
+    height: anchor-size(height);
+    box-shadow: var(--shadow-sm);
+    pointer-events: none;
+    z-index: 0;
+    position: absolute;
+  }
+  .nv-segmented-control-item {
+    z-index: 1;
+  }
+  .nv-segmented-control-item:not(:has(.nv-segmented-control-input:checked)):hover {
+    background-color: var(--background-color-interaction-hover);
+  }
+  .nv-segmented-control-item:has(.nv-segmented-control-input:checked) {
+    anchor-name: --nv-segmented-control-selected;
+    box-shadow: none;
+    background-color: #0000;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .nv-segmented-control-root:before {
+      transition-property:
+        left,
+        top,
+        width,
+        height;
+      transition-duration: .25s;
+      transition-timing-function: var(--ease-out);
+    }
+  }
+}
+
+/* node_modules/@kui/foundations-css/dist/components/progress-bar.css */
+.nv-progress-bar-root {
+  height: calc(var(--spacing)*2.5);
+  border-radius: var(--radius-xl);
+  background-color: var(--background-color-component-track);
+  width: 100%;
+  position: relative;
+  overflow: hidden;
+  transform: translateZ(0);
+  container-type: size;
+}
+.nv-progress-bar-root--size-small {
+  height: calc(var(--spacing)*1);
+}
+.nv-progress-bar-root--size-large {
+  height: calc(var(--spacing)*3.5);
+}
+.nv-progress-bar-indicator {
+  inset: calc(var(--spacing)*0);
+  border-radius: inherit;
+  background-color: var(--background-color-interaction-primary-base);
+  height: 100%;
+  transition: width .5s cubic-bezier(.65, 0, .35, 1);
+  position: absolute;
+}
+.nv-progress-bar-root--indeterminate {
+  --progress-bar-indicator-width:50.0%;
+}
+.nv-progress-bar-root--indeterminate .nv-progress-bar-indicator {
+  width: var(--progress-bar-indicator-width);
+  animation: 1.5s linear infinite progressIndeterminatePosition;
+}
+@keyframes progressIndeterminatePosition {
+  0% {
+    transform: translate(-100%);
+  }
+  80%, to {
+    transform: translate(100cqw);
+  }
+}
+
 /* node_modules/@kui/foundations-css/dist/components/text.css */
 .nv-text--body-bold-2xl {
   font-family: var(--font-sans);

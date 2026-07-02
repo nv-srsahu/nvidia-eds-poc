@@ -6,6 +6,12 @@
     ]
   },
   {
+    "id": "home-banner",
+    "components": [
+      "home-banner-slide"
+    ]
+  },
+  {
     "id": "section",
     "components": [
       "text",
@@ -16,7 +22,8 @@
       "cards",
       "columns",
       "fragment",
-      "contact-info"
+      "contact-info",
+      "home-banner"
     ]
   }
 ]

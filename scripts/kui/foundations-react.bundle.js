@@ -3,7 +3,7 @@ import { jsx as jsx3 } from "react/jsx-runtime";
 
 // scripts/kui/react-compiler-runtime.shim.js
 import { useMemo } from "react";
-var EMPTY = /* @__PURE__ */ Symbol.for("react.memo_cache_sentinel");
+var EMPTY = Symbol.for("react.memo_cache_sentinel");
 function c(size) {
   return useMemo(() => {
     const cache = new Array(size);
@@ -186,7 +186,7 @@ function composeRefs(...refs) {
 
 // node_modules/@radix-ui/react-slot/dist/index.mjs
 import { Fragment as Fragment2, jsx } from "react/jsx-runtime";
-var REACT_LAZY_TYPE = /* @__PURE__ */ Symbol.for("react.lazy");
+var REACT_LAZY_TYPE = Symbol.for("react.lazy");
 var use = React2[" use ".trim().toString()];
 function isPromiseLike(value) {
   return typeof value === "object" && value !== null && "then" in value;
@@ -242,7 +242,7 @@ function createSlotClone(ownerName) {
   SlotClone.displayName = `${ownerName}.SlotClone`;
   return SlotClone;
 }
-var SLOTTABLE_IDENTIFIER = /* @__PURE__ */ Symbol("radix.slottable");
+var SLOTTABLE_IDENTIFIER = Symbol("radix.slottable");
 function isSlottable(child) {
   return React2.isValidElement(child) && typeof child.type === "function" && "__radixId" in child.type && child.type.__radixId === SLOTTABLE_IDENTIFIER;
 }
@@ -311,7 +311,7 @@ var Primitive = NODES.reduce((primitive, node) => {
     const { asChild, ...primitiveProps } = props;
     const Comp = asChild ? Slot2 : node;
     if (typeof window !== "undefined") {
-      window[/* @__PURE__ */ Symbol.for("radix-ui")] = true;
+      window[Symbol.for("radix-ui")] = true;
     }
     return /* @__PURE__ */ jsx2(Comp, { ...primitiveProps, ref: forwardedRef });
   });
@@ -1610,9 +1610,594 @@ var Hero = forwardRef11((t0, ref) => {
 });
 Hero.displayName = "Hero";
 
-// node_modules/@kui/foundations-react-core/dist/Text/components/base/Text.js
+// node_modules/@kui/foundations-react-core/dist/ProgressBar/components/base/ProgressBar.js
+import { jsx as jsx20 } from "react/jsx-runtime";
+import { forwardRef as forwardRef13 } from "react";
+
+// node_modules/@radix-ui/react-progress/dist/index.mjs
+import * as React13 from "react";
+
+// node_modules/@radix-ui/react-context/dist/index.mjs
+import * as React12 from "react";
 import { jsx as jsx18 } from "react/jsx-runtime";
-import { forwardRef as forwardRef12 } from "react";
+function createContextScope(scopeName, createContextScopeDeps = []) {
+  let defaultContexts = [];
+  function createContext3(rootComponentName, defaultContext) {
+    const BaseContext = React12.createContext(defaultContext);
+    BaseContext.displayName = rootComponentName + "Context";
+    const index = defaultContexts.length;
+    defaultContexts = [...defaultContexts, defaultContext];
+    const Provider = (props) => {
+      const { scope, children, ...context } = props;
+      const Context = scope?.[scopeName]?.[index] || BaseContext;
+      const value = React12.useMemo(() => context, Object.values(context));
+      return /* @__PURE__ */ jsx18(Context.Provider, { value, children });
+    };
+    Provider.displayName = rootComponentName + "Provider";
+    function useContext22(consumerName, scope) {
+      const Context = scope?.[scopeName]?.[index] || BaseContext;
+      const context = React12.useContext(Context);
+      if (context) return context;
+      if (defaultContext !== void 0) return defaultContext;
+      throw new Error(`\`${consumerName}\` must be used within \`${rootComponentName}\``);
+    }
+    return [Provider, useContext22];
+  }
+  const createScope = () => {
+    const scopeContexts = defaultContexts.map((defaultContext) => {
+      return React12.createContext(defaultContext);
+    });
+    return function useScope(scope) {
+      const contexts = scope?.[scopeName] || scopeContexts;
+      return React12.useMemo(
+        () => ({ [`__scope${scopeName}`]: { ...scope, [scopeName]: contexts } }),
+        [scope, contexts]
+      );
+    };
+  };
+  createScope.scopeName = scopeName;
+  return [createContext3, composeContextScopes(createScope, ...createContextScopeDeps)];
+}
+function composeContextScopes(...scopes) {
+  const baseScope = scopes[0];
+  if (scopes.length === 1) return baseScope;
+  const createScope = () => {
+    const scopeHooks = scopes.map((createScope2) => ({
+      useScope: createScope2(),
+      scopeName: createScope2.scopeName
+    }));
+    return function useComposedScopes(overrideScopes) {
+      const nextScopes = scopeHooks.reduce((nextScopes2, { useScope, scopeName }) => {
+        const scopeProps = useScope(overrideScopes);
+        const currentScope = scopeProps[`__scope${scopeName}`];
+        return { ...nextScopes2, ...currentScope };
+      }, {});
+      return React12.useMemo(() => ({ [`__scope${baseScope.scopeName}`]: nextScopes }), [nextScopes]);
+    };
+  };
+  createScope.scopeName = baseScope.scopeName;
+  return createScope;
+}
+
+// node_modules/@radix-ui/react-progress/dist/index.mjs
+import { jsx as jsx19 } from "react/jsx-runtime";
+var PROGRESS_NAME = "Progress";
+var DEFAULT_MAX = 100;
+var [createProgressContext, createProgressScope] = createContextScope(PROGRESS_NAME);
+var [ProgressProvider, useProgressContext] = createProgressContext(PROGRESS_NAME);
+var Progress = React13.forwardRef(
+  (props, forwardedRef) => {
+    const {
+      __scopeProgress,
+      value: valueProp = null,
+      max: maxProp,
+      getValueLabel = defaultGetValueLabel,
+      ...progressProps
+    } = props;
+    if ((maxProp || maxProp === 0) && !isValidMaxNumber(maxProp)) {
+      console.error(getInvalidMaxError(`${maxProp}`, "Progress"));
+    }
+    const max = isValidMaxNumber(maxProp) ? maxProp : DEFAULT_MAX;
+    if (valueProp !== null && !isValidValueNumber(valueProp, max)) {
+      console.error(getInvalidValueError(`${valueProp}`, "Progress"));
+    }
+    const value = isValidValueNumber(valueProp, max) ? valueProp : null;
+    const valueLabel = isNumber(value) ? getValueLabel(value, max) : void 0;
+    return /* @__PURE__ */ jsx19(ProgressProvider, { scope: __scopeProgress, value, max, children: /* @__PURE__ */ jsx19(
+      Primitive.div,
+      {
+        "aria-valuemax": max,
+        "aria-valuemin": 0,
+        "aria-valuenow": isNumber(value) ? value : void 0,
+        "aria-valuetext": valueLabel,
+        role: "progressbar",
+        "data-state": getProgressState(value, max),
+        "data-value": value ?? void 0,
+        "data-max": max,
+        ...progressProps,
+        ref: forwardedRef
+      }
+    ) });
+  }
+);
+Progress.displayName = PROGRESS_NAME;
+var INDICATOR_NAME = "ProgressIndicator";
+var ProgressIndicator = React13.forwardRef(
+  (props, forwardedRef) => {
+    const { __scopeProgress, ...indicatorProps } = props;
+    const context = useProgressContext(INDICATOR_NAME, __scopeProgress);
+    return /* @__PURE__ */ jsx19(
+      Primitive.div,
+      {
+        "data-state": getProgressState(context.value, context.max),
+        "data-value": context.value ?? void 0,
+        "data-max": context.max,
+        ...indicatorProps,
+        ref: forwardedRef
+      }
+    );
+  }
+);
+ProgressIndicator.displayName = INDICATOR_NAME;
+function defaultGetValueLabel(value, max) {
+  return `${Math.round(value / max * 100)}%`;
+}
+function getProgressState(value, maxValue) {
+  return value == null ? "indeterminate" : value === maxValue ? "complete" : "loading";
+}
+function isNumber(value) {
+  return typeof value === "number";
+}
+function isValidMaxNumber(max) {
+  return isNumber(max) && !isNaN(max) && max > 0;
+}
+function isValidValueNumber(value, max) {
+  return isNumber(value) && !isNaN(value) && value <= max && value >= 0;
+}
+function getInvalidMaxError(propValue, componentName) {
+  return `Invalid prop \`max\` of value \`${propValue}\` supplied to \`${componentName}\`. Only numbers greater than 0 are valid max values. Defaulting to \`${DEFAULT_MAX}\`.`;
+}
+function getInvalidValueError(propValue, componentName) {
+  return `Invalid prop \`value\` of value \`${propValue}\` supplied to \`${componentName}\`. The \`value\` prop must be:
+  - a positive number
+  - less than the value passed to \`max\` (or ${DEFAULT_MAX} if no \`max\` prop is set)
+  - \`null\` or \`undefined\` if the progress is indeterminate.
+
+Defaulting to \`null\`.`;
+}
+var Root = Progress;
+var Indicator = ProgressIndicator;
+
+// node_modules/@kui/foundations-react-core/dist/ProgressBar/constants.js
+var ProgressBarTestIds = {
+  Track: "nv-progress-bar-track",
+  Indicator: "nv-progress-bar-indicator"
+};
+
+// node_modules/@kui/foundations-react-core/dist/ProgressBar/components/base/ProgressBar.js
+var progressBar = cva("nv-progress-bar-root", {
+  variants: {
+    kind: {
+      determinate: "",
+      indeterminate: "nv-progress-bar-root--indeterminate"
+    },
+    size: {
+      small: "nv-progress-bar-root--size-small",
+      medium: "",
+      large: "nv-progress-bar-root--size-large"
+    }
+  }
+});
+var ProgressBar = forwardRef13((t0, ref) => {
+  const $ = c(23);
+  let className;
+  let kind;
+  let props;
+  let size;
+  let value;
+  if ($[0] !== t0) {
+    ({
+      className,
+      value,
+      kind,
+      size,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = className;
+    $[2] = kind;
+    $[3] = props;
+    $[4] = size;
+    $[5] = value;
+  } else {
+    className = $[1];
+    kind = $[2];
+    props = $[3];
+    size = $[4];
+    value = $[5];
+  }
+  const isIndeterminate = kind === "indeterminate";
+  const normalizedValue = isIndeterminate ? null : Math.min(Math.max(value ?? 0, 0), 100);
+  let t1;
+  if ($[6] !== className || $[7] !== kind || $[8] !== size) {
+    t1 = progressBar({
+      className,
+      kind,
+      size
+    });
+    $[6] = className;
+    $[7] = kind;
+    $[8] = size;
+    $[9] = t1;
+  } else {
+    t1 = $[9];
+  }
+  let t2;
+  if ($[10] !== isIndeterminate || $[11] !== normalizedValue) {
+    t2 = isIndeterminate ? void 0 : {
+      width: `${normalizedValue}%`
+    };
+    $[10] = isIndeterminate;
+    $[11] = normalizedValue;
+    $[12] = t2;
+  } else {
+    t2 = $[12];
+  }
+  let t3;
+  if ($[13] !== t2) {
+    t3 = /* @__PURE__ */ jsx20(Indicator, { className: "nv-progress-bar-indicator", "data-testid": ProgressBarTestIds.Indicator, style: t2 });
+    $[13] = t2;
+    $[14] = t3;
+  } else {
+    t3 = $[14];
+  }
+  let t4;
+  if ($[15] !== props || $[16] !== ref || $[17] !== t1 || $[18] !== t3) {
+    t4 = /* @__PURE__ */ jsx20("div", { className: t1, "data-testid": ProgressBarTestIds.Track, ref, ...props, children: t3 });
+    $[15] = props;
+    $[16] = ref;
+    $[17] = t1;
+    $[18] = t3;
+    $[19] = t4;
+  } else {
+    t4 = $[19];
+  }
+  let t5;
+  if ($[20] !== normalizedValue || $[21] !== t4) {
+    t5 = /* @__PURE__ */ jsx20(Root, { asChild: true, value: normalizedValue, children: t4 });
+    $[20] = normalizedValue;
+    $[21] = t4;
+    $[22] = t5;
+  } else {
+    t5 = $[22];
+  }
+  return t5;
+});
+ProgressBar.displayName = "ProgressBar";
+
+// node_modules/@kui/foundations-react-core/dist/SegmentedControl/components/base/SegmentedControl.js
+import { jsx as jsx24, jsxs as jsxs4 } from "react/jsx-runtime";
+import { forwardRef as forwardRef17 } from "react";
+
+// node_modules/@kui/foundations-react-core/dist/SegmentedControl/components/composed/SegmentedControlInput.js
+import { jsx as jsx21 } from "react/jsx-runtime";
+import { forwardRef as forwardRef14 } from "react";
+
+// node_modules/@kui/foundations-react-core/dist/SegmentedControl/context.js
+import { createContext as createContext2, useContext as useContext2 } from "react";
+var SegmentedControlContext = createContext2({});
+function useSegmentedControlContext() {
+  const context = useContext2(SegmentedControlContext);
+  if (!context) {
+    throw new Error("SegmentedControlContext must be used within a SegmentedControlRoot");
+  }
+  return context;
+}
+
+// node_modules/@kui/foundations-react-core/dist/SegmentedControl/components/composed/SegmentedControlInput.js
+var segmentedControlInput = cva("nv-segmented-control-input");
+var SegmentedControlInput = forwardRef14((t0, ref) => {
+  const $ = c(20);
+  let className;
+  let onChange;
+  let props;
+  let t1;
+  let value;
+  if ($[0] !== t0) {
+    ({
+      className,
+      value,
+      onChange,
+      type: t1,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = className;
+    $[2] = onChange;
+    $[3] = props;
+    $[4] = t1;
+    $[5] = value;
+  } else {
+    className = $[1];
+    onChange = $[2];
+    props = $[3];
+    t1 = $[4];
+    value = $[5];
+  }
+  const type = t1 === void 0 ? "radio" : t1;
+  const {
+    name,
+    onValueChange
+  } = useSegmentedControlContext();
+  let t2;
+  if ($[6] !== className) {
+    t2 = segmentedControlInput({
+      className
+    });
+    $[6] = className;
+    $[7] = t2;
+  } else {
+    t2 = $[7];
+  }
+  let t3;
+  if ($[8] !== onChange || $[9] !== onValueChange || $[10] !== value) {
+    t3 = (event) => {
+      onChange?.(event);
+      onValueChange?.(value);
+    };
+    $[8] = onChange;
+    $[9] = onValueChange;
+    $[10] = value;
+    $[11] = t3;
+  } else {
+    t3 = $[11];
+  }
+  let t4;
+  if ($[12] !== name || $[13] !== props || $[14] !== ref || $[15] !== t2 || $[16] !== t3 || $[17] !== type || $[18] !== value) {
+    t4 = /* @__PURE__ */ jsx21("input", { className: t2, type, value, name, onChange: t3, ref, ...props });
+    $[12] = name;
+    $[13] = props;
+    $[14] = ref;
+    $[15] = t2;
+    $[16] = t3;
+    $[17] = type;
+    $[18] = value;
+    $[19] = t4;
+  } else {
+    t4 = $[19];
+  }
+  return t4;
+});
+SegmentedControlInput.displayName = "SegmentedControlInput";
+
+// node_modules/@kui/foundations-react-core/dist/SegmentedControl/components/composed/SegmentedControlItem.js
+import { jsx as jsx22 } from "react/jsx-runtime";
+import { forwardRef as forwardRef15 } from "react";
+var segmentedControlItem = cva("nv-segmented-control-item");
+var SegmentedControlItem = forwardRef15((t0, ref) => {
+  const $ = c(11);
+  let children;
+  let className;
+  let props;
+  if ($[0] !== t0) {
+    ({
+      className,
+      children,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = children;
+    $[2] = className;
+    $[3] = props;
+  } else {
+    children = $[1];
+    className = $[2];
+    props = $[3];
+  }
+  let t1;
+  if ($[4] !== className) {
+    t1 = segmentedControlItem({
+      className
+    });
+    $[4] = className;
+    $[5] = t1;
+  } else {
+    t1 = $[5];
+  }
+  let t2;
+  if ($[6] !== children || $[7] !== props || $[8] !== ref || $[9] !== t1) {
+    t2 = /* @__PURE__ */ jsx22("label", { className: t1, ref, ...props, children });
+    $[6] = children;
+    $[7] = props;
+    $[8] = ref;
+    $[9] = t1;
+    $[10] = t2;
+  } else {
+    t2 = $[10];
+  }
+  return t2;
+});
+SegmentedControlItem.displayName = "SegmentedControlItem";
+
+// node_modules/@kui/foundations-react-core/dist/SegmentedControl/components/composed/SegmentedControlRoot.js
+import { jsx as jsx23 } from "react/jsx-runtime";
+import { forwardRef as forwardRef16, useId } from "react";
+var segmentedControlRoot = cva("nv-segmented-control-root", {
+  variants: {
+    size: {
+      tiny: "nv-segmented-control-root--size-tiny",
+      small: "nv-segmented-control-root--size-small",
+      medium: "",
+      large: "nv-segmented-control-root--size-large"
+    }
+  }
+});
+var SegmentedControlRoot = forwardRef16((t0, ref) => {
+  const $ = c(19);
+  let className;
+  let name;
+  let onValueChange;
+  let props;
+  let t1;
+  if ($[0] !== t0) {
+    ({
+      className,
+      onValueChange,
+      size: t1,
+      name,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = className;
+    $[2] = name;
+    $[3] = onValueChange;
+    $[4] = props;
+    $[5] = t1;
+  } else {
+    className = $[1];
+    name = $[2];
+    onValueChange = $[3];
+    props = $[4];
+    t1 = $[5];
+  }
+  const size = t1 === void 0 ? "medium" : t1;
+  const calculatedId = useId();
+  const resolvedName = name ?? calculatedId;
+  let t2;
+  if ($[6] !== onValueChange || $[7] !== resolvedName) {
+    t2 = {
+      name: resolvedName,
+      onValueChange
+    };
+    $[6] = onValueChange;
+    $[7] = resolvedName;
+    $[8] = t2;
+  } else {
+    t2 = $[8];
+  }
+  let t3;
+  if ($[9] !== className || $[10] !== size) {
+    t3 = segmentedControlRoot({
+      className,
+      size
+    });
+    $[9] = className;
+    $[10] = size;
+    $[11] = t3;
+  } else {
+    t3 = $[11];
+  }
+  let t4;
+  if ($[12] !== props || $[13] !== ref || $[14] !== t3) {
+    t4 = /* @__PURE__ */ jsx23(Primitive.div, { role: "radiogroup", className: t3, ref, ...props });
+    $[12] = props;
+    $[13] = ref;
+    $[14] = t3;
+    $[15] = t4;
+  } else {
+    t4 = $[15];
+  }
+  let t5;
+  if ($[16] !== t2 || $[17] !== t4) {
+    t5 = /* @__PURE__ */ jsx23(SegmentedControlContext.Provider, { value: t2, children: t4 });
+    $[16] = t2;
+    $[17] = t4;
+    $[18] = t5;
+  } else {
+    t5 = $[18];
+  }
+  return t5;
+});
+SegmentedControlRoot.displayName = "SegmentedControlRoot";
+
+// node_modules/@kui/foundations-react-core/dist/SegmentedControl/components/base/SegmentedControl.js
+var normalizeItem = (option) => typeof option === "string" ? {
+  value: option,
+  children: option
+} : option;
+var SegmentedControl = forwardRef17((t0, ref) => {
+  const $ = c(18);
+  let defaultValue;
+  let items;
+  let props;
+  let value;
+  if ($[0] !== t0) {
+    ({
+      items,
+      defaultValue,
+      value,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = defaultValue;
+    $[2] = items;
+    $[3] = props;
+    $[4] = value;
+  } else {
+    defaultValue = $[1];
+    items = $[2];
+    props = $[3];
+    value = $[4];
+  }
+  let t1;
+  if ($[5] !== items[0]) {
+    t1 = items[0] ? normalizeItem(items[0]).value : void 0;
+    $[5] = items[0];
+    $[6] = t1;
+  } else {
+    t1 = $[6];
+  }
+  const firstItemValue = t1;
+  const selectedValue = value ?? defaultValue ?? firstItemValue;
+  const isControlled = value !== void 0;
+  let t2;
+  if ($[7] !== isControlled || $[8] !== items || $[9] !== selectedValue) {
+    let t32;
+    if ($[11] !== isControlled || $[12] !== selectedValue) {
+      t32 = (option, index) => {
+        const {
+          children,
+          value: itemValue,
+          ...inputProps
+        } = normalizeItem(option);
+        const labelChildren = children ?? itemValue;
+        const isChecked = selectedValue === void 0 ? index === 0 : selectedValue === itemValue;
+        return /* @__PURE__ */ jsxs4(SegmentedControlItem, { children: [
+          /* @__PURE__ */ jsx24(SegmentedControlInput, { ...inputProps, checked: isControlled ? isChecked : void 0, defaultChecked: isControlled ? void 0 : isChecked, value: itemValue }),
+          labelChildren
+        ] }, itemValue);
+      };
+      $[11] = isControlled;
+      $[12] = selectedValue;
+      $[13] = t32;
+    } else {
+      t32 = $[13];
+    }
+    t2 = items.map(t32);
+    $[7] = isControlled;
+    $[8] = items;
+    $[9] = selectedValue;
+    $[10] = t2;
+  } else {
+    t2 = $[10];
+  }
+  let t3;
+  if ($[14] !== props || $[15] !== ref || $[16] !== t2) {
+    t3 = /* @__PURE__ */ jsx24(SegmentedControlRoot, { ref, ...props, children: t2 });
+    $[14] = props;
+    $[15] = ref;
+    $[16] = t2;
+    $[17] = t3;
+  } else {
+    t3 = $[17];
+  }
+  return t3;
+});
+SegmentedControl.displayName = "SegmentedControl";
+
+// node_modules/@kui/foundations-react-core/dist/Text/components/base/Text.js
+import { jsx as jsx25 } from "react/jsx-runtime";
+import { forwardRef as forwardRef18 } from "react";
 
 // node_modules/@kui/foundations-react-core/dist/Text/constants.js
 var TextTestIds = {
@@ -1738,7 +2323,7 @@ var text = cva("nv-text", {
     }
   }
 });
-var Text = forwardRef12((t0, ref) => {
+var Text = forwardRef18((t0, ref) => {
   const $ = c(23);
   let className;
   let fontFamily;
@@ -1809,7 +2394,7 @@ var Text = forwardRef12((t0, ref) => {
   }
   let t3;
   if ($[19] !== props || $[20] !== ref || $[21] !== t2) {
-    t3 = /* @__PURE__ */ jsx18(Primitive.span, { className: t2, ref, "data-testid": TextTestIds.Text, ...props });
+    t3 = /* @__PURE__ */ jsx25(Primitive.span, { className: t2, ref, "data-testid": TextTestIds.Text, ...props });
     $[19] = props;
     $[20] = ref;
     $[21] = t2;
@@ -1826,5 +2411,7 @@ export {
   Flex,
   Grid,
   Hero,
+  ProgressBar,
+  SegmentedControl,
   Text
 };
