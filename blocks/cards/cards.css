@@ -1,21 +1,25 @@
-/* KUI Card/Button/Text/Badge styles come from the bundle and are used stock.
-   The rules below are ONLY layout glue (badge overlay position, publisher
-   spacing, CTA spacing) — no overriding of KUI component looks. */
+/* One universal cards block. KUI Card/Button/Text/Badge come from the bundle
+   and are used stock; the rules below are layout glue only (no KUI overrides).
+   All visual customization is authored (kind/selected/CTA options in the Doc). */
 
-/* Media wrapper so the Kaizen Badge can overlay the image. */
-.cards .cards-media {
-  border-radius: inherit;
-  overflow: hidden;
+/* Card image fills the Kaizen Card media slot. */
+.cards .cards-img {
+  aspect-ratio: 16 / 10;
+  display: block;
+  height: auto;
+  object-fit: cover;
+  width: 100%;
 }
 
-.cards .cards-badge {
-  left: var(--space-sm, 12px);
-  position: absolute;
-  top: var(--space-sm, 12px);
-  z-index: 1;
+/* Tag/badge row (Heading 5, comma-separated -> Kaizen Badge pills). */
+.cards .cards-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs, 8px);
 }
 
-.cards .cards-publisher {
+/* Eyebrow (Heading 6 -> publisher / date / category). */
+.cards .cards-eyebrow {
   color: var(--color-text-secondary, #76797c);
   margin: 0;
 }

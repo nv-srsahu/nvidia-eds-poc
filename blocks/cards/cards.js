@@ -14,9 +14,11 @@ const CARD_KINDS = ["solid", "float", "gradient"];
 const CARD_LAYOUTS = ["horizontal", "vertical"];
 const CARD_TOKENS = new Set([...CARD_KINDS, ...CARD_LAYOUTS, ...CARD_DENSITIES, "selected"]);
 
+// Kaizen Badge's own props (used stock).
+const BADGE_COLORS = ["green", "red", "yellow", "purple", "teal", "gray", "blue"];
+const BADGE_KINDS = ["solid", "outline"];
+
 const LIST_RESET = { listStyle: "none", margin: 0, padding: 0 };
-const MEDIA_STYLE = { display: "block", position: "relative" };
-const IMG_STYLE = { display: "block", height: "auto", objectFit: "cover", width: "100%" };
 
 function dataOption(value, allowed, fallback) {
   return allowed.includes(value) ? value : fallback;
@@ -37,7 +39,6 @@ function parseCardOptions(str) {
   return null;
 }
 
-// Collect option tokens + the first real text paragraph (body).
 function collectText(scope) {
   const paras = [...scope.querySelectorAll("p")]
     .filter((p) => !p.querySelector("a[href], img, picture") && p.textContent.trim());
@@ -50,6 +51,25 @@ function collectText(scope) {
     if (!body && t) body = t;
   });
   return { opt, body };
+}
+
+// One tag: "Label" or "Label (color)" or "Label (color, outline)".
+// color/kind map straight to the Kaizen Badge props; defaults gray + solid.
+function parseTag(raw) {
+  const m = raw.match(/\(([^)]*)\)/);
+  const opts = m ? m[1].split(/[\s,]+/).map((o) => o.trim().toLowerCase()).filter(Boolean) : [];
+  return {
+    label: raw.replace(/\([^)]*\)/, "").trim(),
+    color: opts.find((o) => BADGE_COLORS.includes(o)) || "gray",
+    kind: opts.find((o) => BADGE_KINDS.includes(o)) || "solid",
+  };
+}
+
+// Split the Heading 5 line on top-level commas (commas inside "(...)" stay put).
+function parseTags(str) {
+  if (!str) return [];
+  return str.split(/,(?![^(]*\))/).map((s) => s.trim()).filter(Boolean).map(parseTag)
+    .filter((t) => t.label);
 }
 
 function parseButtonOptions(t) {
@@ -72,21 +92,39 @@ function buttonKind(link) {
 function buttonColor(link) { return dataOption(link.dataset.buttonColor, BUTTON_COLORS, "brand"); }
 function buttonSize(link) { return dataOption(link.dataset.buttonSize, BUTTON_SIZES, "medium"); }
 
+// Tags -> stock Kaizen Badge pills (color/kind authored per tag).
+const tagList = (tags) =>
+  tags.length > 0
+  && h("div", { className: "cards-tags" },
+    tags.map((tag, i) => h(Badge, { color: tag.color, key: i, kind: tag.kind }, tag.label)));
+
 const line = (kind, tag, value, className) =>
   value && h(Text, { asChild: true, kind }, h(tag, className ? { className } : null, value));
 
+// UNIVERSAL card. Every field is optional; author only what you need:
+//   Image        -> card image (Kaizen Card media)
+//   Heading 5    -> tag(s): comma-separated -> Kaizen Badge pills.
+//                   Per tag: "Label (color)" / "Label (color, outline)".
+//                   color = green|red|yellow|purple|teal|gray|blue (default gray)
+//   Heading 6    -> eyebrow (publisher / date / category)
+//   Heading 3    -> title
+//   Heading 4    -> sub-header
+//   Normal text  -> body
+//   Bold link    -> CTA button, options in parens e.g. "Read More (secondary, neutral)"
+//   "[...]" line -> card options: kind (solid/float/gradient), layout, density, selected
 function readCard(row) {
   const icon = row.querySelector("img");
   const link = row.querySelector("a[href]");
+  const tagsEl = row.querySelector("h5");
   const { opt, body } = collectText(row);
   const btn = link && parseButtonOptions(link.textContent.trim());
   return {
-    badge: text(row.querySelector("h5")),
+    tags: parseTags(tagsEl?.textContent),
+    eyebrow: text(row.querySelector("h6")),
+    title: text(row.querySelector("h1, h2, h3")),
+    subheader: text(row.querySelector("h4")),
     body,
-    density: opt.find((t) => CARD_DENSITIES.includes(t)) || cardDataOption(row, "cardDensity", CARD_DENSITIES),
-    icon: icon && { alt: icon.alt || "", src: icon.currentSrc || icon.src },
-    kind: opt.find((t) => CARD_KINDS.includes(t)) || cardDataOption(row, "cardKind", CARD_KINDS, "solid"),
-    layout: opt.find((t) => CARD_LAYOUTS.includes(t)) || cardDataOption(row, "cardLayout", CARD_LAYOUTS),
+    image: icon && { alt: icon.alt || "", src: icon.currentSrc || icon.src },
     link: link && {
       color: btn.color || buttonColor(link),
       href: link.href,
@@ -96,25 +134,17 @@ function readCard(row) {
       target: link.target || undefined,
       text: btn.label || link.textContent.trim(),
     },
-    publisher: text(row.querySelector("h6")),
+    density: opt.find((t) => CARD_DENSITIES.includes(t)) || cardDataOption(row, "cardDensity", CARD_DENSITIES),
+    kind: opt.find((t) => CARD_KINDS.includes(t)) || cardDataOption(row, "cardKind", CARD_KINDS, "solid"),
+    layout: opt.find((t) => CARD_LAYOUTS.includes(t)) || cardDataOption(row, "cardLayout", CARD_LAYOUTS),
     selected: opt.includes("selected")
       || (row.dataset.cardSelected || row.firstElementChild?.dataset.cardSelected) === "true",
-    subheader: text(row.querySelector("h4")),
-    title: text(row.querySelector("h1, h2, h3")),
   };
-}
-
-function media(card) {
-  const { badge, icon } = card;
-  if (!icon) return undefined;
-  return h("div", { className: "cards-media", style: MEDIA_STYLE },
-    h("img", { alt: icon.alt, loading: "lazy", src: icon.src, style: IMG_STYLE }),
-    badge && h("span", { className: "cards-badge" }, h(Badge, { color: "gray", kind: "solid" }, badge)));
 }
 
 function CardView(card) {
   const {
-    body, density, kind, layout, link, onSelect, publisher, selected, subheader, title,
+    body, density, eyebrow, image, kind, layout, link, onSelect, selected, subheader, tags, title,
   } = card;
   const handleKey = onSelect
     ? (e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); onSelect(); } }
@@ -129,13 +159,16 @@ function CardView(card) {
       onKeyDown: handleKey,
       role: onSelect ? "button" : undefined,
       selected,
-      slotHeader: media(card),
+      slotHeader: image && h("img", {
+        alt: image.alt, className: "cards-img", loading: "lazy", src: image.src,
+      }),
       tabIndex: onSelect ? 0 : undefined,
     },
     h(
       Flex,
       { direction: "col", gap: "3" },
-      line("label/regular/sm", "p", publisher, "cards-publisher"),
+      tagList(tags),
+      line("label/regular/md", "p", eyebrow, "cards-eyebrow"),
       line("title/lg", "h3", title),
       line("body/bold/md", "h4", subheader),
       line("body/regular/sm", "p", body),
