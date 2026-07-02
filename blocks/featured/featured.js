@@ -94,12 +94,12 @@ function FeaturedView({ heading, hero, intro, items, more }) {
     ),
     intro && h(Text, { asChild: true, kind: "body/regular/lg" },
       h("p", { className: "featured-intro" }, intro)),
-    // Hero: a horizontal Kaizen Card (image beside content).
+    // Hero: image beside content (2-column layout), Kaizen Text inside.
     hero && h(
       "div",
       { className: "featured-hero" },
-      h(Card, { kind: "solid", layout: "horizontal", slotHeader: mediaImg(hero.image) },
-        articleBody(hero, "title/xl")),
+      hero.image && h("div", { className: "featured-hero-media" }, mediaImg(hero.image)),
+      h("div", { className: "featured-hero-body" }, articleBody(hero, "title/xl")),
     ),
     // 3-up row: Kaizen Grid of Kaizen Cards.
     items.length > 0 && h(

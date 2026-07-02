@@ -1,5 +1,5 @@
-/* "Featured blog" section. Layout uses Kaizen Grid + Card; the rules below are
-   just section glue (header row, intro width, tag pills, image sizing). */
+/* "Featured blog" section. Content uses Kaizen Text/Button/Card/Grid; the rules
+   below are section glue (header row, hero 2-col, tag pills, image sizing). */
 
 .featured.block {
   margin-inline: auto;
@@ -21,14 +21,30 @@
 }
 
 .featured .featured-hero {
+  align-items: center;
+  display: grid;
+  gap: var(--space-2xl, 40px);
+  grid-template-columns: 1fr 1fr;
   margin-top: var(--space-xl, 32px);
+}
+
+@media (width <= 800px) {
+  .featured .featured-hero {
+    gap: var(--space-lg, 24px);
+    grid-template-columns: 1fr;
+  }
+}
+
+.featured .featured-hero-media img {
+  aspect-ratio: 16 / 10;
+  border-radius: var(--radius-lg, 10px);
 }
 
 .featured .featured-grid-wrap {
   margin-top: var(--space-2xl, 48px);
 }
 
-/* Image fills the Kaizen Card's media slot. */
+/* Image fills its container / Kaizen Card media slot. */
 .featured .featured-img {
   display: block;
   height: auto;
