@@ -1,31 +1,20 @@
-/* KUI Button/Card/Flex/Grid/Text styles are bundled in
-   /scripts/kui/foundations-react.bundle.css. Below: card extras (badge pill,
-   publisher eyebrow, a clearer selected ring) not shipped as KUI components. */
+/* KUI Card/Button/Text/Badge styles come from the bundle and are used stock.
+   The rules below are ONLY layout glue (badge overlay position, publisher
+   spacing, CTA spacing) — no overriding of KUI component looks. */
 
-/* Media wrapper so the badge can overlay the image. */
+/* Media wrapper so the Kaizen Badge can overlay the image. */
 .cards .cards-media {
   border-radius: inherit;
   overflow: hidden;
 }
 
-/* Badge pill on the image (Heading 5 in the Doc). */
 .cards .cards-badge {
+  left: var(--space-sm, 12px);
   position: absolute;
   top: var(--space-sm, 12px);
-  left: var(--space-sm, 12px);
   z-index: 1;
-  display: inline-block;
-  padding: 4px 10px;
-  border-radius: 6px;
-  background: var(--color-background, #f5f5f5);
-  color: var(--color-text, #1a1a1a);
-  font-weight: 700;
-  font-size: 13px;
-  line-height: 1.2;
-  box-shadow: 0 1px 2px rgb(0 0 0 / 15%);
 }
 
-/* Publisher eyebrow (Heading 6 in the Doc) — muted, above the title. */
 .cards .cards-publisher {
   color: var(--color-text-secondary, #76797c);
   margin: 0;
@@ -33,26 +22,4 @@
 
 .cards .cards-cta {
   margin-top: var(--space-sm, 12px);
-}
-
-/* Make "[selected]" obvious: a clear NVIDIA-green ring around the card.
-   Kaizen's default only recolors a 1px border, which is easy to miss. */
-.cards .nv-card-root--selected {
-  outline: 2px solid var(--text-color-brand, #76b900);
-  outline-offset: 2px;
-}
-
-/* Clickable cards: pointer cursor, and a clean green focus ring for keyboard
-   users instead of the browser's default black outline. */
-.cards .nv-card-root[role="button"] {
-  cursor: pointer;
-}
-
-.cards .nv-card-root[role="button"]:focus {
-  outline: none;
-}
-
-.cards .nv-card-root[role="button"]:focus-visible {
-  outline: 2px solid var(--text-color-brand, #76b900);
-  outline-offset: 2px;
 }

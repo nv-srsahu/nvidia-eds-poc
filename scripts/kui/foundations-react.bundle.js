@@ -3584,8 +3584,103 @@ var InputDismissButton = forwardRef21(({
   }), kind, size, ...props, children });
 });
 InputDismissButton.displayName = "InputDismissButton";
+
+// node_modules/@kui/foundations-react-core/dist/Badge/components/base/Badge.js
+import { jsx as jsx33 } from "react/jsx-runtime";
+import { forwardRef as forwardRef22 } from "react";
+
+// node_modules/@kui/foundations-react-core/dist/Badge/constants.js
+var BadgeTestIds = {
+  BadgeRoot: "nv-badge"
+};
+
+// node_modules/@kui/foundations-react-core/dist/Badge/components/base/Badge.js
+var badge = cva("nv-badge", {
+  variants: {
+    kind: {
+      outline: "",
+      solid: "nv-badge--kind-solid"
+    },
+    color: {
+      blue: "",
+      green: "nv-badge--color-green",
+      red: "nv-badge--color-red",
+      yellow: "nv-badge--color-yellow",
+      purple: "nv-badge--color-purple",
+      teal: "nv-badge--color-teal",
+      gray: "nv-badge--color-gray"
+    }
+  },
+  defaultVariants: {
+    kind: "outline",
+    color: "blue"
+  }
+});
+var Badge = forwardRef22((t0, ref) => {
+  const $ = c(17);
+  let asChild;
+  let children;
+  let className;
+  let color;
+  let kind;
+  let props;
+  if ($[0] !== t0) {
+    ({
+      asChild,
+      className,
+      children,
+      color,
+      kind,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = asChild;
+    $[2] = children;
+    $[3] = className;
+    $[4] = color;
+    $[5] = kind;
+    $[6] = props;
+  } else {
+    asChild = $[1];
+    children = $[2];
+    className = $[3];
+    color = $[4];
+    kind = $[5];
+    props = $[6];
+  }
+  const Component = asChild ? Slot : "span";
+  let t1;
+  if ($[7] !== className || $[8] !== color || $[9] !== kind) {
+    t1 = badge({
+      className,
+      kind,
+      color
+    });
+    $[7] = className;
+    $[8] = color;
+    $[9] = kind;
+    $[10] = t1;
+  } else {
+    t1 = $[10];
+  }
+  let t2;
+  if ($[11] !== Component || $[12] !== children || $[13] !== props || $[14] !== ref || $[15] !== t1) {
+    t2 = /* @__PURE__ */ jsx33(Component, { className: t1, "data-testid": BadgeTestIds.BadgeRoot, ref, ...props, children });
+    $[11] = Component;
+    $[12] = children;
+    $[13] = props;
+    $[14] = ref;
+    $[15] = t1;
+    $[16] = t2;
+  } else {
+    t2 = $[16];
+  }
+  return t2;
+});
+Badge.displayName = "Badge";
 export {
   Accordion,
+  Badge,
   Button,
   Card,
   Flex,

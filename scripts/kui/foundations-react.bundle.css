@@ -3675,3 +3675,93 @@
   height: 100%;
   display: flex;
 }
+
+/* node_modules/@kui/foundations-css/dist/components/badge.css */
+.nv-badge {
+  justify-content: center;
+  align-items: center;
+  gap: calc(var(--spacing)*1);
+  border-radius: var(--radius-md);
+  width: fit-content;
+  max-width: 100%;
+  height: fit-content;
+  padding-inline: calc(var(--spacing)*2);
+  font-family: var(--font-sans);
+  font-size: var(--text-12);
+  font-weight: var(--font-weight-bold);
+  vertical-align: middle;
+  --_bg-color:transparent;
+  --_border-color:var(--border-color-accent-blue);
+  --_text-color:var(--text-color-accent-blue);
+  background-color: var(--nv-badge-bg-color,var(--bg-color,var(--_bg-color)));
+  border: 1px solid var(--nv-badge-border-color,var(--border-color,var(--_border-color)));
+  color: var(--nv-badge-text-color,var(--text-color,var(--_text-color)));
+  flex-grow: 0;
+  flex-shrink: 0;
+  line-height: 1.33333;
+  display: inline-flex;
+}
+.nv-badge svg,
+.nv-badge .nv-icon {
+  flex-shrink: 0;
+  width: 1em;
+  height: 1em;
+}
+.nv-badge.nv-badge--kind-solid {
+  --_bg-color:var(--background-color-accent-blue);
+  --_text-color:var(--text-color-accent-blue-strong);
+  --_border-color:var(--background-color-accent-blue);
+}
+.nv-badge.nv-badge--color-green {
+  --_border-color:var(--border-color-accent-green);
+  --_text-color:var(--text-color-accent-green);
+}
+.nv-badge.nv-badge--color-green.nv-badge--kind-solid {
+  --_bg-color:var(--background-color-accent-green);
+  --_text-color:var(--text-color-accent-green-strong);
+  --_border-color:var(--background-color-accent-green);
+}
+.nv-badge.nv-badge--color-red {
+  --_border-color:var(--border-color-accent-red);
+  --_text-color:var(--text-color-accent-red);
+}
+.nv-badge.nv-badge--color-red.nv-badge--kind-solid {
+  --_bg-color:var(--background-color-accent-red);
+  --_text-color:var(--text-color-accent-red-strong);
+  --_border-color:var(--background-color-accent-red);
+}
+.nv-badge.nv-badge--color-yellow {
+  --_border-color:var(--border-color-accent-yellow);
+  --_text-color:var(--text-color-accent-yellow);
+}
+.nv-badge.nv-badge--color-yellow.nv-badge--kind-solid {
+  --_bg-color:var(--background-color-accent-yellow);
+  --_text-color:var(--text-color-accent-yellow-strong);
+  --_border-color:var(--background-color-accent-yellow);
+}
+.nv-badge.nv-badge--color-purple {
+  --_border-color:var(--border-color-accent-purple);
+  --_text-color:var(--text-color-accent-purple);
+}
+.nv-badge.nv-badge--color-purple.nv-badge--kind-solid {
+  --_bg-color:var(--background-color-accent-purple);
+  --_text-color:var(--text-color-accent-purple-strong);
+  --_border-color:var(--background-color-accent-purple);
+}
+.nv-badge.nv-badge--color-teal {
+  --_border-color:var(--border-color-accent-teal);
+  --_text-color:var(--text-color-accent-teal);
+}
+.nv-badge.nv-badge--color-teal.nv-badge--kind-solid {
+  --_bg-color:var(--background-color-accent-teal);
+  --_text-color:var(--text-color-accent-teal-strong);
+  --_border-color:var(--background-color-accent-teal);
+}
+.nv-badge.nv-badge--color-gray {
+  --_border-color:var(--border-color-accent-gray);
+  --_text-color:var(--text-color-primary);
+}
+.nv-badge.nv-badge--color-gray.nv-badge--kind-solid {
+  --_bg-color:var(--background-color-accent-gray-subtle);
+  --_border-color:var(--background-color-accent-gray-subtle);
+}
