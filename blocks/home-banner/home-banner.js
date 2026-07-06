@@ -21,6 +21,7 @@ const h = React.createElement;
 const BUTTON_COLORS = ["brand", "neutral", "danger"];
 const BUTTON_KINDS = ["primary", "secondary", "tertiary"];
 const BUTTON_SIZES = ["tiny", "small", "medium", "large"];
+const TEXT_ALIGNS = ["default", "center"];
 const TEXT_SIZES = ["default", "compact"];
 const AUTO_ROTATE_MS = 6000;
 const PROGRESS_TICK_MS = 100;
@@ -75,7 +76,7 @@ function metadataName(label) {
 }
 
 function isCategoryMetadata(label) {
-  return ["selected", "text-size"].includes(metadataName(label));
+  return ["selected", "text-align", "text-size"].includes(metadataName(label));
 }
 
 function metadataValue(labels, name) {
@@ -255,7 +256,13 @@ function slideFrom(row, index) {
   const categoryMeta = metaFrom(paragraphs, "category");
   const imageMeta = metaFrom(paragraphs, "image");
   const ctaMeta = metaFrom(paragraphs, "cta");
-  const metaIndexes = [categoryMeta.index, imageMeta.index, ctaMeta.index];
+  const textAlignMeta = metaFrom(paragraphs, "text align");
+  const metaIndexes = [
+    categoryMeta.index,
+    imageMeta.index,
+    ctaMeta.index,
+    textAlignMeta.index,
+  ];
   const eyebrowIndex = paragraphs.findIndex((paragraph, idx) => (
     !metaIndexes.includes(idx) && paragraph.includes("|")
   ));
@@ -277,6 +284,7 @@ function slideFrom(row, index) {
     eyebrow,
     media: mediaFrom(row, imageMeta.value),
     ...slideCategoryFrom(row, categoryMeta.value, eyebrow),
+    textAlign: dataOption(toOption(textAlignMeta.value || "default"), TEXT_ALIGNS, "default"),
     title,
     value: `slide-${index}`,
   };
@@ -438,6 +446,8 @@ function HomeBanner({
 
   if (!slide) return null;
 
+  const heroClassName = `home-banner-hero${slide.textAlign === "center" ? " text-center" : ""}`;
+
   const resetProgress = () => {
     progressRef.current = 0;
     setProgressState(0);
@@ -473,7 +483,7 @@ function HomeBanner({
       Hero,
       {
         attributes: heroAttributes(options),
-        className: "home-banner-hero",
+        className: heroClassName,
         mediaTheme: "dark",
         slotActions: h(SlideActions, { cta: slide.cta }),
         slotBody: slide.description,
