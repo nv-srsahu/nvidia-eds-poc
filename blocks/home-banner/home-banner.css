@@ -17,10 +17,10 @@
 }
 
 .home-banner-hero.nv-hero-root {
-  --max-width: min(560px, 100%);
   --padding: clamp(48px, 6vw, 100px);
 
-  min-height: clamp(560px, 58vw, 980px);
+  height: clamp(560px, 58vw, 770px);
+  max-height: 770px;
   border-radius: 24px;
   background-color: var(--color-gray-1000);
 }
@@ -55,7 +55,6 @@ picture.home-banner-hero-media.nv-hero-media img {
 .home-banner-hero-content.nv-hero-content {
   z-index: 2;
   justify-content: center;
-  max-width: min(560px, 42vw);
   margin-inline: 0;
   padding-block: 0;
 }
@@ -66,14 +65,12 @@ picture.home-banner-hero-media.nv-hero-media img {
 }
 
 .home-banner-title.nv-hero-heading {
-  max-width: 700px;
   font-size: clamp(var(--text-44), 4.8vw, var(--text-72));
   line-height: var(--leading-lh-125);
   -webkit-line-clamp: 4;
 }
 
 .home-banner-description.nv-hero-body {
-  max-width: 620px;
   font-size: clamp(var(--text-24), 2vw, var(--text-36));
   line-height: var(--leading-lh-150);
   -webkit-line-clamp: 4;
@@ -229,7 +226,9 @@ picture.home-banner-hero-media.nv-hero-media img {
     --max-width: 100%;
     --padding: 32px;
 
+    height: auto;
     min-height: 560px;
+    max-height: none;
     border-radius: 18px;
   }
 
