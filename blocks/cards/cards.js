@@ -111,9 +111,9 @@ function CardView({ body, density, icon, kind, layout, link, selected, title }) 
       Flex,
       {
         align: "center",
+        className: "text-center",
         direction: "col",
         gap: "4",
-        style: { textAlign: "center" },
       },
       text("body/bold/xl", "h3", title),
       text("body/regular/sm", "p", body),
