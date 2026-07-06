@@ -82,18 +82,19 @@ function readCategories(row) {
   const { meta } = readText(row, "p, li", false);
   const selected = meta.selected?.toLowerCase();
   const items = [...row.querySelectorAll("p, li")]
-    .map((element, index) => {
-      const label = text(element);
-      if (!label || metaKey(label)) return null;
+    .flatMap((element, index) =>
+      textLines(element).map((label, lineIndex) => {
+        if (metaKey(label)) return null;
 
-      return {
-        label,
-        selected: selected
-          ? label.toLowerCase() === selected
-          : !!element.querySelector("strong, b"),
-        value: toClassName(label) || `category-${index}`,
-      };
-    })
+        return {
+          label,
+          selected: selected
+            ? label.toLowerCase() === selected
+            : !!element.querySelector("strong, b"),
+          value: toClassName(label) || `category-${index}-${lineIndex}`,
+        };
+      }),
+    )
     .filter(Boolean);
 
   if (items.length > 1) return items;
