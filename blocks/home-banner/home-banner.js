@@ -21,7 +21,7 @@ const h = React.createElement;
 const BUTTON_COLORS = ["brand", "neutral", "danger"];
 const BUTTON_KINDS = ["primary", "secondary", "tertiary"];
 const BUTTON_SIZES = ["tiny", "small", "medium", "large"];
-const TEXT_ALIGNS = ["default", "center"];
+const TEXT_ALIGNS = ["default", "left", "center", "right"];
 const TEXT_SIZES = ["default", "compact"];
 const AUTO_ROTATE_MS = 6000;
 const PROGRESS_TICK_MS = 100;
@@ -50,6 +50,12 @@ const HERO_ATTRIBUTES = {
   HeroFooter: {
     className: "home-banner-actions",
   },
+};
+
+const TEXT_ALIGN_CLASSES = {
+  center: "text-center",
+  left: "text-left",
+  right: "text-right",
 };
 
 function dataOption(value, allowed, fallback) {
@@ -165,15 +171,63 @@ function pictureElement(picture) {
   );
 }
 
-function mediaFrom(row, imageMeta = "") {
+function imageMetaParts(value = "") {
+  const [src, alt = ""] = value.split("|").map((part) => part.trim());
+  return { alt, src };
+}
+
+function pictureFromImageMeta({
+  desktop,
+  fallback,
+  mobile,
+  tablet,
+}) {
+  if (!mobile && !tablet && !desktop) return null;
+
+  const fallbackImage = desktop.src ? desktop : fallback;
+  if (!fallbackImage.src) return null;
+
+  const alt = fallbackImage.alt || desktop.alt || tablet.alt || mobile.alt || "";
+
+  return h(
+    "picture",
+    { className: "home-banner-picture" },
+    mobile.src && h("source", {
+      key: "mobile",
+      media: "(max-width: 600px)",
+      srcSet: mobile.src,
+    }),
+    tablet.src && h("source", {
+      key: "tablet",
+      media: "(max-width: 960px)",
+      srcSet: tablet.src,
+    }),
+    h("img", {
+      alt,
+      key: "desktop",
+      loading: "lazy",
+      src: fallbackImage.src,
+    }),
+  );
+}
+
+function mediaFrom(row, imageMeta = {}) {
   const picture = row.querySelector("picture");
   if (picture) return pictureElement(picture);
 
   const img = row.querySelector("img");
   if (img) return imageElement(img);
 
-  const [src, alt = ""] = imageMeta.split("|").map((part) => part.trim());
-  return src && h("img", { alt, loading: "lazy", src });
+  const fallback = imageMetaParts(imageMeta.image);
+  const responsivePicture = pictureFromImageMeta({
+    desktop: imageMetaParts(imageMeta.desktop),
+    fallback,
+    mobile: imageMetaParts(imageMeta.mobile),
+    tablet: imageMetaParts(imageMeta.tablet),
+  });
+
+  if (responsivePicture) return responsivePicture;
+  return fallback.src && h("img", { alt: fallback.alt, loading: "lazy", src: fallback.src });
 }
 
 function buttonKind(link) {
@@ -247,6 +301,11 @@ function slideCategoryFrom(row, category, eyebrow) {
   };
 }
 
+function slideTextAlignFrom(row, textAlign) {
+  const authoredTextAlign = row.dataset.textAlign || row.querySelector("[data-text-align]")?.dataset.textAlign;
+  return dataOption(toOption(textAlign || authoredTextAlign || "default"), TEXT_ALIGNS, "default");
+}
+
 function slideFrom(row, index) {
   const heading = row.querySelector("h1, h2, h3, h4, h5, h6");
   const paragraphs = [...row.querySelectorAll("p")]
@@ -255,36 +314,59 @@ function slideFrom(row, index) {
     .filter(Boolean);
   const categoryMeta = metaFrom(paragraphs, "category");
   const imageMeta = metaFrom(paragraphs, "image");
+  const imageMobileMeta = metaFrom(paragraphs, "image mobile");
+  const imageTabletMeta = metaFrom(paragraphs, "image tablet");
+  const imageDesktopMeta = metaFrom(paragraphs, "image desktop");
+  const eyebrowMeta = metaFrom(paragraphs, "eyebrow");
+  const subheadingMeta = metaFrom(paragraphs, "subheading");
+  const titleMeta = metaFrom(paragraphs, "title");
+  const descriptionMeta = metaFrom(paragraphs, "description");
   const ctaMeta = metaFrom(paragraphs, "cta");
   const textAlignMeta = metaFrom(paragraphs, "text align");
+  const textSizeMeta = metaFrom(paragraphs, "text size");
   const metaIndexes = [
     categoryMeta.index,
     imageMeta.index,
+    imageMobileMeta.index,
+    imageTabletMeta.index,
+    imageDesktopMeta.index,
+    eyebrowMeta.index,
+    subheadingMeta.index,
+    titleMeta.index,
+    descriptionMeta.index,
     ctaMeta.index,
     textAlignMeta.index,
+    textSizeMeta.index,
   ];
+  const authoredEyebrow = eyebrowMeta.value || subheadingMeta.value;
   const eyebrowIndex = paragraphs.findIndex((paragraph, idx) => (
-    !metaIndexes.includes(idx) && paragraph.includes("|")
+    !authoredEyebrow && !metaIndexes.includes(idx) && paragraph.includes("|")
   ));
   const fallbackEyebrowIndex = heading && eyebrowIndex < 0 && paragraphs.length > 1
     ? paragraphs.findIndex((paragraph, idx) => !metaIndexes.includes(idx))
     : -1;
-  const eyebrow = eyebrowIndex >= 0
+  const eyebrow = authoredEyebrow || (eyebrowIndex >= 0
     ? paragraphs[eyebrowIndex]
-    : paragraphs[fallbackEyebrowIndex] || "";
+    : paragraphs[fallbackEyebrowIndex] || "");
   const contentParagraphs = paragraphs
     .filter((paragraph, idx) => (
       !metaIndexes.includes(idx) && idx !== eyebrowIndex && idx !== fallbackEyebrowIndex
     ));
-  const title = textContent(heading) || contentParagraphs[0] || `Slide ${index + 1}`;
+  const title = titleMeta.value || textContent(heading) || contentParagraphs[0] || `Slide ${index + 1}`;
 
   return {
     cta: ctaFrom(row, ctaMeta.value),
-    description: contentParagraphs[heading ? 0 : 1] || "",
+    description: descriptionMeta.value || contentParagraphs[heading || titleMeta.value ? 0 : 1] || "",
     eyebrow,
-    media: mediaFrom(row, imageMeta.value),
+    media: mediaFrom(row, {
+      desktop: imageDesktopMeta.value,
+      image: imageMeta.value,
+      mobile: imageMobileMeta.value,
+      tablet: imageTabletMeta.value,
+    }),
     ...slideCategoryFrom(row, categoryMeta.value, eyebrow),
-    textAlign: dataOption(toOption(textAlignMeta.value || "default"), TEXT_ALIGNS, "default"),
+    textAlign: slideTextAlignFrom(row, textAlignMeta.value),
+    textSize: dataOption(toOption(textSizeMeta.value || ""), TEXT_SIZES, ""),
     title,
     value: `slide-${index}`,
   };
@@ -325,11 +407,52 @@ function readHomeBanner(block) {
   };
 }
 
-function heroAttributes({ textSize = "default" } = {}) {
+function alignmentAttributes(textAlign) {
+  if (textAlign === "default") return {};
+
+  const contentAlignment = textAlign === "center"
+    ? {
+      alignItems: "center",
+      marginInline: "auto",
+      maxWidth: "min(980px, calc(100% - 64px))",
+    }
+    : textAlign === "right"
+      ? {
+        alignItems: "flex-end",
+        marginInline: "auto 0",
+        maxWidth: "min(980px, calc(100% - 64px))",
+      }
+      : {
+        alignItems: "flex-start",
+      };
+
+  return {
+    HeroContent: {
+      style: {
+        ...contentAlignment,
+        textAlign,
+      },
+    },
+    HeroFooter: {
+      style: {
+        justifyContent: textAlign === "center"
+          ? "center"
+          : textAlign === "right" ? "flex-end" : "flex-start",
+      },
+    },
+  };
+}
+
+function heroAttributes({ textSize = "default" } = {}, textAlign = "default") {
   const textSizeClass = textSize === "compact" ? " home-banner-text-compact" : "";
+  const alignment = alignmentAttributes(textAlign);
 
   return {
     ...HERO_ATTRIBUTES,
+    HeroContent: {
+      ...HERO_ATTRIBUTES.HeroContent,
+      ...alignment.HeroContent,
+    },
     HeroHeading: {
       className: `${HERO_ATTRIBUTES.HeroHeading.className}${textSizeClass}`,
     },
@@ -338,6 +461,10 @@ function heroAttributes({ textSize = "default" } = {}) {
     },
     HeroBody: {
       className: `${HERO_ATTRIBUTES.HeroBody.className}${textSizeClass}`,
+    },
+    HeroFooter: {
+      ...HERO_ATTRIBUTES.HeroFooter,
+      ...alignment.HeroFooter,
     },
   };
 }
@@ -446,7 +573,8 @@ function HomeBanner({
 
   if (!slide) return null;
 
-  const heroClassName = `home-banner-hero${slide.textAlign === "center" ? " text-center" : ""}`;
+  const alignClass = TEXT_ALIGN_CLASSES[slide.textAlign];
+  const heroClassName = `home-banner-hero${alignClass ? ` ${alignClass}` : ""}`;
 
   const resetProgress = () => {
     progressRef.current = 0;
@@ -482,7 +610,10 @@ function HomeBanner({
     h(
       Hero,
       {
-        attributes: heroAttributes(options),
+        attributes: heroAttributes({
+          ...options,
+          textSize: slide.textSize || options.textSize,
+        }, slide.textAlign),
         className: heroClassName,
         mediaTheme: "dark",
         slotActions: h(SlideActions, { cta: slide.cta }),
