@@ -79,6 +79,18 @@ picture.home-banner-hero-media.nv-hero-media img {
   -webkit-line-clamp: 4;
 }
 
+.home-banner-eyebrow.home-banner-text-compact.nv-hero-subheading {
+  font-size: clamp(var(--text-16), 1.2vw, var(--text-22));
+}
+
+.home-banner-title.home-banner-text-compact.nv-hero-heading {
+  font-size: clamp(var(--text-32), 3.5vw, var(--text-56));
+}
+
+.home-banner-description.home-banner-text-compact.nv-hero-body {
+  font-size: clamp(var(--text-18), 1.6vw, var(--text-28));
+}
+
 .home-banner-actions.nv-hero-footer {
   padding-top: clamp(8px, 1.8vw, 28px);
 }
