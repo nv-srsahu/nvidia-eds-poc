@@ -8,11 +8,11 @@ import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import {
   Button,
-  Card,
   Flex,
+  Grid,
+  Hero,
   ProgressBar,
   SegmentedControl,
-  Text,
 } from "@kui/foundations-react";
 import { toClassName } from "../../scripts/aem.js";
 
@@ -27,6 +27,27 @@ const PROGRESS_TICK_MS = 100;
 const PICTURE_ATTRIBUTES = {
   class: "className",
   srcset: "srcSet",
+};
+
+const HERO_ATTRIBUTES = {
+  HeroMedia: {
+    className: "home-banner-hero-media",
+  },
+  HeroContent: {
+    className: "home-banner-hero-content",
+  },
+  HeroHeading: {
+    className: "home-banner-title",
+  },
+  HeroSubheading: {
+    className: "home-banner-eyebrow",
+  },
+  HeroBody: {
+    className: "home-banner-description",
+  },
+  HeroFooter: {
+    className: "home-banner-actions",
+  },
 };
 
 function dataOption(value, allowed, fallback) {
@@ -119,14 +140,10 @@ function mediaFrom(row, imageMeta = "") {
   if (picture) return pictureElement(picture);
 
   const img = row.querySelector("img");
-  if (img) return h("div", { className: "home-banner-image-wrap" }, imageElement(img));
+  if (img) return imageElement(img);
 
   const [src, alt = ""] = imageMeta.split("|").map((part) => part.trim());
-  return src && h(
-    "div",
-    { className: "home-banner-image-wrap" },
-    h("img", { alt, loading: "lazy", src }),
-  );
+  return src && h("img", { alt, loading: "lazy", src });
 }
 
 function buttonKind(link) {
@@ -210,11 +227,19 @@ function slideFrom(row, index) {
   const imageMeta = metaFrom(paragraphs, "image");
   const ctaMeta = metaFrom(paragraphs, "cta");
   const metaIndexes = [categoryMeta.index, imageMeta.index, ctaMeta.index];
-  const eyebrowIndex = paragraphs.findIndex((paragraph, idx) =>
-    !metaIndexes.includes(idx) && paragraph.includes("|"));
-  const eyebrow = eyebrowIndex >= 0 ? paragraphs[eyebrowIndex] : "";
+  const eyebrowIndex = paragraphs.findIndex((paragraph, idx) => (
+    !metaIndexes.includes(idx) && paragraph.includes("|")
+  ));
+  const fallbackEyebrowIndex = heading && eyebrowIndex < 0 && paragraphs.length > 1
+    ? paragraphs.findIndex((paragraph, idx) => !metaIndexes.includes(idx))
+    : -1;
+  const eyebrow = eyebrowIndex >= 0
+    ? paragraphs[eyebrowIndex]
+    : paragraphs[fallbackEyebrowIndex] || "";
   const contentParagraphs = paragraphs
-    .filter((paragraph, idx) => !metaIndexes.includes(idx) && idx !== eyebrowIndex);
+    .filter((paragraph, idx) => (
+      !metaIndexes.includes(idx) && idx !== eyebrowIndex && idx !== fallbackEyebrowIndex
+    ));
   const title = textContent(heading) || contentParagraphs[0] || `Slide ${index + 1}`;
 
   return {
@@ -251,7 +276,8 @@ function readHomeBanner(block) {
   const categoryRow = rows[0] && isCategoryRow(rows[0]) ? rows.shift() : null;
   const categories = categoryRow ? categoriesFrom(categoryRow) : [];
   const slides = rows.map(slideFrom).filter((slide) => slide.title || slide.media);
-  const activeCategory = categories.find((category) => category.selected)?.value || categories[0]?.value;
+  const activeCategory = categories.find((category) => category.selected)?.value
+    || categories[0]?.value;
 
   return {
     activeCategory,
@@ -259,9 +285,6 @@ function readHomeBanner(block) {
     slides,
   };
 }
-
-const kuiText = (kind, tag, value, className) =>
-  value && h(Text, { asChild: true, className, kind }, h(tag, null, value));
 
 function SlideActions({ cta }) {
   if (!cta) return null;
@@ -278,17 +301,6 @@ function SlideActions({ cta }) {
   );
 }
 
-function SlideContent({ slide }) {
-  return h(
-    Flex,
-    { className: "home-banner-content", direction: "col", gap: "4" },
-    kuiText("label/bold/lg", "p", slide.eyebrow, "home-banner-eyebrow"),
-    kuiText("display/md", "h2", slide.title, "home-banner-title"),
-    kuiText("body/regular/xl", "p", slide.description, "home-banner-description"),
-    h(SlideActions, { cta: slide.cta }),
-  );
-}
-
 function StoryRail({
   activeIndex,
   onSelect,
@@ -297,11 +309,13 @@ function StoryRail({
   slides,
 }) {
   return h(
-    "div",
+    Grid,
     {
+      colMinWidth: 180,
       className: `home-banner-story-rail${paused ? " is-paused" : ""}`,
+      gap: "7",
     },
-    slides.map((slide, index) =>
+    slides.map((slide, index) => (
       h(
         "button",
         {
@@ -318,8 +332,8 @@ function StoryRail({
           value: activeIndex === index ? progress : 0,
         }),
         h("span", { className: "home-banner-story-title" }, slide.title),
-      ),
-    ),
+      )
+    )),
   );
 }
 
@@ -335,9 +349,11 @@ function HomeBanner({
   const progressRef = useRef(0);
 
   const segmentItems = useMemo(() => categories.map((item) => ({
-    children: item.label,
+    children: h("span", {
+      className: `home-banner-segment-label${item.value === category ? " is-selected" : ""}`,
+    }, item.label),
     value: item.value,
-  })), [categories]);
+  })), [categories, category]);
 
   const activeSlides = useMemo(
     () => slidesForCategory(category, categories, slides),
@@ -390,8 +406,8 @@ function HomeBanner({
   };
 
   return h(
-    "div",
-    { className: "home-banner-shell nv-theme-kui11" },
+    Flex,
+    { className: "home-banner-shell nv-theme-kui11", direction: "col", gap: "5" },
     segmentItems.length > 0 && h(
       "div",
       { className: "home-banner-segments-scroll" },
@@ -405,18 +421,26 @@ function HomeBanner({
       }),
     ),
     h(
-      Card,
+      Hero,
       {
-        className: "home-banner-card",
-        density: "spacious",
-        kind: "solid",
+        attributes: HERO_ATTRIBUTES,
+        className: "home-banner-hero",
+        mediaTheme: "dark",
+        slotActions: h(SlideActions, { cta: slide.cta }),
+        slotBody: slide.description,
+        slotHeading: slide.title,
         slotMedia: slide.media,
+        slotSubheading: slide.eyebrow,
       },
-      h(SlideContent, { slide }),
     ),
     h(
-      "div",
-      { className: "home-banner-footer" },
+      Flex,
+      {
+        align: "start",
+        className: "home-banner-footer",
+        gap: "7",
+        wrap: "wrap",
+      },
       h(StoryRail, {
         activeIndex,
         onSelect: selectSlide,
@@ -426,28 +450,42 @@ function HomeBanner({
       }),
       h(
         Flex,
-        { className: "home-banner-controls", gap: "2" },
+        {
+          className: "home-banner-controls",
+          gap: "2",
+          justify: "center",
+          wrap: "nowrap",
+        },
         h(Button, {
           "aria-label": "Previous story",
           color: "brand",
           kind: "secondary",
           onClick: () => selectSlide(activeIndex - 1),
           type: "button",
-        }, "<"),
+        }, h("span", {
+          "aria-hidden": "true",
+          className: "home-banner-control-icon home-banner-control-icon-previous",
+        })),
         h(Button, {
           "aria-label": paused ? "Resume stories" : "Pause stories",
           color: "brand",
           kind: "secondary",
           onClick: () => setPaused(!paused),
           type: "button",
-        }, paused ? ">" : "||"),
+        }, h("span", {
+          "aria-hidden": "true",
+          className: `home-banner-control-icon home-banner-control-icon-${paused ? "play" : "pause"}`,
+        })),
         h(Button, {
           "aria-label": "Next story",
           color: "brand",
           kind: "secondary",
           onClick: () => selectSlide(activeIndex + 1),
           type: "button",
-        }, ">"),
+        }, h("span", {
+          "aria-hidden": "true",
+          className: "home-banner-control-icon home-banner-control-icon-next",
+        })),
       ),
     ),
   );
