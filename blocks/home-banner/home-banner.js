@@ -21,6 +21,7 @@ const h = React.createElement;
 const BUTTON_COLORS = ["brand", "neutral", "danger"];
 const BUTTON_KINDS = ["primary", "secondary", "tertiary"];
 const BUTTON_SIZES = ["tiny", "small", "medium", "large"];
+const TEXT_SIZES = ["default", "compact"];
 const AUTO_ROTATE_MS = 6000;
 const PROGRESS_TICK_MS = 100;
 
@@ -54,6 +55,10 @@ function dataOption(value, allowed, fallback) {
   return allowed.includes(value) ? value : fallback;
 }
 
+function toOption(value) {
+  return value.trim().toLowerCase().replace(/\s+/g, "-");
+}
+
 function reactProps(element) {
   return [...element.attributes].reduce((props, { name, value }) => {
     props[PICTURE_ATTRIBUTES[name] || name] = value;
@@ -63,6 +68,20 @@ function reactProps(element) {
 
 function textContent(element) {
   return element?.textContent?.trim() || "";
+}
+
+function metadataName(label) {
+  return toOption(label.match(/^([^:]+)\s*:/)?.[1] || "");
+}
+
+function isCategoryMetadata(label) {
+  return ["selected", "text-size"].includes(metadataName(label));
+}
+
+function metadataValue(labels, name) {
+  const expression = new RegExp(`^${name}\\s*:`, "i");
+  const label = labels.find((item) => expression.test(item));
+  return label?.replace(expression, "").trim() || "";
 }
 
 function categoriesFrom(row) {
@@ -75,6 +94,7 @@ function categoriesFrom(row) {
         selectedLabel = selectedMatch[1].trim();
         return null;
       }
+      if (isCategoryMetadata(label)) return null;
 
       return {
         label,
@@ -97,17 +117,26 @@ function categoriesFrom(row) {
     .map((label) => label.trim())
     .filter(Boolean);
 
-  selectedLabel = labels.find((label) => /^selected\s*:/i.test(label))
-    ?.replace(/^selected\s*:/i, "")
-    .trim() || "";
+  selectedLabel = metadataValue(labels, "selected");
 
   return labels
-    .filter((label) => !/^selected\s*:/i.test(label))
+    .filter((label) => !isCategoryMetadata(label))
     .map((label, index) => ({
       label,
       selected: selectedLabel && label.toLowerCase() === selectedLabel.toLowerCase(),
       value: toClassName(label) || `category-${index}`,
     }));
+}
+
+function bannerOptionsFrom(row) {
+  const labels = [...row.querySelectorAll("p, li")]
+    .map(textContent)
+    .filter(Boolean);
+  const textSize = toOption(metadataValue(labels, "text size") || "default");
+
+  return {
+    textSize: dataOption(textSize, TEXT_SIZES, "default"),
+  };
 }
 
 function isCategoryRow(row) {
@@ -275,6 +304,7 @@ function readHomeBanner(block) {
   const rows = [...block.children];
   const categoryRow = rows[0] && isCategoryRow(rows[0]) ? rows.shift() : null;
   const categories = categoryRow ? categoriesFrom(categoryRow) : [];
+  const options = categoryRow ? bannerOptionsFrom(categoryRow) : {};
   const slides = rows.map(slideFrom).filter((slide) => slide.title || slide.media);
   const activeCategory = categories.find((category) => category.selected)?.value
     || categories[0]?.value;
@@ -282,7 +312,25 @@ function readHomeBanner(block) {
   return {
     activeCategory,
     categories,
+    options,
     slides,
+  };
+}
+
+function heroAttributes({ textSize = "default" } = {}) {
+  const textSizeClass = textSize === "compact" ? " home-banner-text-compact" : "";
+
+  return {
+    ...HERO_ATTRIBUTES,
+    HeroHeading: {
+      className: `${HERO_ATTRIBUTES.HeroHeading.className}${textSizeClass}`,
+    },
+    HeroSubheading: {
+      className: `${HERO_ATTRIBUTES.HeroSubheading.className}${textSizeClass}`,
+    },
+    HeroBody: {
+      className: `${HERO_ATTRIBUTES.HeroBody.className}${textSizeClass}`,
+    },
   };
 }
 
@@ -340,6 +388,7 @@ function StoryRail({
 function HomeBanner({
   activeCategory,
   categories,
+  options,
   slides,
 }) {
   const [category, setCategory] = useState(activeCategory);
@@ -423,7 +472,7 @@ function HomeBanner({
     h(
       Hero,
       {
-        attributes: HERO_ATTRIBUTES,
+        attributes: heroAttributes(options),
         className: "home-banner-hero",
         mediaTheme: "dark",
         slotActions: h(SlideActions, { cta: slide.cta }),
