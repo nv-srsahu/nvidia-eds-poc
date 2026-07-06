@@ -8,6 +8,7 @@ import {
   Hero,
   ProgressBar,
   SegmentedControl,
+  Text,
 } from "@kui/foundations-react";
 import { toClassName } from "../../scripts/aem.js";
 
@@ -400,27 +401,40 @@ function StoryRail({ activeIndex, onSelect, paused, progress, slides }) {
   return h(
     Grid,
     {
+      "aria-label": "Home banner stories",
       colMinWidth: 180,
       className: `home-banner-story-rail${paused ? " is-paused" : ""}`,
       gap: "7",
+      role: "group",
+      style: { flex: "1 1 auto", minWidth: 0, width: "auto" },
     },
     slides.map((slide, index) =>
       h(
         "button",
         {
+          "aria-label": `Show story: ${slide.title}`,
           "aria-current": activeIndex === index ? "true" : undefined,
+          "aria-pressed": activeIndex === index,
           className: "home-banner-story",
           key: slide.value,
           onClick: () => onSelect(index),
           type: "button",
         },
         h(ProgressBar, {
-          "aria-label": `${slide.title} progress`,
+          "aria-hidden": "true",
           className: "home-banner-story-progress",
           size: "small",
           value: activeIndex === index ? progress : 0,
         }),
-        h("span", { className: "home-banner-story-title" }, slide.title),
+        h(
+          Text,
+          {
+            className: "home-banner-story-title",
+            kind:
+              activeIndex === index ? "body/bold/xl" : "body/regular/xl",
+          },
+          slide.title,
+        ),
       ),
     ),
   );
@@ -525,8 +539,14 @@ function HomeBanner({ activeCategory, categories, options, slides }) {
     !!segmentItems.length &&
       h(
         "div",
-        { className: "home-banner-segments-scroll" },
+        {
+          "aria-label": "Home banner categories",
+          className: "home-banner-segments-scroll",
+          role: "region",
+          tabIndex: 0,
+        },
         h(SegmentedControl, {
+          "aria-label": "Choose home banner category",
           className: "home-banner-segments",
           items: segmentItems,
           name: "home-banner-category",
@@ -536,6 +556,8 @@ function HomeBanner({ activeCategory, categories, options, slides }) {
         }),
       ),
     h(Hero, {
+      "aria-label": `${activeIndex + 1} of ${activeSlides.length}: ${slide.title}`,
+      "aria-roledescription": "slide",
       attributes: heroAttributes(
         slide.textSize || options.textSize,
         slide.textAlign,
@@ -547,6 +569,7 @@ function HomeBanner({ activeCategory, categories, options, slides }) {
       slotHeading: slide.title,
       slotMedia: slide.media,
       slotSubheading: slide.eyebrow,
+      role: "group",
     }),
     h(
       Flex,
@@ -554,7 +577,7 @@ function HomeBanner({ activeCategory, categories, options, slides }) {
         align: "start",
         className: "home-banner-footer",
         gap: "7",
-        wrap: "nowrap",
+        wrap: "wrap",
       },
       h(StoryRail, {
         activeIndex,
@@ -569,6 +592,7 @@ function HomeBanner({ activeCategory, categories, options, slides }) {
           className: "home-banner-controls",
           gap: "3",
           justify: "center",
+          style: { flex: "0 0 auto" },
           wrap: "nowrap",
         },
         h(ControlButton, {
