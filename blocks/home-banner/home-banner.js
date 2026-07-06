@@ -41,7 +41,13 @@ const HERO_PARTS = {
 const choose = (value, allowed, fallback) =>
   allowed.includes(value) ? value : fallback;
 const option = (value = "") => value.trim().toLowerCase().replace(/\s+/g, "-");
-const text = (element) => element?.textContent?.trim() || "";
+const text = (element) =>
+  (element?.innerText || element?.textContent || "").trim();
+const textLines = (element) =>
+  text(element)
+    .split(/\n+/)
+    .map((value) => value.trim())
+    .filter(Boolean);
 
 function elementProps(element) {
   return [...element.attributes].reduce((props, { name, value }) => {
@@ -59,11 +65,12 @@ function readText(row, selector = "p", skipLinks = true) {
     (data, element) => {
       if (skipLinks && element.querySelector(LINK_PARAGRAPH)) return data;
 
-      const value = text(element);
-      const key = metaKey(value);
+      textLines(element).forEach((value) => {
+        const key = metaKey(value);
 
-      if (key) data.meta[key] = value.replace(/^([^:]+)\s*:/, "").trim();
-      else if (value) data.body.push(value);
+        if (key) data.meta[key] = value.replace(/^([^:]+)\s*:/, "").trim();
+        else data.body.push(value);
+      });
 
       return data;
     },
@@ -540,7 +547,7 @@ function HomeBanner({ activeCategory, categories, options, slides }) {
         align: "start",
         className: "home-banner-footer",
         gap: "7",
-        wrap: "wrap",
+        wrap: "nowrap",
       },
       h(StoryRail, {
         activeIndex,
@@ -553,7 +560,7 @@ function HomeBanner({ activeCategory, categories, options, slides }) {
         Flex,
         {
           className: "home-banner-controls",
-          gap: "2",
+          gap: "3",
           justify: "center",
           wrap: "nowrap",
         },

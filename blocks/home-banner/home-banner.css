@@ -16,6 +16,12 @@
   color: var(--color-gray-000);
 }
 
+.home-banner-segments-scroll {
+  max-width: 100%;
+  min-width: 0;
+  overflow: auto hidden;
+}
+
 .home-banner-hero.nv-hero-root {
   --padding: clamp(48px, 6vw, 100px);
 
@@ -92,15 +98,6 @@ picture.home-banner-hero-media.nv-hero-media img {
   padding-top: clamp(8px, 1.8vw, 28px);
 }
 
-.home-banner-actions .nv-button {
-  font-weight: var(--font-weight-bold);
-}
-
-.home-banner-footer.nv-flex {
-  align-items: flex-start;
-  flex-wrap: nowrap;
-}
-
 .home-banner-story-rail.nv-grid {
   flex: 1 1 auto;
   width: auto;
@@ -146,22 +143,20 @@ picture.home-banner-hero-media.nv-hero-media img {
 
 .home-banner-controls.nv-flex {
   flex: 0 0 auto;
-  gap: 12px;
 }
 
 .home-banner-controls .nv-button {
+  --nv-button-bg: var(--color-gray-000);
+  --nv-button-bg-hover: var(--color-gray-000);
+  --nv-button-border: 1px solid var(--color-brand);
+  --nv-button-border-hover: 1px solid var(--color-brand);
+  --nv-button-border-radius: 50%;
+  --nv-button-color: var(--color-gray-1000);
+  --nv-button-color-hover: var(--color-gray-1000);
+
   width: 56px;
   height: 56px;
   padding: 0;
-  border: 1px solid var(--color-brand);
-  border-radius: 50%;
-  color: var(--color-gray-1000);
-  background-color: var(--color-gray-000);
-}
-
-.home-banner-controls .nv-button:hover {
-  color: var(--color-gray-1000);
-  background-color: var(--color-gray-000);
 }
 
 .home-banner-control-icon {
@@ -239,10 +234,6 @@ picture.home-banner-hero-media.nv-hero-media img {
       rgb(0 0 0 / 82%) 52%,
       rgb(0 0 0 / 30%) 100%
     );
-  }
-
-  .home-banner-hero-content.nv-hero-content {
-    max-width: 100%;
   }
 
   .home-banner-footer.nv-flex {
