@@ -41,8 +41,14 @@ const HERO_PARTS = {
 const choose = (value, allowed, fallback) =>
   allowed.includes(value) ? value : fallback;
 const option = (value = "") => value.trim().toLowerCase().replace(/\s+/g, "-");
+function nodeText(node) {
+  if (node.nodeName === "BR") return "\n";
+  if (node.nodeType === 3) return node.textContent || "";
+  return [...node.childNodes].map(nodeText).join("");
+}
+
 const text = (element) =>
-  (element?.innerText || element?.textContent || "").trim();
+  (element ? nodeText(element) || element.textContent || "" : "").trim();
 const textLines = (element) =>
   text(element)
     .split(/\n+/)
