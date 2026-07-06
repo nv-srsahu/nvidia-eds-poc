@@ -1,9 +1,4 @@
-import React, {
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import React, { useEffect, useMemo, useRef, useState } from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
 import {
@@ -18,479 +13,376 @@ import { toClassName } from "../../scripts/aem.js";
 
 const h = React.createElement;
 
+const AUTO_ROTATE_MS = 6000;
+const PROGRESS_TICK_MS = 100;
+const HEADINGS = "h1, h2, h3, h4, h5, h6";
+const LINK_PARAGRAPH = "a[href]";
 const BUTTON_COLORS = ["brand", "neutral", "danger"];
 const BUTTON_KINDS = ["primary", "secondary", "tertiary"];
 const BUTTON_SIZES = ["tiny", "small", "medium", "large"];
 const TEXT_ALIGNS = ["default", "left", "center", "right"];
 const TEXT_SIZES = ["default", "compact"];
-const AUTO_ROTATE_MS = 6000;
-const PROGRESS_TICK_MS = 100;
-
-const PICTURE_ATTRIBUTES = {
-  class: "className",
-  srcset: "srcSet",
-};
-
-const HERO_ATTRIBUTES = {
-  HeroMedia: {
-    className: "home-banner-hero-media",
-  },
-  HeroContent: {
-    className: "home-banner-hero-content",
-  },
-  HeroHeading: {
-    className: "home-banner-title",
-  },
-  HeroSubheading: {
-    className: "home-banner-eyebrow",
-  },
-  HeroBody: {
-    className: "home-banner-description",
-  },
-  HeroFooter: {
-    className: "home-banner-actions",
-  },
-};
-
-const TEXT_ALIGN_CLASSES = {
+const SOURCE_PROPS = { class: "className", srcset: "srcSet" };
+const ALIGN_CLASSES = {
   center: "text-center",
   left: "text-left",
   right: "text-right",
 };
 
-function dataOption(value, allowed, fallback) {
-  return allowed.includes(value) ? value : fallback;
-}
+const HERO_PARTS = {
+  HeroMedia: { className: "home-banner-hero-media" },
+  HeroContent: { className: "home-banner-hero-content" },
+  HeroHeading: { className: "home-banner-title" },
+  HeroSubheading: { className: "home-banner-eyebrow" },
+  HeroBody: { className: "home-banner-description" },
+  HeroFooter: { className: "home-banner-actions" },
+};
 
-function toOption(value) {
-  return value.trim().toLowerCase().replace(/\s+/g, "-");
-}
+const choose = (value, allowed, fallback) =>
+  allowed.includes(value) ? value : fallback;
+const option = (value = "") => value.trim().toLowerCase().replace(/\s+/g, "-");
+const text = (element) => element?.textContent?.trim() || "";
 
-function reactProps(element) {
+function elementProps(element) {
   return [...element.attributes].reduce((props, { name, value }) => {
-    props[PICTURE_ATTRIBUTES[name] || name] = value;
+    props[SOURCE_PROPS[name] || name] = value;
     return props;
   }, {});
 }
 
-function textContent(element) {
-  return element?.textContent?.trim() || "";
+function metaKey(value) {
+  return option(value.match(/^([^:]+)\s*:/)?.[1] || "");
 }
 
-function metadataName(label) {
-  return toOption(label.match(/^([^:]+)\s*:/)?.[1] || "");
+function readText(row, selector = "p", skipLinks = true) {
+  return [...row.querySelectorAll(selector)].reduce(
+    (data, element) => {
+      if (skipLinks && element.querySelector(LINK_PARAGRAPH)) return data;
+
+      const value = text(element);
+      const key = metaKey(value);
+
+      if (key) data.meta[key] = value.replace(/^([^:]+)\s*:/, "").trim();
+      else if (value) data.body.push(value);
+
+      return data;
+    },
+    { body: [], meta: {} },
+  );
 }
 
-function isCategoryMetadata(label) {
-  return ["selected", "text-align", "text-size"].includes(metadataName(label));
-}
-
-function metadataValue(labels, name) {
-  const expression = new RegExp(`^${name}\\s*:`, "i");
-  const label = labels.find((item) => expression.test(item));
-  return label?.replace(expression, "").trim() || "";
-}
-
-function categoriesFrom(row) {
-  let selectedLabel = "";
+function readCategories(row) {
+  const { meta } = readText(row, "p, li", false);
+  const selected = meta.selected?.toLowerCase();
   const items = [...row.querySelectorAll("p, li")]
     .map((element, index) => {
-      const label = textContent(element);
-      const selectedMatch = label.match(/^selected\s*:\s*(.+)$/i);
-      if (selectedMatch) {
-        selectedLabel = selectedMatch[1].trim();
-        return null;
-      }
-      if (isCategoryMetadata(label)) return null;
+      const label = text(element);
+      if (!label || metaKey(label)) return null;
 
       return {
         label,
-        selected: !!element.querySelector("strong, b"),
+        selected: selected
+          ? label.toLowerCase() === selected
+          : !!element.querySelector("strong, b"),
         value: toClassName(label) || `category-${index}`,
       };
     })
-    .filter((item) => item?.label);
-
-  if (selectedLabel) {
-    items.forEach((item) => {
-      item.selected = item.label.toLowerCase() === selectedLabel.toLowerCase();
-    });
-  }
+    .filter(Boolean);
 
   if (items.length > 1) return items;
 
-  const labels = textContent(row)
+  return text(row)
     .split(/\n|,/)
     .map((label) => label.trim())
-    .filter(Boolean);
-
-  selectedLabel = metadataValue(labels, "selected");
-
-  return labels
-    .filter((label) => !isCategoryMetadata(label))
+    .filter((label) => label && !metaKey(label))
     .map((label, index) => ({
       label,
-      selected: selectedLabel && label.toLowerCase() === selectedLabel.toLowerCase(),
+      selected: selected && label.toLowerCase() === selected,
       value: toClassName(label) || `category-${index}`,
     }));
 }
 
-function bannerOptionsFrom(row) {
-  const labels = [...row.querySelectorAll("p, li")]
-    .map(textContent)
-    .filter(Boolean);
-  const textSize = toOption(metadataValue(labels, "text size") || "default");
+function readOptions(row) {
+  const { meta } = readText(row, "p, li", false);
 
   return {
-    textSize: dataOption(textSize, TEXT_SIZES, "default"),
+    textSize: choose(
+      option(meta["text-size"] || "default"),
+      TEXT_SIZES,
+      "default",
+    ),
   };
 }
 
 function isCategoryRow(row) {
-  return categoriesFrom(row).length > 1
-    && !row.querySelector("h1, h2, h3, h4, h5, h6, a[href], img, picture");
-}
-
-function imageElement(img, key) {
-  const props = reactProps(img);
-  props.alt = props.alt || "";
-  props.loading = props.loading || "lazy";
-  if (key !== undefined) props.key = key;
-  return h("img", props);
-}
-
-function pictureElement(picture) {
-  return h(
-    "picture",
-    { ...reactProps(picture), className: "home-banner-picture" },
-    [...picture.children].map((child, index) => {
-      if (child.tagName === "SOURCE") return h("source", { ...reactProps(child), key: index });
-      if (child.tagName === "IMG") return imageElement(child, index);
-      return null;
-    }),
+  return (
+    readCategories(row).length > 1 &&
+    !row.querySelector(`${HEADINGS}, ${LINK_PARAGRAPH}, img, picture`)
   );
-}
-
-function imageMetaParts(value = "") {
-  const [src, alt = ""] = value.split("|").map((part) => part.trim());
-  return { alt, src };
-}
-
-function pictureFromImageMeta({
-  desktop,
-  fallback,
-  mobile,
-  tablet,
-}) {
-  if (!mobile && !tablet && !desktop) return null;
-
-  const fallbackImage = desktop.src ? desktop : fallback;
-  if (!fallbackImage.src) return null;
-
-  const alt = fallbackImage.alt || desktop.alt || tablet.alt || mobile.alt || "";
-
-  return h(
-    "picture",
-    { className: "home-banner-picture" },
-    mobile.src && h("source", {
-      key: "mobile",
-      media: "(max-width: 600px)",
-      srcSet: mobile.src,
-    }),
-    tablet.src && h("source", {
-      key: "tablet",
-      media: "(max-width: 960px)",
-      srcSet: tablet.src,
-    }),
-    h("img", {
-      alt,
-      key: "desktop",
-      loading: "lazy",
-      src: fallbackImage.src,
-    }),
-  );
-}
-
-function mediaFrom(row, imageMeta = {}) {
-  const picture = row.querySelector("picture");
-  if (picture) return pictureElement(picture);
-
-  const img = row.querySelector("img");
-  if (img) return imageElement(img);
-
-  const fallback = imageMetaParts(imageMeta.image);
-  const responsivePicture = pictureFromImageMeta({
-    desktop: imageMetaParts(imageMeta.desktop),
-    fallback,
-    mobile: imageMetaParts(imageMeta.mobile),
-    tablet: imageMetaParts(imageMeta.tablet),
-  });
-
-  if (responsivePicture) return responsivePicture;
-  return fallback.src && h("img", { alt: fallback.alt, loading: "lazy", src: fallback.src });
 }
 
 function buttonKind(link) {
-  const authoredKind = dataOption(link.dataset.buttonKind, BUTTON_KINDS);
-  if (authoredKind) return authoredKind;
+  const authored = choose(link.dataset.buttonKind, BUTTON_KINDS);
+  if (authored) return authored;
   if (link.classList.contains("secondary")) return "secondary";
   if (link.classList.contains("accent")) return "tertiary";
   return "primary";
 }
 
-function buttonColor(link) {
-  return dataOption(link.dataset.buttonColor, BUTTON_COLORS, "brand");
-}
-
-function buttonSize(link) {
-  return dataOption(link.dataset.buttonSize, BUTTON_SIZES, "large");
-}
-
-function ctaFrom(row, ctaMeta = "") {
-  const link = row.querySelector("a[href]");
+function linkCta(row, metaCta) {
+  const link = row.querySelector(LINK_PARAGRAPH);
   if (link) {
     return {
-      color: buttonColor(link),
+      color: choose(link.dataset.buttonColor, BUTTON_COLORS, "brand"),
       href: link.href,
       kind: buttonKind(link),
       rel: link.rel || undefined,
-      size: buttonSize(link),
+      size: choose(link.dataset.buttonSize, BUTTON_SIZES, "large"),
       target: link.target || undefined,
-      text: textContent(link),
+      text: text(link),
     };
   }
 
-  if (!ctaMeta) return null;
+  if (!metaCta) return null;
 
-  const [text, href, kind = "primary", color = "brand", size = "large"] = ctaMeta
-    .split("|")
-    .map((part) => part.trim());
+  const [label, href, kind = "primary", color = "brand", size = "large"] =
+    metaCta.split("|").map((part) => part.trim());
 
-  return href && {
-    color: dataOption(color, BUTTON_COLORS, "brand"),
-    href,
-    kind: dataOption(kind, BUTTON_KINDS, "primary"),
-    size: dataOption(size, BUTTON_SIZES, "large"),
-    text,
-  };
+  return (
+    href && {
+      color: choose(color, BUTTON_COLORS, "brand"),
+      href,
+      kind: choose(kind, BUTTON_KINDS, "primary"),
+      size: choose(size, BUTTON_SIZES, "large"),
+      text: label,
+    }
+  );
 }
 
-function metaFrom(paragraphs, label) {
-  const expression = new RegExp(`^${label}\\s*:`, "i");
-  const index = paragraphs.findIndex((paragraph) => expression.test(paragraph));
-  if (index < 0) {
-    return {
-      index: -1,
-      value: "",
-    };
-  }
-
-  return {
-    index,
-    value: paragraphs[index].replace(expression, "").trim(),
-  };
+function imageFromElement(img, key) {
+  return h("img", {
+    ...elementProps(img),
+    alt: img.alt || "",
+    key,
+    loading: img.loading || "lazy",
+  });
 }
 
-function slideCategoryFrom(row, category, eyebrow) {
-  const authoredCategory = row.dataset.category || row.querySelector("[data-category]")?.dataset.category;
-  const label = authoredCategory || category || eyebrow.split("|")[0]?.trim() || "";
-
-  return {
-    categoryLabel: label,
-    categoryValue: toClassName(label),
-  };
-}
-
-function slideTextAlignFrom(row, textAlign) {
-  const authoredTextAlign = row.dataset.textAlign || row.querySelector("[data-text-align]")?.dataset.textAlign;
-  return dataOption(toOption(textAlign || authoredTextAlign || "default"), TEXT_ALIGNS, "default");
-}
-
-function slideFrom(row, index) {
-  const heading = row.querySelector("h1, h2, h3, h4, h5, h6");
-  const paragraphs = [...row.querySelectorAll("p")]
-    .filter((paragraph) => !paragraph.querySelector("a[href]"))
-    .map(textContent)
-    .filter(Boolean);
-  const categoryMeta = metaFrom(paragraphs, "category");
-  const imageMeta = metaFrom(paragraphs, "image");
-  const imageMobileMeta = metaFrom(paragraphs, "image mobile");
-  const imageTabletMeta = metaFrom(paragraphs, "image tablet");
-  const imageDesktopMeta = metaFrom(paragraphs, "image desktop");
-  const eyebrowMeta = metaFrom(paragraphs, "eyebrow");
-  const subheadingMeta = metaFrom(paragraphs, "subheading");
-  const titleMeta = metaFrom(paragraphs, "title");
-  const descriptionMeta = metaFrom(paragraphs, "description");
-  const ctaMeta = metaFrom(paragraphs, "cta");
-  const textAlignMeta = metaFrom(paragraphs, "text align");
-  const textSizeMeta = metaFrom(paragraphs, "text size");
-  const metaIndexes = [
-    categoryMeta.index,
-    imageMeta.index,
-    imageMobileMeta.index,
-    imageTabletMeta.index,
-    imageDesktopMeta.index,
-    eyebrowMeta.index,
-    subheadingMeta.index,
-    titleMeta.index,
-    descriptionMeta.index,
-    ctaMeta.index,
-    textAlignMeta.index,
-    textSizeMeta.index,
-  ];
-  const authoredEyebrow = eyebrowMeta.value || subheadingMeta.value;
-  const eyebrowIndex = paragraphs.findIndex((paragraph, idx) => (
-    !authoredEyebrow && !metaIndexes.includes(idx) && paragraph.includes("|")
-  ));
-  const fallbackEyebrowIndex = heading && eyebrowIndex < 0 && paragraphs.length > 1
-    ? paragraphs.findIndex((paragraph, idx) => !metaIndexes.includes(idx))
-    : -1;
-  const eyebrow = authoredEyebrow || (eyebrowIndex >= 0
-    ? paragraphs[eyebrowIndex]
-    : paragraphs[fallbackEyebrowIndex] || "");
-  const contentParagraphs = paragraphs
-    .filter((paragraph, idx) => (
-      !metaIndexes.includes(idx) && idx !== eyebrowIndex && idx !== fallbackEyebrowIndex
-    ));
-  const title = titleMeta.value || textContent(heading) || contentParagraphs[0] || `Slide ${index + 1}`;
-
-  return {
-    cta: ctaFrom(row, ctaMeta.value),
-    description: descriptionMeta.value || contentParagraphs[heading || titleMeta.value ? 0 : 1] || "",
-    eyebrow,
-    media: mediaFrom(row, {
-      desktop: imageDesktopMeta.value,
-      image: imageMeta.value,
-      mobile: imageMobileMeta.value,
-      tablet: imageTabletMeta.value,
+function pictureFromElement(picture) {
+  return h(
+    "picture",
+    { ...elementProps(picture), className: "home-banner-picture" },
+    [...picture.children].map((child, key) => {
+      if (child.tagName === "SOURCE")
+        return h("source", { ...elementProps(child), key });
+      if (child.tagName === "IMG") return imageFromElement(child, key);
+      return null;
     }),
-    ...slideCategoryFrom(row, categoryMeta.value, eyebrow),
-    textAlign: slideTextAlignFrom(row, textAlignMeta.value),
-    textSize: dataOption(toOption(textSizeMeta.value || ""), TEXT_SIZES, ""),
-    title,
+  );
+}
+
+function imageMeta(value = "") {
+  const [src, alt = ""] = value.split("|").map((part) => part.trim());
+  return { alt, src };
+}
+
+function imageFromMetadata(meta) {
+  const images = {
+    default: imageMeta(meta.image),
+    desktop: imageMeta(meta["image-desktop"]),
+    mobile: imageMeta(meta["image-mobile"]),
+    tablet: imageMeta(meta["image-tablet"]),
+  };
+  const fallback = [
+    images.desktop,
+    images.default,
+    images.tablet,
+    images.mobile,
+  ].find((image) => image.src);
+
+  if (!fallback) return null;
+
+  const hasSources =
+    images.mobile.src || images.tablet.src || images.desktop.src;
+  const alt =
+    fallback.alt ||
+    images.default.alt ||
+    images.tablet.alt ||
+    images.mobile.alt ||
+    "";
+
+  if (!hasSources) {
+    return h("img", { alt, loading: "lazy", src: fallback.src });
+  }
+
+  return h(
+    "picture",
+    { className: "home-banner-picture" },
+    images.mobile.src &&
+      h("source", {
+        key: "mobile",
+        media: "(max-width: 600px)",
+        srcSet: images.mobile.src,
+      }),
+    images.tablet.src &&
+      h("source", {
+        key: "tablet",
+        media: "(max-width: 960px)",
+        srcSet: images.tablet.src,
+      }),
+    h("img", {
+      alt,
+      key: "fallback",
+      loading: "lazy",
+      src: fallback.src,
+    }),
+  );
+}
+
+function readMedia(row, meta) {
+  const picture = row.querySelector("picture");
+  if (picture) return pictureFromElement(picture);
+
+  const img = row.querySelector("img");
+  if (img) return imageFromElement(img);
+
+  return imageFromMetadata(meta);
+}
+
+function readSlide(row, index) {
+  const heading = text(row.querySelector(HEADINGS));
+  const { body, meta } = readText(row);
+  const authoredEyebrow = meta.eyebrow || meta.subheading;
+  let eyebrowIndex = -1;
+
+  if (!authoredEyebrow) {
+    eyebrowIndex = body.findIndex((value) => value.includes("|"));
+    if (heading && eyebrowIndex < 0 && body.length > 1) eyebrowIndex = 0;
+  }
+
+  const eyebrow = authoredEyebrow || body[eyebrowIndex] || "";
+  const copy = body.filter((_, bodyIndex) => bodyIndex !== eyebrowIndex);
+  const category =
+    row.dataset.category ||
+    row.querySelector("[data-category]")?.dataset.category ||
+    meta.category ||
+    eyebrow.split("|")[0]?.trim() ||
+    "";
+  const textAlign =
+    row.dataset.textAlign ||
+    row.querySelector("[data-text-align]")?.dataset.textAlign ||
+    meta["text-align"] ||
+    "default";
+
+  return {
+    categoryLabel: category,
+    categoryValue: toClassName(category),
+    cta: linkCta(row, meta.cta),
+    description: meta.description || copy[heading || meta.title ? 0 : 1] || "",
+    eyebrow,
+    media: readMedia(row, meta),
+    textAlign: choose(option(textAlign), TEXT_ALIGNS, "default"),
+    textSize: choose(option(meta["text-size"] || ""), TEXT_SIZES, ""),
+    title: meta.title || heading || copy[0] || `Slide ${index + 1}`,
     value: `slide-${index}`,
   };
 }
 
 function slideMatchesCategory(slide, category) {
   if (!slide || !category) return false;
-  if (slide.categoryValue && slide.categoryValue === category.value) return true;
+  if (slide.categoryValue === category.value) return true;
 
-  const categoryLabel = category.label.toLowerCase();
   const slideCategory = slide.categoryLabel.toLowerCase();
-  return !!slideCategory && (
-    categoryLabel.includes(slideCategory)
-    || slideCategory.includes(categoryLabel)
+  const categoryLabel = category.label.toLowerCase();
+  return (
+    !!slideCategory &&
+    (slideCategory.includes(categoryLabel) ||
+      categoryLabel.includes(slideCategory))
   );
 }
 
-function slidesForCategory(value, categories, slides) {
-  const category = categories.find((item) => item.value === value);
-  const matchingSlides = slides.filter((slide) => slideMatchesCategory(slide, category));
-  return matchingSlides.length > 0 ? matchingSlides : slides;
+function slidesForCategory(categoryValue, categories, slides) {
+  const category = categories.find((item) => item.value === categoryValue);
+  const matches = slides.filter((slide) =>
+    slideMatchesCategory(slide, category),
+  );
+  return matches.length ? matches : slides;
 }
 
 function readHomeBanner(block) {
   const rows = [...block.children];
   const categoryRow = rows[0] && isCategoryRow(rows[0]) ? rows.shift() : null;
-  const categories = categoryRow ? categoriesFrom(categoryRow) : [];
-  const options = categoryRow ? bannerOptionsFrom(categoryRow) : {};
-  const slides = rows.map(slideFrom).filter((slide) => slide.title || slide.media);
-  const activeCategory = categories.find((category) => category.selected)?.value
-    || categories[0]?.value;
+  const categories = categoryRow ? readCategories(categoryRow) : [];
 
   return {
-    activeCategory,
+    activeCategory:
+      categories.find((category) => category.selected)?.value ||
+      categories[0]?.value,
     categories,
-    options,
-    slides,
+    options: categoryRow ? readOptions(categoryRow) : {},
+    slides: rows.map(readSlide).filter((slide) => slide.title || slide.media),
   };
 }
 
-function alignmentAttributes(textAlign) {
-  if (textAlign === "default") return {};
-
-  const contentAlignment = textAlign === "center"
-    ? {
-      alignItems: "center",
-      marginInline: "auto",
-      maxWidth: "min(980px, calc(100% - 64px))",
-    }
-    : textAlign === "right"
-      ? {
-        alignItems: "flex-end",
-        marginInline: "auto 0",
-        maxWidth: "min(980px, calc(100% - 64px))",
-      }
-      : {
-        alignItems: "flex-start",
-      };
-
-  return {
-    HeroContent: {
-      style: {
-        ...contentAlignment,
-        textAlign,
+function alignment(textAlign) {
+  if (textAlign === "center") {
+    return {
+      HeroContent: {
+        style: { alignItems: "center", marginInline: "auto", textAlign },
       },
-    },
-    HeroFooter: {
-      style: {
-        justifyContent: textAlign === "center"
-          ? "center"
-          : textAlign === "right" ? "flex-end" : "flex-start",
+      HeroFooter: { style: { justifyContent: "center" } },
+    };
+  }
+  if (textAlign === "right") {
+    return {
+      HeroContent: {
+        style: { alignItems: "flex-end", marginInline: "auto 0", textAlign },
       },
-    },
-  };
+      HeroFooter: { style: { justifyContent: "flex-end" } },
+    };
+  }
+  if (textAlign === "left") {
+    return {
+      HeroContent: { style: { alignItems: "flex-start", textAlign } },
+      HeroFooter: { style: { justifyContent: "flex-start" } },
+    };
+  }
+  return {};
 }
 
-function heroAttributes({ textSize = "default" } = {}, textAlign = "default") {
-  const textSizeClass = textSize === "compact" ? " home-banner-text-compact" : "";
-  const alignment = alignmentAttributes(textAlign);
+function heroAttributes(textSize, textAlign) {
+  const compact = textSize === "compact" ? " home-banner-text-compact" : "";
+  const align = alignment(textAlign);
 
   return {
-    ...HERO_ATTRIBUTES,
-    HeroContent: {
-      ...HERO_ATTRIBUTES.HeroContent,
-      ...alignment.HeroContent,
-    },
-    HeroHeading: {
-      className: `${HERO_ATTRIBUTES.HeroHeading.className}${textSizeClass}`,
-    },
+    ...HERO_PARTS,
+    HeroContent: { ...HERO_PARTS.HeroContent, ...align.HeroContent },
+    HeroHeading: { className: `${HERO_PARTS.HeroHeading.className}${compact}` },
     HeroSubheading: {
-      className: `${HERO_ATTRIBUTES.HeroSubheading.className}${textSizeClass}`,
+      className: `${HERO_PARTS.HeroSubheading.className}${compact}`,
     },
-    HeroBody: {
-      className: `${HERO_ATTRIBUTES.HeroBody.className}${textSizeClass}`,
-    },
-    HeroFooter: {
-      ...HERO_ATTRIBUTES.HeroFooter,
-      ...alignment.HeroFooter,
-    },
+    HeroBody: { className: `${HERO_PARTS.HeroBody.className}${compact}` },
+    HeroFooter: { ...HERO_PARTS.HeroFooter, ...align.HeroFooter },
   };
 }
 
 function SlideActions({ cta }) {
-  if (!cta) return null;
-
-  return h(
-    Button,
-    {
-      asChild: true,
-      color: cta.color,
-      kind: cta.kind,
-      size: cta.size,
-    },
-    h("a", { href: cta.href, rel: cta.rel, target: cta.target }, cta.text),
+  return (
+    cta &&
+    h(
+      Button,
+      {
+        asChild: true,
+        color: cta.color,
+        kind: cta.kind,
+        size: cta.size,
+      },
+      h("a", { href: cta.href, rel: cta.rel, target: cta.target }, cta.text),
+    )
   );
 }
 
-function StoryRail({
-  activeIndex,
-  onSelect,
-  paused,
-  progress,
-  slides,
-}) {
+function StoryRail({ activeIndex, onSelect, paused, progress, slides }) {
   return h(
     Grid,
     {
@@ -498,7 +390,7 @@ function StoryRail({
       className: `home-banner-story-rail${paused ? " is-paused" : ""}`,
       gap: "7",
     },
-    slides.map((slide, index) => (
+    slides.map((slide, index) =>
       h(
         "button",
         {
@@ -515,51 +407,72 @@ function StoryRail({
           value: activeIndex === index ? progress : 0,
         }),
         h("span", { className: "home-banner-story-title" }, slide.title),
-      )
-    )),
+      ),
+    ),
   );
 }
 
-function HomeBanner({
-  activeCategory,
-  categories,
-  options,
-  slides,
-}) {
+function ControlButton({ icon, label, onClick }) {
+  return h(
+    Button,
+    {
+      "aria-label": label,
+      color: "brand",
+      kind: "secondary",
+      onClick,
+      type: "button",
+    },
+    h("span", {
+      "aria-hidden": "true",
+      className: `home-banner-control-icon home-banner-control-icon-${icon}`,
+    }),
+  );
+}
+
+function HomeBanner({ activeCategory, categories, options, slides }) {
   const [category, setCategory] = useState(activeCategory);
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
-  const [progress, setProgressState] = useState(0);
+  const [progress, setProgress] = useState(0);
   const progressRef = useRef(0);
-
-  const segmentItems = useMemo(() => categories.map((item) => ({
-    children: h("span", {
-      className: `home-banner-segment-label${item.value === category ? " is-selected" : ""}`,
-    }, item.label),
-    value: item.value,
-  })), [categories, category]);
-
   const activeSlides = useMemo(
     () => slidesForCategory(category, categories, slides),
     [categories, category, slides],
   );
   const slide = activeSlides[activeIndex] || activeSlides[0];
+  const segmentItems = useMemo(
+    () =>
+      categories.map((item) => ({
+        children: h(
+          "span",
+          {
+            className: `home-banner-segment-label${item.value === category ? " is-selected" : ""}`,
+          },
+          item.label,
+        ),
+        value: item.value,
+      })),
+    [categories, category],
+  );
 
   useEffect(() => {
     if (paused || activeSlides.length <= 1) return undefined;
 
     let timer;
-    const startedAt = window.performance.now() - ((progressRef.current / 100) * AUTO_ROTATE_MS);
-
+    const startedAt =
+      window.performance.now() - (progressRef.current / 100) * AUTO_ROTATE_MS;
     const update = () => {
-      const time = window.performance.now();
-      const nextProgress = Math.min(((time - startedAt) / AUTO_ROTATE_MS) * 100, 100);
+      const nextProgress = Math.min(
+        ((window.performance.now() - startedAt) / AUTO_ROTATE_MS) * 100,
+        100,
+      );
+
       progressRef.current = nextProgress;
-      setProgressState(nextProgress);
+      setProgress(nextProgress);
 
       if (nextProgress >= 100) {
         progressRef.current = 0;
-        setProgressState(0);
+        setProgress(0);
         setActiveIndex((index) => (index + 1) % activeSlides.length);
         window.clearInterval(timer);
       }
@@ -573,56 +486,54 @@ function HomeBanner({
 
   if (!slide) return null;
 
-  const alignClass = TEXT_ALIGN_CLASSES[slide.textAlign];
-  const heroClassName = `home-banner-hero${alignClass ? ` ${alignClass}` : ""}`;
-
   const resetProgress = () => {
     progressRef.current = 0;
-    setProgressState(0);
+    setProgress(0);
   };
-
   const selectSlide = (index) => {
     resetProgress();
     setActiveIndex((index + activeSlides.length) % activeSlides.length);
   };
-
   const selectCategory = (value) => {
     resetProgress();
     setCategory(value);
     setActiveIndex(0);
   };
+  const heroClassName = `home-banner-hero${ALIGN_CLASSES[slide.textAlign] ? ` ${ALIGN_CLASSES[slide.textAlign]}` : ""}`;
 
   return h(
     Flex,
-    { className: "home-banner-shell nv-theme-kui11", direction: "col", gap: "5" },
-    segmentItems.length > 0 && h(
-      "div",
-      { className: "home-banner-segments-scroll" },
-      h(SegmentedControl, {
-        className: "home-banner-segments",
-        items: segmentItems,
-        name: "home-banner-category",
-        onValueChange: selectCategory,
-        size: "large",
-        value: category,
-      }),
-    ),
-    h(
-      Hero,
-      {
-        attributes: heroAttributes({
-          ...options,
-          textSize: slide.textSize || options.textSize,
-        }, slide.textAlign),
-        className: heroClassName,
-        mediaTheme: "dark",
-        slotActions: h(SlideActions, { cta: slide.cta }),
-        slotBody: slide.description,
-        slotHeading: slide.title,
-        slotMedia: slide.media,
-        slotSubheading: slide.eyebrow,
-      },
-    ),
+    {
+      className: "home-banner-shell nv-theme-kui11",
+      direction: "col",
+      gap: "5",
+    },
+    !!segmentItems.length &&
+      h(
+        "div",
+        { className: "home-banner-segments-scroll" },
+        h(SegmentedControl, {
+          className: "home-banner-segments",
+          items: segmentItems,
+          name: "home-banner-category",
+          onValueChange: selectCategory,
+          size: "large",
+          value: category,
+        }),
+      ),
+    h(Hero, {
+      attributes: heroAttributes(
+        slide.textSize || options.textSize,
+        slide.textAlign,
+      ),
+      className: heroClassName,
+      mediaTheme: "dark",
+      slotActions: h(SlideActions, { cta: slide.cta }),
+      slotBody: slide.description,
+      slotHeading: slide.title,
+      slotMedia: slide.media,
+      slotSubheading: slide.eyebrow,
+    }),
     h(
       Flex,
       {
@@ -646,46 +557,29 @@ function HomeBanner({
           justify: "center",
           wrap: "nowrap",
         },
-        h(Button, {
-          "aria-label": "Previous story",
-          color: "brand",
-          kind: "secondary",
+        h(ControlButton, {
+          icon: "previous",
+          label: "Previous story",
           onClick: () => selectSlide(activeIndex - 1),
-          type: "button",
-        }, h("span", {
-          "aria-hidden": "true",
-          className: "home-banner-control-icon home-banner-control-icon-previous",
-        })),
-        h(Button, {
-          "aria-label": paused ? "Resume stories" : "Pause stories",
-          color: "brand",
-          kind: "secondary",
+        }),
+        h(ControlButton, {
+          icon: paused ? "play" : "pause",
+          label: paused ? "Resume stories" : "Pause stories",
           onClick: () => setPaused(!paused),
-          type: "button",
-        }, h("span", {
-          "aria-hidden": "true",
-          className: `home-banner-control-icon home-banner-control-icon-${paused ? "play" : "pause"}`,
-        })),
-        h(Button, {
-          "aria-label": "Next story",
-          color: "brand",
-          kind: "secondary",
+        }),
+        h(ControlButton, {
+          icon: "next",
+          label: "Next story",
           onClick: () => selectSlide(activeIndex + 1),
-          type: "button",
-        }, h("span", {
-          "aria-hidden": "true",
-          className: "home-banner-control-icon home-banner-control-icon-next",
-        })),
+        }),
       ),
     ),
   );
 }
 
 export default function decorate(block) {
-  const data = readHomeBanner(block);
-
   block.classList.add("nv-theme-kui11");
-  flushSync(() => {
-    createRoot(block).render(h(HomeBanner, data));
-  });
+  flushSync(() =>
+    createRoot(block).render(h(HomeBanner, readHomeBanner(block))),
+  );
 }
