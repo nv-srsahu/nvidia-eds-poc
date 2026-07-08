@@ -1,16 +1,13 @@
-# fstab.yaml — Content mount configuration for Edge Delivery Services
+# fstab.yaml — Content mount for Edge Delivery Services (document authoring)
 #
-# For AEM Cloud (Universal Editor authoring):
-#   Update the url to your AEM Author environment using the format:
-#   url: "https://<author-url>/bin/franklin.delivery/<github-org>/<github-repo>/main"
+# We are using the Google Drive document-authoring flow:
+#   1. Author pages as Google Docs inside a Drive folder.
+#   2. Share that folder with Adobe's AEM service account (see SETUP-EDS.md).
+#   3. Point the mountpoint below at the folder URL.
 #
-#   Example:
-#   url: "https://author-pXXXXX-eXXXXX.adobeaemcloud.com/bin/franklin.delivery/nvidia/nvidia-contact/main"
-#
-# For document-based authoring (SharePoint or Google Drive):
-#   url: "https://<tenant>.sharepoint.com/sites/<site>/Shared%20Documents/<folder>"
-#   url: "https://drive.google.com/drive/folders/<folder-id>"
+# Replace <FOLDER_ID> with the ID from your Drive folder URL
+# (https://drive.google.com/drive/folders/<FOLDER_ID>).
 #
 # trigger AEM code sync
 mountpoints:
-  /: "https://drive.google.com/drive/folders/1VrWpwFBC43cPBn1EdpAvYXeXJpLGtXOf"
+  /: https://drive.google.com/drive/folders/<FOLDER_ID>

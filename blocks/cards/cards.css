@@ -1,1 +1,29 @@
-/* KUI Button/Card/Flex/Grid/Text styles are bundled in /scripts/kui/foundations-react.bundle.css. */
+/* One universal cards block. KUI Card/Button/Text/Badge come from the bundle
+   and are used stock; the rules below are layout glue only (no KUI overrides).
+   All visual customization is authored (kind/selected/CTA options in the Doc). */
+
+/* Card image fills the Kaizen Card media slot. */
+.cards .cards-img {
+  aspect-ratio: 16 / 10;
+  display: block;
+  height: auto;
+  object-fit: cover;
+  width: 100%;
+}
+
+/* Tag/badge row (Heading 5, comma-separated -> Kaizen Badge pills). */
+.cards .cards-tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-xs, 8px);
+}
+
+/* Eyebrow (Heading 6 -> publisher / date / category). */
+.cards .cards-eyebrow {
+  color: var(--color-text-secondary, #76797c);
+  margin: 0;
+}
+
+.cards .cards-cta {
+  margin-top: var(--space-sm, 12px);
+}

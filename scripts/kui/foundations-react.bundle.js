@@ -307,7 +307,7 @@ var NODES = [
 ];
 var Primitive = NODES.reduce((primitive, node) => {
   const Slot2 = createSlot(`Primitive.${node}`);
-  const Node = React3.forwardRef((props, forwardedRef) => {
+  const Node2 = React3.forwardRef((props, forwardedRef) => {
     const { asChild, ...primitiveProps } = props;
     const Comp = asChild ? Slot2 : node;
     if (typeof window !== "undefined") {
@@ -315,8 +315,8 @@ var Primitive = NODES.reduce((primitive, node) => {
     }
     return /* @__PURE__ */ jsx2(Comp, { ...primitiveProps, ref: forwardedRef });
   });
-  Node.displayName = `Primitive.${node}`;
-  return { ...primitive, [node]: Node };
+  Node2.displayName = `Primitive.${node}`;
+  return { ...primitive, [node]: Node2 };
 }, {});
 
 // node_modules/@kui/foundations-react-core/dist/lib/components/Primitive.js
@@ -1622,7 +1622,7 @@ import * as React12 from "react";
 import { jsx as jsx18 } from "react/jsx-runtime";
 function createContextScope(scopeName, createContextScopeDeps = []) {
   let defaultContexts = [];
-  function createContext3(rootComponentName, defaultContext) {
+  function createContext32(rootComponentName, defaultContext) {
     const BaseContext = React12.createContext(defaultContext);
     BaseContext.displayName = rootComponentName + "Context";
     const index = defaultContexts.length;
@@ -1656,7 +1656,7 @@ function createContextScope(scopeName, createContextScopeDeps = []) {
     };
   };
   createScope.scopeName = scopeName;
-  return [createContext3, composeContextScopes(createScope, ...createContextScopeDeps)];
+  return [createContext32, composeContextScopes(createScope, ...createContextScopeDeps)];
 }
 function composeContextScopes(...scopes) {
   const baseScope = scopes[0];
@@ -2405,13 +2405,1876 @@ var Text = forwardRef18((t0, ref) => {
   return t3;
 });
 Text.displayName = "Text";
+
+// node_modules/@kui/foundations-react-core/dist/Accordion/components/base/Accordion.js
+import { jsx as jsx32, jsxs as jsxs6 } from "react/jsx-runtime";
+import { forwardRef as forwardRef24 } from "react";
+
+// node_modules/@kui/foundations-react-core/dist/Accordion/components/composed/AccordionContent.js
+import { jsx as jsx28 } from "react/jsx-runtime";
+import { forwardRef as forwardRef21 } from "react";
+
+// node_modules/@kui/foundations-react-core/dist/Accordion/components/composed/AccordionItem.js
+import { jsx as jsx27 } from "react/jsx-runtime";
+import { createContext as createContext4, forwardRef as forwardRef20, useContext as useContext4 } from "react";
+
+// node_modules/@kui/foundations-react-core/dist/Accordion/components/composed/AccordionRoot.js
+import { jsx as jsx26 } from "react/jsx-runtime";
+import { createContext as createContext3, forwardRef as forwardRef19, useState, useContext as useContext3 } from "react";
+
+// node_modules/@kui/foundations-react-core/dist/Accordion/constants.js
+var AccordionTestIds = {
+  AccordionContent: "nv-accordion-content",
+  AccordionItem: "nv-accordion-item",
+  AccordionRoot: "nv-accordion-root",
+  AccordionTrigger: "nv-accordion-trigger"
+};
+
+// node_modules/@kui/foundations-react-core/dist/Accordion/utils.js
+var normalizeToArray = (val) => {
+  if (val === void 0) {
+    return [];
+  }
+  return Array.isArray(val) ? val : [val];
+};
+var getOpenState = (open) => open ? "open" : "closed";
+var computeNextOpenItems = ({
+  itemValue,
+  willOpen,
+  openItems,
+  multiple,
+  collapsible
+}) => {
+  if (multiple) {
+    return willOpen ? [...openItems, itemValue] : openItems.filter((v) => v !== itemValue);
+  }
+  if (willOpen) {
+    return [itemValue];
+  }
+  return collapsible ? [] : openItems;
+};
+
+// node_modules/@kui/foundations-react-core/dist/Accordion/components/composed/AccordionRoot.js
+var accordionRoot = cva("nv-accordion-root");
+var AccordionContext = createContext3(null);
+var useAccordionContext = () => {
+  const context = useContext3(AccordionContext);
+  if (!context) {
+    throw new Error("Accordion compound components must be used within an AccordionRoot");
+  }
+  return context;
+};
+var isMultipleChangeHandler = (onValueChange, multiple) => multiple;
+var AccordionRoot = forwardRef19((t0, ref) => {
+  const $ = c(42);
+  let children;
+  let className;
+  let controlledValue;
+  let defaultValue;
+  let name;
+  let onValueChange;
+  let props;
+  let t1;
+  let t2;
+  let t3;
+  if ($[0] !== t0) {
+    ({
+      className,
+      collapsible: t1,
+      defaultValue,
+      disabled: t2,
+      multiple: t3,
+      name,
+      onValueChange,
+      value: controlledValue,
+      children,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = children;
+    $[2] = className;
+    $[3] = controlledValue;
+    $[4] = defaultValue;
+    $[5] = name;
+    $[6] = onValueChange;
+    $[7] = props;
+    $[8] = t1;
+    $[9] = t2;
+    $[10] = t3;
+  } else {
+    children = $[1];
+    className = $[2];
+    controlledValue = $[3];
+    defaultValue = $[4];
+    name = $[5];
+    onValueChange = $[6];
+    props = $[7];
+    t1 = $[8];
+    t2 = $[9];
+    t3 = $[10];
+  }
+  const collapsible = t1 === void 0 ? true : t1;
+  const disabled = t2 === void 0 ? false : t2;
+  const multiple = t3 === void 0 ? false : t3;
+  const controlled = controlledValue !== void 0;
+  let t4;
+  if ($[11] !== defaultValue) {
+    t4 = () => normalizeToArray(defaultValue);
+    $[11] = defaultValue;
+    $[12] = t4;
+  } else {
+    t4 = $[12];
+  }
+  const [internalValue, setInternalValue] = useState(t4);
+  let t5;
+  if ($[13] !== controlled || $[14] !== controlledValue || $[15] !== internalValue) {
+    t5 = controlled ? normalizeToArray(controlledValue) : internalValue;
+    $[13] = controlled;
+    $[14] = controlledValue;
+    $[15] = internalValue;
+    $[16] = t5;
+  } else {
+    t5 = $[16];
+  }
+  const openItems = t5;
+  let t6;
+  if ($[17] !== collapsible || $[18] !== controlled || $[19] !== disabled || $[20] !== multiple || $[21] !== onValueChange || $[22] !== openItems) {
+    t6 = (itemValue, willOpen) => {
+      if (disabled) {
+        return;
+      }
+      const nextOpenItems = computeNextOpenItems({
+        itemValue,
+        willOpen,
+        openItems,
+        multiple,
+        collapsible
+      });
+      if (!controlled) {
+        setInternalValue(nextOpenItems);
+      }
+      if (!onValueChange) {
+        return;
+      }
+      if (isMultipleChangeHandler(onValueChange, multiple)) {
+        onValueChange(nextOpenItems);
+      } else {
+        onValueChange(nextOpenItems[0] ?? "");
+      }
+    };
+    $[17] = collapsible;
+    $[18] = controlled;
+    $[19] = disabled;
+    $[20] = multiple;
+    $[21] = onValueChange;
+    $[22] = openItems;
+    $[23] = t6;
+  } else {
+    t6 = $[23];
+  }
+  const handleItemToggle = t6;
+  const t7 = multiple ? void 0 : name;
+  let t8;
+  if ($[24] !== collapsible || $[25] !== disabled || $[26] !== handleItemToggle || $[27] !== multiple || $[28] !== openItems || $[29] !== t7) {
+    t8 = {
+      multiple,
+      disabled,
+      collapsible,
+      openItems,
+      groupName: t7,
+      handleItemToggle
+    };
+    $[24] = collapsible;
+    $[25] = disabled;
+    $[26] = handleItemToggle;
+    $[27] = multiple;
+    $[28] = openItems;
+    $[29] = t7;
+    $[30] = t8;
+  } else {
+    t8 = $[30];
+  }
+  const contextValue = t8;
+  let t9;
+  if ($[31] !== className) {
+    t9 = accordionRoot({
+      className
+    });
+    $[31] = className;
+    $[32] = t9;
+  } else {
+    t9 = $[32];
+  }
+  const t10 = disabled ? "" : void 0;
+  let t11;
+  if ($[33] !== children || $[34] !== props || $[35] !== ref || $[36] !== t10 || $[37] !== t9) {
+    t11 = /* @__PURE__ */ jsx26(Primitive.div, { className: t9, "data-testid": AccordionTestIds.AccordionRoot, "data-disabled": t10, ref, ...props, children });
+    $[33] = children;
+    $[34] = props;
+    $[35] = ref;
+    $[36] = t10;
+    $[37] = t9;
+    $[38] = t11;
+  } else {
+    t11 = $[38];
+  }
+  let t12;
+  if ($[39] !== contextValue || $[40] !== t11) {
+    t12 = /* @__PURE__ */ jsx26(AccordionContext.Provider, { value: contextValue, children: t11 });
+    $[39] = contextValue;
+    $[40] = t11;
+    $[41] = t12;
+  } else {
+    t12 = $[41];
+  }
+  return t12;
+});
+AccordionRoot.displayName = "AccordionRoot";
+
+// node_modules/@kui/foundations-react-core/dist/Accordion/components/composed/AccordionItem.js
+var accordionItem = cva("nv-accordion-item");
+var AccordionItemContext = createContext4(null);
+var useAccordionItemContext = () => {
+  const context = useContext4(AccordionItemContext);
+  if (!context) {
+    throw new Error("AccordionItem compound components must be used within an AccordionItem");
+  }
+  return context;
+};
+var AccordionItem = forwardRef20((t0, ref) => {
+  const $ = c(35);
+  let children;
+  let className;
+  let props;
+  let t1;
+  let value;
+  if ($[0] !== t0) {
+    ({
+      className,
+      value,
+      disabled: t1,
+      children,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = children;
+    $[2] = className;
+    $[3] = props;
+    $[4] = t1;
+    $[5] = value;
+  } else {
+    children = $[1];
+    className = $[2];
+    props = $[3];
+    t1 = $[4];
+    value = $[5];
+  }
+  const disabled = t1 === void 0 ? false : t1;
+  const accordionContext = useAccordionContext();
+  const itemDisabled = disabled || accordionContext.disabled;
+  let t2;
+  if ($[6] !== accordionContext.openItems || $[7] !== value) {
+    t2 = accordionContext.openItems.includes(value);
+    $[6] = accordionContext.openItems;
+    $[7] = value;
+    $[8] = t2;
+  } else {
+    t2 = $[8];
+  }
+  const itemOpen = t2;
+  let t3;
+  if ($[9] !== accordionContext || $[10] !== itemDisabled || $[11] !== itemOpen || $[12] !== value) {
+    t3 = (event) => {
+      if (itemDisabled) {
+        event.preventDefault();
+        return;
+      }
+      if (event.currentTarget.open === itemOpen) {
+        return;
+      }
+      accordionContext.handleItemToggle(value, event.currentTarget.open);
+    };
+    $[9] = accordionContext;
+    $[10] = itemDisabled;
+    $[11] = itemOpen;
+    $[12] = value;
+    $[13] = t3;
+  } else {
+    t3 = $[13];
+  }
+  const handleToggle = t3;
+  let t4;
+  if ($[14] !== itemDisabled || $[15] !== itemOpen || $[16] !== value) {
+    t4 = {
+      value,
+      disabled: itemDisabled,
+      open: itemOpen
+    };
+    $[14] = itemDisabled;
+    $[15] = itemOpen;
+    $[16] = value;
+    $[17] = t4;
+  } else {
+    t4 = $[17];
+  }
+  const contextValue = t4;
+  const accordionName = accordionContext.groupName;
+  let t5;
+  if ($[18] !== className) {
+    t5 = accordionItem({
+      className
+    });
+    $[18] = className;
+    $[19] = t5;
+  } else {
+    t5 = $[19];
+  }
+  let t6;
+  if ($[20] !== itemOpen) {
+    t6 = getOpenState(itemOpen);
+    $[20] = itemOpen;
+    $[21] = t6;
+  } else {
+    t6 = $[21];
+  }
+  const t7 = itemDisabled ? "" : void 0;
+  let t8;
+  if ($[22] !== accordionName || $[23] !== children || $[24] !== handleToggle || $[25] !== itemOpen || $[26] !== props || $[27] !== ref || $[28] !== t5 || $[29] !== t6 || $[30] !== t7) {
+    t8 = /* @__PURE__ */ jsx27("details", { className: t5, "data-testid": AccordionTestIds.AccordionItem, "data-state": t6, "data-disabled": t7, name: accordionName, open: itemOpen, onToggle: handleToggle, ref, ...props, children });
+    $[22] = accordionName;
+    $[23] = children;
+    $[24] = handleToggle;
+    $[25] = itemOpen;
+    $[26] = props;
+    $[27] = ref;
+    $[28] = t5;
+    $[29] = t6;
+    $[30] = t7;
+    $[31] = t8;
+  } else {
+    t8 = $[31];
+  }
+  let t9;
+  if ($[32] !== contextValue || $[33] !== t8) {
+    t9 = /* @__PURE__ */ jsx27(AccordionItemContext.Provider, { value: contextValue, children: t8 });
+    $[32] = contextValue;
+    $[33] = t8;
+    $[34] = t9;
+  } else {
+    t9 = $[34];
+  }
+  return t9;
+});
+AccordionItem.displayName = "AccordionItem";
+
+// node_modules/@kui/foundations-react-core/dist/Accordion/components/composed/AccordionContent.js
+var accordionContent = cva("nv-accordion-content");
+var AccordionContent = forwardRef21((t0, ref) => {
+  const $ = c(14);
+  let children;
+  let className;
+  let props;
+  if ($[0] !== t0) {
+    ({
+      className,
+      children,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = children;
+    $[2] = className;
+    $[3] = props;
+  } else {
+    children = $[1];
+    className = $[2];
+    props = $[3];
+  }
+  const {
+    open
+  } = useAccordionItemContext();
+  let t1;
+  if ($[4] !== className) {
+    t1 = accordionContent({
+      className
+    });
+    $[4] = className;
+    $[5] = t1;
+  } else {
+    t1 = $[5];
+  }
+  let t2;
+  if ($[6] !== open) {
+    t2 = getOpenState(open);
+    $[6] = open;
+    $[7] = t2;
+  } else {
+    t2 = $[7];
+  }
+  let t3;
+  if ($[8] !== children || $[9] !== props || $[10] !== ref || $[11] !== t1 || $[12] !== t2) {
+    t3 = /* @__PURE__ */ jsx28(Primitive.div, { className: t1, "data-testid": AccordionTestIds.AccordionContent, "data-state": t2, ref, ...props, children });
+    $[8] = children;
+    $[9] = props;
+    $[10] = ref;
+    $[11] = t1;
+    $[12] = t2;
+    $[13] = t3;
+  } else {
+    t3 = $[13];
+  }
+  return t3;
+});
+AccordionContent.displayName = "AccordionContent";
+
+// node_modules/@kui/foundations-react-core/dist/Accordion/components/composed/AccordionTrigger.js
+import { jsxs as jsxs5, jsx as jsx31 } from "react/jsx-runtime";
+import { forwardRef as forwardRef23 } from "react";
+
+// node_modules/@kui/foundations-react-core/dist/AnimatedChevron/components/base/AnimatedChevron.js
+import { jsx as jsx30 } from "react/jsx-runtime";
+import React14 from "react";
+
+// node_modules/@kui/foundations-react-core/dist/lib/components/Icon.js
+import { jsx as jsx29 } from "react/jsx-runtime";
+import { forwardRef as forwardRef22 } from "react";
+var icon = cva("nv-icon", {
+  variants: {
+    variant: {
+      line: "",
+      fill: "nv-icon--fill"
+    }
+  }
+});
+var Icon = forwardRef22((t0, ref) => {
+  const $ = c(19);
+  let className;
+  let name;
+  let props;
+  let size;
+  let style;
+  let t1;
+  if ($[0] !== t0) {
+    ({
+      className,
+      name,
+      variant: t1,
+      size,
+      style,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = className;
+    $[2] = name;
+    $[3] = props;
+    $[4] = size;
+    $[5] = style;
+    $[6] = t1;
+  } else {
+    className = $[1];
+    name = $[2];
+    props = $[3];
+    size = $[4];
+    style = $[5];
+    t1 = $[6];
+  }
+  const variant = t1 === void 0 ? "line" : t1;
+  let t2;
+  if ($[7] !== size || $[8] !== style) {
+    t2 = size ? {
+      "--icon-font-size": `${size}px`,
+      ...style
+    } : style;
+    $[7] = size;
+    $[8] = style;
+    $[9] = t2;
+  } else {
+    t2 = $[9];
+  }
+  let t3;
+  if ($[10] !== className || $[11] !== variant) {
+    t3 = icon({
+      className,
+      variant
+    });
+    $[10] = className;
+    $[11] = variant;
+    $[12] = t3;
+  } else {
+    t3 = $[12];
+  }
+  const t4 = `${t3} nv-icon-${name}`;
+  const t5 = props["aria-label"] ? "false" : "true";
+  let t6;
+  if ($[13] !== props || $[14] !== ref || $[15] !== t2 || $[16] !== t4 || $[17] !== t5) {
+    t6 = /* @__PURE__ */ jsx29("i", { style: t2, className: t4, ref, role: "img", "aria-hidden": t5, ...props });
+    $[13] = props;
+    $[14] = ref;
+    $[15] = t2;
+    $[16] = t4;
+    $[17] = t5;
+    $[18] = t6;
+  } else {
+    t6 = $[18];
+  }
+  return t6;
+});
+Icon.displayName = "Icon";
+
+// node_modules/@kui/foundations-react-core/dist/AnimatedChevron/components/base/AnimatedChevron.js
+var AnimatedChevron = React14.forwardRef((t0, ref) => {
+  const $ = c(9);
+  let className;
+  let props;
+  let state;
+  if ($[0] !== t0) {
+    ({
+      className,
+      state,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = className;
+    $[2] = props;
+    $[3] = state;
+  } else {
+    className = $[1];
+    props = $[2];
+    state = $[3];
+  }
+  const t1 = className ? `nv-animated-chevron ${className}` : "nv-animated-chevron";
+  let t2;
+  if ($[4] !== props || $[5] !== ref || $[6] !== state || $[7] !== t1) {
+    t2 = /* @__PURE__ */ jsx30(Icon, { name: "chevron-down", className: t1, "data-state": state, variant: "line", ref, ...props });
+    $[4] = props;
+    $[5] = ref;
+    $[6] = state;
+    $[7] = t1;
+    $[8] = t2;
+  } else {
+    t2 = $[8];
+  }
+  return t2;
+});
+AnimatedChevron.displayName = "AnimatedChevron";
+
+// node_modules/@kui/foundations-react-core/dist/Accordion/components/composed/AccordionTrigger.js
+var accordionTrigger = cva("nv-accordion-trigger", {
+  variants: {
+    chevronPosition: {
+      start: "nv-accordion-trigger--chevron-start",
+      end: "nv-accordion-trigger--chevron-end"
+    }
+  }
+});
+var AccordionTrigger = forwardRef23((t0, ref) => {
+  const $ = c(30);
+  let children;
+  let className;
+  let disabledProp;
+  let onClick;
+  let props;
+  let t1;
+  if ($[0] !== t0) {
+    ({
+      children,
+      className,
+      disabled: disabledProp,
+      chevronPosition: t1,
+      onClick,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = children;
+    $[2] = className;
+    $[3] = disabledProp;
+    $[4] = onClick;
+    $[5] = props;
+    $[6] = t1;
+  } else {
+    children = $[1];
+    className = $[2];
+    disabledProp = $[3];
+    onClick = $[4];
+    props = $[5];
+    t1 = $[6];
+  }
+  const chevronPosition = t1 === void 0 ? "end" : t1;
+  const accordionContext = useAccordionContext();
+  const itemContext = useAccordionItemContext();
+  const {
+    open
+  } = itemContext;
+  const disabled = disabledProp ?? itemContext.disabled;
+  const canClose = accordionContext.multiple || accordionContext.collapsible;
+  const shouldPreventToggle = disabled || open && !canClose;
+  let t2;
+  if ($[7] !== onClick || $[8] !== shouldPreventToggle) {
+    t2 = (event) => {
+      if (shouldPreventToggle) {
+        event.preventDefault();
+        return;
+      }
+      onClick?.(event);
+    };
+    $[7] = onClick;
+    $[8] = shouldPreventToggle;
+    $[9] = t2;
+  } else {
+    t2 = $[9];
+  }
+  const handleSummaryClick = t2;
+  let t3;
+  if ($[10] !== chevronPosition || $[11] !== className) {
+    t3 = accordionTrigger({
+      className,
+      chevronPosition
+    });
+    $[10] = chevronPosition;
+    $[11] = className;
+    $[12] = t3;
+  } else {
+    t3 = $[12];
+  }
+  let t4;
+  if ($[13] !== open) {
+    t4 = getOpenState(open);
+    $[13] = open;
+    $[14] = t4;
+  } else {
+    t4 = $[14];
+  }
+  const t5 = disabled ? "" : void 0;
+  const t6 = disabled ? true : void 0;
+  const t7 = disabled ? -1 : void 0;
+  let t8;
+  if ($[15] !== props || $[16] !== ref || $[17] !== t3 || $[18] !== t4 || $[19] !== t5 || $[20] !== t6 || $[21] !== t7) {
+    t8 = {
+      className: t3,
+      "data-testid": AccordionTestIds.AccordionTrigger,
+      "data-state": t4,
+      "data-disabled": t5,
+      "aria-disabled": t6,
+      tabIndex: t7,
+      ref,
+      ...props
+    };
+    $[15] = props;
+    $[16] = ref;
+    $[17] = t3;
+    $[18] = t4;
+    $[19] = t5;
+    $[20] = t6;
+    $[21] = t7;
+    $[22] = t8;
+  } else {
+    t8 = $[22];
+  }
+  const summaryProps = t8;
+  let t9;
+  if ($[23] !== children) {
+    t9 = /* @__PURE__ */ jsx31("span", { className: "nv-accordion-label-text", children });
+    $[23] = children;
+    $[24] = t9;
+  } else {
+    t9 = $[24];
+  }
+  let t10;
+  if ($[25] === Symbol.for("react.memo_cache_sentinel")) {
+    t10 = /* @__PURE__ */ jsx31(AnimatedChevron, {});
+    $[25] = t10;
+  } else {
+    t10 = $[25];
+  }
+  let t11;
+  if ($[26] !== handleSummaryClick || $[27] !== summaryProps || $[28] !== t9) {
+    t11 = /* @__PURE__ */ jsxs5("summary", { onClick: handleSummaryClick, ...summaryProps, children: [
+      t9,
+      t10
+    ] });
+    $[26] = handleSummaryClick;
+    $[27] = summaryProps;
+    $[28] = t9;
+    $[29] = t11;
+  } else {
+    t11 = $[29];
+  }
+  return t11;
+});
+AccordionTrigger.displayName = "AccordionTrigger";
+
+// node_modules/@kui/foundations-react-core/dist/Accordion/components/base/Accordion.js
+var Accordion = forwardRef24((t0, ref) => {
+  const $ = c(19);
+  let defaultValue;
+  let items;
+  let multiple;
+  let onValueChange;
+  let props;
+  let t1;
+  let value;
+  if ($[0] !== t0) {
+    ({
+      collapsible: t1,
+      defaultValue,
+      items,
+      multiple,
+      onValueChange,
+      value,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = defaultValue;
+    $[2] = items;
+    $[3] = multiple;
+    $[4] = onValueChange;
+    $[5] = props;
+    $[6] = t1;
+    $[7] = value;
+  } else {
+    defaultValue = $[1];
+    items = $[2];
+    multiple = $[3];
+    onValueChange = $[4];
+    props = $[5];
+    t1 = $[6];
+    value = $[7];
+  }
+  const collapsible = t1 === void 0 ? true : t1;
+  const t2 = multiple ? void 0 : collapsible;
+  const t3 = defaultValue;
+  const t4 = onValueChange;
+  const t5 = value;
+  let t6;
+  if ($[8] !== items) {
+    t6 = items.map(_temp);
+    $[8] = items;
+    $[9] = t6;
+  } else {
+    t6 = $[9];
+  }
+  let t7;
+  if ($[10] !== multiple || $[11] !== props || $[12] !== ref || $[13] !== t2 || $[14] !== t3 || $[15] !== t4 || $[16] !== t5 || $[17] !== t6) {
+    t7 = /* @__PURE__ */ jsx32(AccordionRoot, { collapsible: t2, multiple, defaultValue: t3, onValueChange: t4, value: t5, ref, ...props, children: t6 });
+    $[10] = multiple;
+    $[11] = props;
+    $[12] = ref;
+    $[13] = t2;
+    $[14] = t3;
+    $[15] = t4;
+    $[16] = t5;
+    $[17] = t6;
+    $[18] = t7;
+  } else {
+    t7 = $[18];
+  }
+  return t7;
+});
+Accordion.displayName = "Accordion";
+function _temp(item) {
+  return /* @__PURE__ */ jsxs6(AccordionItem, { value: item.value, ...item.attributes?.AccordionItem, children: [
+    /* @__PURE__ */ jsx32(AccordionTrigger, { chevronPosition: item.chevronPosition, disabled: item.disabled, ...item.attributes?.AccordionTrigger, children: item.slotTrigger }),
+    /* @__PURE__ */ jsx32(AccordionContent, { ...item.attributes?.AccordionContent, children: item.slotContent })
+  ] }, item.value);
+}
+
+// node_modules/@kui/foundations-react-core/dist/Tabs/components/base/Tabs.js
+import { jsx as jsx37, jsxs as jsxs9 } from "react/jsx-runtime";
+import { forwardRef as forwardRef25, useMemo as useMemo3 } from "react";
+
+// node_modules/@kui/foundations-react-core/dist/lib/utils/sanitize-href.js
+var DANGEROUS_SCHEME_RE = /^\s*(javascript|data|vbscript)\s*:/i;
+function sanitizeHref(href) {
+  if (href === void 0 || href === null) {
+    return void 0;
+  }
+  if (DANGEROUS_SCHEME_RE.test(href)) {
+    return void 0;
+  }
+  return href;
+}
+function sanitizeHrefProp(item) {
+  return {
+    ...item,
+    href: sanitizeHref(item.href)
+  };
+}
+
+// node_modules/@kui/foundations-react-core/dist/Tabs/components/composed/TabsContent.js
+import { jsx as jsx33 } from "react/jsx-runtime";
+import React15 from "react";
+
+// node_modules/@kui/foundations-react-core/dist/Tabs/constants.js
+var TabsTestIds = {
+  TabsRoot: "nv-tabs-root",
+  TabsList: "nv-tabs-list",
+  TabsTrigger: "nv-tabs-trigger",
+  TabsContent: "nv-tabs-content"
+};
+
+// node_modules/@kui/foundations-react-core/dist/Tabs/context.js
+import { createContext as createContext5, useContext as useContext5 } from "react";
+var TabsContext = createContext5(null);
+var useTabsContext = () => {
+  const context = useContext5(TabsContext);
+  if (!context) {
+    throw new Error("Tabs compound components must be used within a TabsRoot");
+  }
+  return context;
+};
+
+// node_modules/@kui/foundations-react-core/dist/Tabs/components/composed/TabsContent.js
+var tabsContent = cva("nv-tabs-content");
+var TabsContent = React15.forwardRef((t0, ref) => {
+  const $ = c(18);
+  let className;
+  let forceMount;
+  let props;
+  let unstyled;
+  let value;
+  if ($[0] !== t0) {
+    ({
+      className,
+      value,
+      forceMount,
+      unstyled,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = className;
+    $[2] = forceMount;
+    $[3] = props;
+    $[4] = unstyled;
+    $[5] = value;
+  } else {
+    className = $[1];
+    forceMount = $[2];
+    props = $[3];
+    unstyled = $[4];
+    value = $[5];
+  }
+  const {
+    activeValue,
+    baseId
+  } = useTabsContext();
+  const isActive = activeValue === value;
+  if (!(isActive || forceMount)) {
+    return null;
+  }
+  const t1 = `${baseId}-panel-${value}`;
+  const t2 = `${baseId}-trigger-${value}`;
+  const t3 = isActive ? "" : void 0;
+  const t4 = !isActive;
+  const t5 = isActive ? 0 : -1;
+  let t6;
+  if ($[6] !== className || $[7] !== unstyled) {
+    t6 = unstyled ? className : tabsContent({
+      className
+    });
+    $[6] = className;
+    $[7] = unstyled;
+    $[8] = t6;
+  } else {
+    t6 = $[8];
+  }
+  let t7;
+  if ($[9] !== props || $[10] !== ref || $[11] !== t1 || $[12] !== t2 || $[13] !== t3 || $[14] !== t4 || $[15] !== t5 || $[16] !== t6) {
+    t7 = /* @__PURE__ */ jsx33(Primitive.div, { role: "tabpanel", id: t1, "aria-labelledby": t2, "data-active": t3, hidden: t4, tabIndex: t5, className: t6, ref, "data-testid": TabsTestIds.TabsContent, ...props });
+    $[9] = props;
+    $[10] = ref;
+    $[11] = t1;
+    $[12] = t2;
+    $[13] = t3;
+    $[14] = t4;
+    $[15] = t5;
+    $[16] = t6;
+    $[17] = t7;
+  } else {
+    t7 = $[17];
+  }
+  return t7;
+});
+TabsContent.displayName = "TabsContent";
+
+// node_modules/@kui/foundations-react-core/dist/Tabs/components/composed/TabsList.js
+import { jsx as jsx34, jsxs as jsxs7, Fragment as Fragment5 } from "react/jsx-runtime";
+import React16, { useRef as useRef2, useState as useState2, useCallback as useCallback3, useEffect as useEffect2 } from "react";
+
+// node_modules/@kui/foundations-react-core/dist/lib/hooks/use-roving-focus.js
+import { useRef, useEffect, useCallback as useCallback2 } from "react";
+
+// node_modules/@kui/foundations-react-core/dist/lib/utils/focus.js
+var FOCUSABLE_SELECTOR = '[tabindex]:not([tabindex="-1"]):not([data-disabled]), button:not(:disabled):not([data-disabled]), [href]:not([data-disabled])';
+function queryFocusableItems(container, selector, {
+  includeNegativeTabIndex = false
+} = {}) {
+  return Array.from(container.querySelectorAll(selector)).filter((el) => !el.hasAttribute("data-disabled") && (includeNegativeTabIndex || el.tabIndex !== -1));
+}
+function focusElement(element) {
+  if (!element) {
+    return;
+  }
+  element.focus();
+  element.scrollIntoView({
+    block: "nearest"
+  });
+}
+function getActiveItemIndex(items) {
+  return items.indexOf(document.activeElement);
+}
+
+// node_modules/@kui/foundations-react-core/dist/lib/utils/navigation.js
+var NAVIGATION_KEY_MAP = {
+  ArrowDown: {
+    delta: 1,
+    axes: ["vertical"]
+  },
+  ArrowUp: {
+    delta: -1,
+    axes: ["vertical"]
+  },
+  ArrowRight: {
+    delta: 1,
+    axes: ["horizontal"]
+  },
+  ArrowLeft: {
+    delta: -1,
+    axes: ["horizontal"]
+  }
+};
+var ARROW_KEYS = /* @__PURE__ */ new Set([...Object.keys(NAVIGATION_KEY_MAP)]);
+var NAVIGATION_KEYS = /* @__PURE__ */ new Set([...Object.keys(NAVIGATION_KEY_MAP), "Home", "End"]);
+function supportsAxis(direction, axis) {
+  return direction === "both" || direction === axis;
+}
+function getNavigationDelta(key, direction) {
+  const config = NAVIGATION_KEY_MAP[key];
+  if (!config) {
+    return null;
+  }
+  const isAllowed = config.axes.some((axis) => supportsAxis(direction, axis));
+  return isAllowed ? config.delta : null;
+}
+function calculateWrappedIndex(currentIndex, itemCount, delta, loop) {
+  const nextIndex = currentIndex + delta;
+  if (nextIndex >= itemCount) {
+    return loop ? 0 : itemCount - 1;
+  }
+  if (nextIndex < 0) {
+    return loop ? itemCount - 1 : 0;
+  }
+  return nextIndex;
+}
+function resolveNavigationIndex(key, currentIndex, itemCount, direction, loop) {
+  if (key === "Home") {
+    return 0;
+  }
+  if (key === "End") {
+    return itemCount - 1;
+  }
+  const delta = getNavigationDelta(key, direction);
+  if (delta === null) {
+    return null;
+  }
+  return calculateWrappedIndex(currentIndex, itemCount, delta, loop);
+}
+
+// node_modules/@kui/foundations-react-core/dist/lib/hooks/use-roving-focus.js
+var TYPEAHEAD_TIMEOUT_MS = 500;
+var TYPEAHEAD_EXCLUDED_KEYS = /* @__PURE__ */ new Set([" ", "Enter", "Tab", "Escape"]);
+var TypeaheadBuffer = class {
+  constructor() {
+    this.buffer = "";
+    this.timeoutId = null;
+  }
+  append(char) {
+    this.clearPendingReset();
+    this.buffer += char;
+    this.timeoutId = setTimeout(() => this.reset(), TYPEAHEAD_TIMEOUT_MS);
+    return this.buffer;
+  }
+  dispose() {
+    this.clearPendingReset();
+    this.buffer = "";
+  }
+  reset() {
+    this.buffer = "";
+    this.timeoutId = null;
+  }
+  clearPendingReset() {
+    if (this.timeoutId) {
+      clearTimeout(this.timeoutId);
+      this.timeoutId = null;
+    }
+  }
+};
+function isTypeaheadKey(event) {
+  if (event.key.length !== 1) {
+    return false;
+  }
+  if (event.ctrlKey || event.metaKey || event.altKey) {
+    return false;
+  }
+  if (TYPEAHEAD_EXCLUDED_KEYS.has(event.key)) {
+    return false;
+  }
+  const target = event.target;
+  const tagName = target.tagName.toLowerCase();
+  return tagName !== "input" && tagName !== "textarea" && !target.isContentEditable;
+}
+function findTypeaheadMatch(items, searchString, startIndex) {
+  const normalizedSearch = searchString.toLowerCase();
+  for (let indexOffset = 0; indexOffset < items.length; indexOffset++) {
+    const index = (startIndex + indexOffset) % items.length;
+    const textContent = (items[index]?.textContent || "").trim().toLowerCase();
+    if (textContent.startsWith(normalizedSearch)) {
+      return index;
+    }
+  }
+  return null;
+}
+function useRovingFocus({
+  direction = "vertical",
+  loop = true,
+  itemSelector = FOCUSABLE_SELECTOR,
+  typeahead = true,
+  includeNegativeTabIndex = false
+} = {}) {
+  const containerRef = useRef(null);
+  const typeaheadRef = useRef(null);
+  if (typeahead && typeaheadRef.current === null) {
+    typeaheadRef.current = new TypeaheadBuffer();
+  }
+  useEffect(() => {
+    if (!typeahead) {
+      return;
+    }
+    const buffer = typeaheadRef.current;
+    return () => buffer?.dispose();
+  }, [typeahead]);
+  const handleKeyDown = useCallback2((event) => {
+    if (!containerRef.current) {
+      return;
+    }
+    const isNavigationKey = NAVIGATION_KEYS.has(event.key);
+    const shouldHandleTypeahead = typeahead && isTypeaheadKey(event);
+    if (!(isNavigationKey || shouldHandleTypeahead)) {
+      return;
+    }
+    const items = queryFocusableItems(containerRef.current, itemSelector, {
+      includeNegativeTabIndex
+    });
+    if (items.length === 0) {
+      return;
+    }
+    const currentIndex = getActiveItemIndex(items);
+    if (isNavigationKey) {
+      const nextIndex = resolveNavigationIndex(event.key, currentIndex, items.length, direction, loop);
+      if (nextIndex !== null && nextIndex !== currentIndex) {
+        event.preventDefault();
+        focusElement(items[nextIndex]);
+      }
+      return;
+    }
+    if (shouldHandleTypeahead && typeaheadRef.current) {
+      event.preventDefault();
+      const searchString = typeaheadRef.current.append(event.key);
+      const startIndex = currentIndex >= 0 ? currentIndex : 0;
+      const matchIndex = findTypeaheadMatch(items, searchString, startIndex);
+      if (matchIndex !== null) {
+        focusElement(items[matchIndex]);
+      }
+    }
+  }, [direction, loop, itemSelector, typeahead, includeNegativeTabIndex]);
+  return {
+    containerRef,
+    handleKeyDown
+  };
+}
+
+// node_modules/@kui/foundations-react-core/dist/Tabs/components/composed/TabsList.js
+var tabsList = cva("nv-tabs-list", {
+  variants: {
+    kind: {
+      primary: "nv-tabs-list--kind-primary",
+      secondary: "nv-tabs-list--kind-secondary",
+      tertiary: "nv-tabs-list--kind-tertiary"
+    }
+  },
+  defaultVariants: {
+    kind: "primary"
+  }
+});
+var TabsList = React16.forwardRef(({
+  className,
+  kind = "primary",
+  children,
+  asChild,
+  onKeyDown,
+  onBlur,
+  hideOverflowButtons = false,
+  visibleRange,
+  unstyled,
+  ...props
+}, ref) => {
+  const Component = asChild ? Slot : "div";
+  const scrollContainerRef = useRef2(null);
+  const scrollFrameRef = useRef2(null);
+  const [canScrollLeft, setCanScrollLeft] = useState2(false);
+  const [canScrollRight, setCanScrollRight] = useState2(false);
+  const {
+    baseId,
+    setFocusedValue
+  } = useTabsContext();
+  const {
+    containerRef: rovingRef,
+    handleKeyDown
+  } = useRovingFocus({
+    direction: "horizontal",
+    loop: true,
+    includeNegativeTabIndex: true,
+    itemSelector: '[role="tab"]:not([data-disabled])',
+    typeahead: false
+  });
+  const handleTabsListKeyDown = useCallback3((event) => {
+    handleKeyDown(event);
+    onKeyDown?.(event);
+  }, [handleKeyDown, onKeyDown]);
+  const handleTabsListBlur = useCallback3((event_0) => {
+    if (event_0.relatedTarget instanceof Node && event_0.currentTarget.contains(event_0.relatedTarget)) {
+      onBlur?.(event_0);
+      return;
+    }
+    setFocusedValue(void 0);
+    onBlur?.(event_0);
+  }, [onBlur, setFocusedValue]);
+  const mergedScrollRef = useCallback3((node) => {
+    scrollContainerRef.current = node;
+    rovingRef.current = node;
+  }, [rovingRef]);
+  const renderChildrenWithRange = useCallback3((children_0) => {
+    if (!(visibleRange && React16.Children.count(children_0))) {
+      return children_0;
+    }
+    const childArray = React16.Children.toArray(children_0);
+    const result = [];
+    let lastIndex = -1;
+    visibleRange.forEach((index) => {
+      if (lastIndex !== -1 && index - lastIndex > 1) {
+        result.push(/* @__PURE__ */ jsx34("span", { className: "nv-tabs-scroll-container-ellipses", children: "..." }, `ellipsis-${lastIndex}-${index}`));
+      }
+      const child = childArray[index - 1];
+      if (child) {
+        result.push(child);
+      }
+      lastIndex = index;
+    });
+    return result;
+  }, [visibleRange]);
+  const isHorizontallyVisibleInContainer = useCallback3((containerRect, elRect) => {
+    const allowedMargin = 1;
+    return elRect.left >= containerRect.left - allowedMargin && elRect.right <= containerRect.right + allowedMargin;
+  }, []);
+  const getFirstElementVisibleFromLeft = useCallback3((container, elements) => {
+    for (const element of elements) {
+      if (isHorizontallyVisibleInContainer(container, element.getBoundingClientRect())) {
+        return element;
+      }
+    }
+    return null;
+  }, [isHorizontallyVisibleInContainer]);
+  const checkScroll = useCallback3(() => {
+    const element_0 = scrollContainerRef.current;
+    if (!element_0) {
+      return;
+    }
+    setCanScrollLeft(element_0.scrollLeft > 0);
+    setCanScrollRight(Math.ceil(element_0.scrollLeft + element_0.clientWidth) < Math.floor(element_0.scrollWidth));
+  }, []);
+  const scheduleCheckScroll = useCallback3(() => {
+    if (scrollFrameRef.current !== null) {
+      return;
+    }
+    scrollFrameRef.current = requestAnimationFrame(() => {
+      scrollFrameRef.current = null;
+      checkScroll();
+    });
+  }, [checkScroll]);
+  useEffect2(() => {
+    const element_1 = scrollContainerRef.current;
+    if (!element_1) {
+      return;
+    }
+    const observer = new ResizeObserver(scheduleCheckScroll);
+    observer.observe(element_1);
+    element_1.addEventListener("scroll", scheduleCheckScroll, {
+      passive: true
+    });
+    checkScroll();
+    return () => {
+      if (scrollFrameRef.current !== null) {
+        cancelAnimationFrame(scrollFrameRef.current);
+        scrollFrameRef.current = null;
+      }
+      observer.disconnect();
+      element_1.removeEventListener("scroll", scheduleCheckScroll);
+    };
+  }, [checkScroll, scheduleCheckScroll]);
+  useEffect2(() => {
+    checkScroll();
+  }, [checkScroll, children, visibleRange]);
+  const scroll = useCallback3((direction) => {
+    const container_0 = scrollContainerRef.current;
+    if (!container_0) {
+      return;
+    }
+    const containerRect_0 = container_0.getBoundingClientRect();
+    const menuItems = Array.from(container_0.children);
+    const searchSiblingKey = direction === "right" ? "nextElementSibling" : "previousElementSibling";
+    const testElement = getFirstElementVisibleFromLeft(containerRect_0, menuItems);
+    const candidate = testElement?.[searchSiblingKey];
+    if (candidate) {
+      const rect = candidate.getBoundingClientRect();
+      const scrollAmount = rect.left - containerRect_0.left;
+      container_0.scrollBy({
+        left: scrollAmount,
+        behavior: "smooth"
+      });
+    }
+  }, [getFirstElementVisibleFromLeft]);
+  return /* @__PURE__ */ jsx34(Component, { role: "tablist", onKeyDown: handleTabsListKeyDown, onBlur: handleTabsListBlur, className: unstyled ? className : tabsList({
+    kind,
+    className
+  }), ref, "data-testid": TabsTestIds.TabsList, ...props, children: /* @__PURE__ */ jsx34(Slottable, { asChild, child: children, children: (child_0) => /* @__PURE__ */ jsxs7(Fragment5, { children: [
+    !hideOverflowButtons && canScrollLeft && /* @__PURE__ */ jsx34(Button, { kind: "tertiary", color: "neutral", onClick: () => scroll("left"), "aria-label": "Scroll left", "aria-controls": `${baseId}-scroll-region`, "aria-hidden": "true", tabIndex: -1, className: "nv-tabs-scroll-button", children: /* @__PURE__ */ jsx34(Icon, { name: "chevron-left" }) }),
+    /* @__PURE__ */ jsx34("div", { id: `${baseId}-scroll-region`, ref: mergedScrollRef, className: cx("nv-tabs-scroll-container", {
+      "nv-tabs-scroll-container--fade-left": canScrollLeft,
+      "nv-tabs-scroll-container--fade-right": canScrollRight,
+      "nv-tabs-scroll-container--fade-both": canScrollLeft && canScrollRight
+    }), children: renderChildrenWithRange(child_0) }),
+    !hideOverflowButtons && canScrollRight && /* @__PURE__ */ jsx34(Button, { kind: "tertiary", color: "neutral", onClick: () => scroll("right"), "aria-label": "Scroll right", "aria-controls": `${baseId}-scroll-region`, "aria-hidden": "true", tabIndex: -1, className: "nv-tabs-scroll-button", children: /* @__PURE__ */ jsx34(Icon, { name: "chevron-right" }) })
+  ] }) }) });
+});
+TabsList.displayName = "TabsList";
+
+// node_modules/@kui/foundations-react-core/dist/Tabs/components/composed/TabsRoot.js
+import { jsx as jsx35 } from "react/jsx-runtime";
+import React17, { useState as useState3, useId as useId2 } from "react";
+var tabsRoot = cva("nv-tabs-root");
+var TabsRoot = React17.forwardRef((t0, ref) => {
+  const $ = c(29);
+  let className;
+  let defaultValue;
+  let onValueChange;
+  let panelValues;
+  let props;
+  let t1;
+  let unstyled;
+  let value;
+  if ($[0] !== t0) {
+    ({
+      activationMode: t1,
+      value,
+      defaultValue,
+      onValueChange,
+      panelValues,
+      className,
+      unstyled,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = className;
+    $[2] = defaultValue;
+    $[3] = onValueChange;
+    $[4] = panelValues;
+    $[5] = props;
+    $[6] = t1;
+    $[7] = unstyled;
+    $[8] = value;
+  } else {
+    className = $[1];
+    defaultValue = $[2];
+    onValueChange = $[3];
+    panelValues = $[4];
+    props = $[5];
+    t1 = $[6];
+    unstyled = $[7];
+    value = $[8];
+  }
+  const activationMode = t1 === void 0 ? "manual" : t1;
+  const controlled = value !== void 0;
+  const [internalValue, setInternalValue] = useState3(defaultValue ?? "");
+  const [focusedValue, setFocusedValue] = useState3();
+  const activeValue = controlled ? value : internalValue;
+  const baseId = useId2();
+  let t2;
+  if ($[9] !== controlled || $[10] !== onValueChange) {
+    t2 = (newValue) => {
+      if (!controlled) {
+        setInternalValue(newValue);
+      }
+      onValueChange?.(newValue);
+    };
+    $[9] = controlled;
+    $[10] = onValueChange;
+    $[11] = t2;
+  } else {
+    t2 = $[11];
+  }
+  const setActiveValue = t2;
+  let t3;
+  if ($[12] !== activationMode || $[13] !== activeValue || $[14] !== baseId || $[15] !== focusedValue || $[16] !== panelValues || $[17] !== setActiveValue) {
+    t3 = {
+      activeValue,
+      setActiveValue,
+      focusedValue,
+      setFocusedValue,
+      activationMode,
+      baseId,
+      panelValues
+    };
+    $[12] = activationMode;
+    $[13] = activeValue;
+    $[14] = baseId;
+    $[15] = focusedValue;
+    $[16] = panelValues;
+    $[17] = setActiveValue;
+    $[18] = t3;
+  } else {
+    t3 = $[18];
+  }
+  const contextValue = t3;
+  let t4;
+  if ($[19] !== className || $[20] !== unstyled) {
+    t4 = unstyled ? className : tabsRoot({
+      className
+    });
+    $[19] = className;
+    $[20] = unstyled;
+    $[21] = t4;
+  } else {
+    t4 = $[21];
+  }
+  let t5;
+  if ($[22] !== props || $[23] !== ref || $[24] !== t4) {
+    t5 = /* @__PURE__ */ jsx35(Primitive.div, { ref, "data-testid": TabsTestIds.TabsRoot, className: t4, ...props });
+    $[22] = props;
+    $[23] = ref;
+    $[24] = t4;
+    $[25] = t5;
+  } else {
+    t5 = $[25];
+  }
+  let t6;
+  if ($[26] !== contextValue || $[27] !== t5) {
+    t6 = /* @__PURE__ */ jsx35(TabsContext.Provider, { value: contextValue, children: t5 });
+    $[26] = contextValue;
+    $[27] = t5;
+    $[28] = t6;
+  } else {
+    t6 = $[28];
+  }
+  return t6;
+});
+TabsRoot.displayName = "TabsRoot";
+
+// node_modules/@kui/foundations-react-core/dist/Tabs/components/composed/TabsTrigger.js
+import { jsx as jsx36, jsxs as jsxs8, Fragment as Fragment6 } from "react/jsx-runtime";
+import React18 from "react";
+var tabsTrigger = cva("nv-tabs-trigger");
+var TabsTrigger = React18.forwardRef((t0, ref) => {
+  const $ = c(63);
+  let asChild;
+  let children;
+  let className;
+  let disabled;
+  let onClick;
+  let onFocus;
+  let onKeyDown;
+  let props;
+  let t1;
+  let type;
+  let value;
+  if ($[0] !== t0) {
+    ({
+      asChild,
+      children,
+      className,
+      value,
+      disabled,
+      onFocus,
+      onClick,
+      onKeyDown,
+      renderSpacingElement: t1,
+      type,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = asChild;
+    $[2] = children;
+    $[3] = className;
+    $[4] = disabled;
+    $[5] = onClick;
+    $[6] = onFocus;
+    $[7] = onKeyDown;
+    $[8] = props;
+    $[9] = t1;
+    $[10] = type;
+    $[11] = value;
+  } else {
+    asChild = $[1];
+    children = $[2];
+    className = $[3];
+    disabled = $[4];
+    onClick = $[5];
+    onFocus = $[6];
+    onKeyDown = $[7];
+    props = $[8];
+    t1 = $[9];
+    type = $[10];
+    value = $[11];
+  }
+  const renderSpacingElement = t1 === void 0 ? true : t1;
+  const {
+    activeValue,
+    setActiveValue,
+    focusedValue,
+    setFocusedValue,
+    activationMode,
+    baseId,
+    panelValues
+  } = useTabsContext();
+  const isActive = activeValue === value;
+  const isTabStop = (focusedValue ?? activeValue) === value;
+  const hasPanel = panelValues?.has(value) ?? false;
+  const Component = asChild ? Slot : "button";
+  let t2;
+  if ($[12] !== asChild || $[13] !== children) {
+    t2 = asChild && isNativeButtonChild(children);
+    $[12] = asChild;
+    $[13] = children;
+    $[14] = t2;
+  } else {
+    t2 = $[14];
+  }
+  const hasNativeButtonChild = t2;
+  let t3;
+  if ($[15] !== disabled || $[16] !== setActiveValue || $[17] !== setFocusedValue || $[18] !== value) {
+    t3 = () => {
+      if (disabled) {
+        return;
+      }
+      setFocusedValue(value);
+      setActiveValue(value);
+    };
+    $[15] = disabled;
+    $[16] = setActiveValue;
+    $[17] = setFocusedValue;
+    $[18] = value;
+    $[19] = t3;
+  } else {
+    t3 = $[19];
+  }
+  const activateTab = t3;
+  let t4;
+  if ($[20] !== activationMode || $[21] !== disabled || $[22] !== onFocus || $[23] !== setActiveValue || $[24] !== setFocusedValue || $[25] !== value) {
+    t4 = (event) => {
+      setFocusedValue(value);
+      if (!(disabled || activationMode !== "automatic")) {
+        setActiveValue(value);
+      }
+      onFocus?.(event);
+    };
+    $[20] = activationMode;
+    $[21] = disabled;
+    $[22] = onFocus;
+    $[23] = setActiveValue;
+    $[24] = setFocusedValue;
+    $[25] = value;
+    $[26] = t4;
+  } else {
+    t4 = $[26];
+  }
+  const handleFocus = t4;
+  let t5;
+  if ($[27] !== activateTab || $[28] !== onClick) {
+    t5 = (event_0) => {
+      activateTab();
+      onClick?.(event_0);
+    };
+    $[27] = activateTab;
+    $[28] = onClick;
+    $[29] = t5;
+  } else {
+    t5 = $[29];
+  }
+  const handleClick = t5;
+  let t6;
+  if ($[30] !== activateTab || $[31] !== activationMode || $[32] !== asChild || $[33] !== disabled || $[34] !== hasNativeButtonChild || $[35] !== onKeyDown) {
+    t6 = (event_1) => {
+      const usesNativeEnter = event_1.key === "Enter" && event_1.currentTarget instanceof HTMLAnchorElement;
+      const shouldActivateSlottedManualTab = !disabled && activationMode === "manual" && asChild && !hasNativeButtonChild && (event_1.key === " " || event_1.key === "Enter") && !usesNativeEnter;
+      if (shouldActivateSlottedManualTab) {
+        event_1.preventDefault();
+        activateTab();
+      }
+      onKeyDown?.(event_1);
+    };
+    $[30] = activateTab;
+    $[31] = activationMode;
+    $[32] = asChild;
+    $[33] = disabled;
+    $[34] = hasNativeButtonChild;
+    $[35] = onKeyDown;
+    $[36] = t6;
+  } else {
+    t6 = $[36];
+  }
+  const handleKeyDown = t6;
+  const t7 = `${baseId}-trigger-${value}`;
+  const t8 = disabled || void 0;
+  const t9 = isActive && hasPanel ? `${baseId}-panel-${value}` : void 0;
+  const t10 = isActive ? "" : void 0;
+  const t11 = disabled ? "" : void 0;
+  let t12;
+  if ($[37] !== className) {
+    t12 = tabsTrigger({
+      className
+    });
+    $[37] = className;
+    $[38] = t12;
+  } else {
+    t12 = $[38];
+  }
+  const t13 = asChild && !hasNativeButtonChild ? type : type ?? "button";
+  const t14 = isTabStop && !disabled ? 0 : -1;
+  let t15;
+  if ($[39] !== renderSpacingElement) {
+    t15 = (child) => /* @__PURE__ */ jsxs8(Fragment6, { children: [
+      /* @__PURE__ */ jsx36("span", { className: "nv-tabs-trigger-visible", children: child }),
+      renderSpacingElement && /* @__PURE__ */ jsx36("span", { "aria-hidden": "true", className: "nv-tabs-trigger-invisible", children: child })
+    ] });
+    $[39] = renderSpacingElement;
+    $[40] = t15;
+  } else {
+    t15 = $[40];
+  }
+  let t16;
+  if ($[41] !== asChild || $[42] !== children || $[43] !== t15) {
+    t16 = /* @__PURE__ */ jsx36(Slottable, { asChild, child: children, children: t15 });
+    $[41] = asChild;
+    $[42] = children;
+    $[43] = t15;
+    $[44] = t16;
+  } else {
+    t16 = $[44];
+  }
+  let t17;
+  if ($[45] !== Component || $[46] !== disabled || $[47] !== handleClick || $[48] !== handleFocus || $[49] !== handleKeyDown || $[50] !== isActive || $[51] !== props || $[52] !== ref || $[53] !== t10 || $[54] !== t11 || $[55] !== t12 || $[56] !== t13 || $[57] !== t14 || $[58] !== t16 || $[59] !== t7 || $[60] !== t8 || $[61] !== t9) {
+    t17 = /* @__PURE__ */ jsx36(Component, { role: "tab", id: t7, "aria-disabled": t8, "aria-selected": isActive, "aria-controls": t9, "data-active": t10, "data-disabled": t11, disabled, className: t12, ref, "data-testid": TabsTestIds.TabsTrigger, onFocus: handleFocus, onClick: handleClick, onKeyDown: handleKeyDown, type: t13, ...props, tabIndex: t14, children: t16 });
+    $[45] = Component;
+    $[46] = disabled;
+    $[47] = handleClick;
+    $[48] = handleFocus;
+    $[49] = handleKeyDown;
+    $[50] = isActive;
+    $[51] = props;
+    $[52] = ref;
+    $[53] = t10;
+    $[54] = t11;
+    $[55] = t12;
+    $[56] = t13;
+    $[57] = t14;
+    $[58] = t16;
+    $[59] = t7;
+    $[60] = t8;
+    $[61] = t9;
+    $[62] = t17;
+  } else {
+    t17 = $[62];
+  }
+  return t17;
+});
+TabsTrigger.displayName = "TabsTrigger";
+
+// node_modules/@kui/foundations-react-core/dist/Tabs/components/base/Tabs.js
+var Tabs = forwardRef25(({
+  items,
+  kind = "primary",
+  value,
+  defaultValue = items[0]?.value,
+  onValueChange,
+  activationMode,
+  renderLink,
+  attributes,
+  visibleRange,
+  hideOverflowButtons,
+  slotStart,
+  slotEnd,
+  ...props
+}, ref) => {
+  const safeItems = useMemo3(() => items.map(sanitizeHrefProp), [items]);
+  const InnerRoot = safeItems.some((item) => item.href != null) ? "nav" : "div";
+  const panelValues = useMemo3(() => new Set(safeItems.filter((item_0) => item_0.slotContent !== void 0).map((item_1) => item_1.value)), [safeItems]);
+  return /* @__PURE__ */ jsx37(TabsRoot, { ref, value, defaultValue, onValueChange, activationMode, panelValues, asChild: true, ...props, children: /* @__PURE__ */ jsxs9(InnerRoot, { children: [
+    items.length > 0 && /* @__PURE__ */ jsxs9(TabsList, { kind, visibleRange, hideOverflowButtons, ...attributes?.TabsList, children: [
+      slotStart,
+      safeItems.map((item_2) => {
+        const sanitizedHref = item_2.href;
+        const hasHref = typeof sanitizedHref === "string";
+        return /* @__PURE__ */ jsx37(TabsTrigger, { asChild: hasHref || item_2.asChild, value: item_2.value, disabled: item_2.disabled, ...item_2.attributes?.TabsTrigger, children: hasHref ? renderLink ? renderLink({
+          ...item_2,
+          href: sanitizedHref
+        }) : /* @__PURE__ */ jsx37(Primitive.a, { asChild: item_2.asChild, href: sanitizedHref, children: item_2.children }) : item_2.children }, item_2.value);
+      }),
+      slotEnd
+    ] }),
+    safeItems.map((item_3) => item_3.slotContent && /* @__PURE__ */ jsx37(TabsContent, { value: item_3.value, ...item_3.attributes?.TabsContent, children: item_3.slotContent }, item_3.value))
+  ] }) });
+});
+Tabs.displayName = "Tabs";
+
+// node_modules/@kui/foundations-react-core/dist/InputShell/components/base/InputShell.js
+import { jsx as jsx38 } from "react/jsx-runtime";
+import { forwardRef as forwardRef26 } from "react";
+var inputShell = cva("nv-input-shell", {
+  variants: {
+    kind: {
+      flat: "",
+      floating: "nv-input-shell--kind-floating"
+    },
+    layout: {
+      horizontal: "",
+      vertical: "nv-input-shell--layout-vertical"
+    },
+    size: {
+      small: "nv-input-shell--size-small",
+      medium: "",
+      large: "nv-input-shell--size-large"
+    },
+    withValidation: {
+      true: "nv-input-shell--validated"
+    }
+  }
+});
+var InputShell = forwardRef26((t0, ref) => {
+  const $ = c(23);
+  let className;
+  let onClick;
+  let props;
+  let size;
+  let t1;
+  let t2;
+  let t3;
+  let withValidation;
+  if ($[0] !== t0) {
+    ({
+      className,
+      disableFocusRedirect: t1,
+      kind: t2,
+      layout: t3,
+      onClick,
+      size,
+      withValidation,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = className;
+    $[2] = onClick;
+    $[3] = props;
+    $[4] = size;
+    $[5] = t1;
+    $[6] = t2;
+    $[7] = t3;
+    $[8] = withValidation;
+  } else {
+    className = $[1];
+    onClick = $[2];
+    props = $[3];
+    size = $[4];
+    t1 = $[5];
+    t2 = $[6];
+    t3 = $[7];
+    withValidation = $[8];
+  }
+  const disableFocusRedirect = t1 === void 0 ? false : t1;
+  const kind = t2 === void 0 ? "flat" : t2;
+  const layout = t3 === void 0 ? "horizontal" : t3;
+  let t4;
+  if ($[9] !== disableFocusRedirect || $[10] !== onClick) {
+    t4 = (event) => {
+      onClick?.(event);
+      if (!disableFocusRedirect) {
+        const currentElement = event.currentTarget;
+        const focusableElement = currentElement.querySelector("input, textarea, select, [data-input-slot]");
+        if (focusableElement instanceof HTMLInputElement && focusableElement.type === "file") {
+          focusableElement.click();
+        } else {
+          focusableElement?.focus();
+        }
+      }
+    };
+    $[9] = disableFocusRedirect;
+    $[10] = onClick;
+    $[11] = t4;
+  } else {
+    t4 = $[11];
+  }
+  const handleClick = t4;
+  let t5;
+  if ($[12] !== className || $[13] !== kind || $[14] !== layout || $[15] !== size || $[16] !== withValidation) {
+    t5 = inputShell({
+      className,
+      kind,
+      layout,
+      size,
+      withValidation
+    });
+    $[12] = className;
+    $[13] = kind;
+    $[14] = layout;
+    $[15] = size;
+    $[16] = withValidation;
+    $[17] = t5;
+  } else {
+    t5 = $[17];
+  }
+  let t6;
+  if ($[18] !== handleClick || $[19] !== props || $[20] !== ref || $[21] !== t5) {
+    t6 = /* @__PURE__ */ jsx38(Primitive.div, { className: t5, ref, onClick: handleClick, ...props });
+    $[18] = handleClick;
+    $[19] = props;
+    $[20] = ref;
+    $[21] = t5;
+    $[22] = t6;
+  } else {
+    t6 = $[22];
+  }
+  return t6;
+});
+InputShell.displayName = "InputShell";
+
+// node_modules/@kui/foundations-react-core/dist/InputShell/components/composed/InputDismissButton.js
+import { jsx as jsx39 } from "react/jsx-runtime";
+import { forwardRef as forwardRef27 } from "react";
+var inputDismissButton = cva("nv-dismiss-button");
+var InputDismissButton = forwardRef27(({
+  className,
+  children = /* @__PURE__ */ jsx39(Icon, { name: "close" }),
+  kind = "tertiary",
+  size = "small",
+  ...props
+}, ref) => {
+  return /* @__PURE__ */ jsx39(Button, { "aria-label": "Clear", ref, className: inputDismissButton({
+    className
+  }), kind, size, ...props, children });
+});
+InputDismissButton.displayName = "InputDismissButton";
+
+// node_modules/@kui/foundations-react-core/dist/Badge/components/base/Badge.js
+import { jsx as jsx40 } from "react/jsx-runtime";
+import { forwardRef as forwardRef28 } from "react";
+
+// node_modules/@kui/foundations-react-core/dist/Badge/constants.js
+var BadgeTestIds = {
+  BadgeRoot: "nv-badge"
+};
+
+// node_modules/@kui/foundations-react-core/dist/Badge/components/base/Badge.js
+var badge = cva("nv-badge", {
+  variants: {
+    kind: {
+      outline: "",
+      solid: "nv-badge--kind-solid"
+    },
+    color: {
+      blue: "",
+      green: "nv-badge--color-green",
+      red: "nv-badge--color-red",
+      yellow: "nv-badge--color-yellow",
+      purple: "nv-badge--color-purple",
+      teal: "nv-badge--color-teal",
+      gray: "nv-badge--color-gray"
+    }
+  },
+  defaultVariants: {
+    kind: "outline",
+    color: "blue"
+  }
+});
+var Badge = forwardRef28((t0, ref) => {
+  const $ = c(17);
+  let asChild;
+  let children;
+  let className;
+  let color;
+  let kind;
+  let props;
+  if ($[0] !== t0) {
+    ({
+      asChild,
+      className,
+      children,
+      color,
+      kind,
+      ...props
+    } = t0);
+    $[0] = t0;
+    $[1] = asChild;
+    $[2] = children;
+    $[3] = className;
+    $[4] = color;
+    $[5] = kind;
+    $[6] = props;
+  } else {
+    asChild = $[1];
+    children = $[2];
+    className = $[3];
+    color = $[4];
+    kind = $[5];
+    props = $[6];
+  }
+  const Component = asChild ? Slot : "span";
+  let t1;
+  if ($[7] !== className || $[8] !== color || $[9] !== kind) {
+    t1 = badge({
+      className,
+      kind,
+      color
+    });
+    $[7] = className;
+    $[8] = color;
+    $[9] = kind;
+    $[10] = t1;
+  } else {
+    t1 = $[10];
+  }
+  let t2;
+  if ($[11] !== Component || $[12] !== children || $[13] !== props || $[14] !== ref || $[15] !== t1) {
+    t2 = /* @__PURE__ */ jsx40(Component, { className: t1, "data-testid": BadgeTestIds.BadgeRoot, ref, ...props, children });
+    $[11] = Component;
+    $[12] = children;
+    $[13] = props;
+    $[14] = ref;
+    $[15] = t1;
+    $[16] = t2;
+  } else {
+    t2 = $[16];
+  }
+  return t2;
+});
+Badge.displayName = "Badge";
 export {
+  Accordion,
+  Badge,
   Button,
   Card,
   Flex,
   Grid,
   Hero,
+  InputDismissButton,
+  InputShell,
   ProgressBar,
   SegmentedControl,
+  Tabs,
   Text
 };

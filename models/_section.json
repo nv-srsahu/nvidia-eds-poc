@@ -14,7 +14,10 @@
         "columns",
         "fragment",
         "contact-info",
-        "home-banner"
+        "home-banner",
+        "accordion",
+        "input-shell",
+        "featured"
       ]
     }
   ]

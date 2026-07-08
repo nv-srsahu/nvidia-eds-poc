@@ -22,3 +22,10 @@ Thumbs.db
 # Env
 .env
 .env.local
+
+# local doc->EDS demo artifacts
+*.docx
+/doc.html
+/doc-blocks.html
+/assets/remix/
+master.md

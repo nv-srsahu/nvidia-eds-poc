@@ -20,9 +20,13 @@ import "@kui/foundations-css/dist/components/segmented-control.css";
 import "@kui/foundations-css/dist/components/progress-bar.css";
 import "@kui/foundations-css/dist/components/text.css";
 import "@kui/foundations-css/dist/components/button.css";
+import "@kui/foundations-css/dist/components/accordion.css";
+import "@kui/foundations-css/dist/components/tabs.css";
+import "@kui/foundations-css/dist/components/input-shell.css";
+import "@kui/foundations-css/dist/components/badge.css";
 
 // Matches block imports such as:
-// import { Button, Card, Flex, Grid, Hero, ProgressBar, SegmentedControl, Text } from "@kui/foundations-react";
+// import { Badge, Button, Card, Flex, Grid, Hero, ProgressBar, SegmentedControl, Text } from "@kui/foundations-react";
 export { Button } from "@kui/foundations-react/Button";
 export { Card } from "@kui/foundations-react/Card";
 export { Flex } from "@kui/foundations-react/Flex";
@@ -31,3 +35,7 @@ export { Hero } from "@kui/foundations-react/Hero";
 export { ProgressBar } from "@kui/foundations-react/ProgressBar";
 export { SegmentedControl } from "@kui/foundations-react/SegmentedControl";
 export { Text } from "@kui/foundations-react/Text";
+export { Accordion } from "@kui/foundations-react/Accordion";
+export { Tabs } from "@kui/foundations-react/Tabs";
+export { InputShell, InputDismissButton } from "@kui/foundations-react/InputShell";
+export { Badge } from "@kui/foundations-react/Badge";

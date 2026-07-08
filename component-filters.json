@@ -1,5 +1,11 @@
 [
   {
+    "id": "accordion",
+    "components": [
+      "accordion-item"
+    ]
+  },
+  {
     "id": "cards",
     "components": [
       "card"
@@ -23,7 +29,10 @@
       "columns",
       "fragment",
       "contact-info",
-      "home-banner"
+      "home-banner",
+      "accordion",
+      "input-shell",
+      "featured"
     ]
   }
 ]
