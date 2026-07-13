@@ -1,7 +1,9 @@
 import React from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { Button, Card, Flex, Grid, Text } from "@kui/foundations-react";
+import { Card, Flex, Grid } from "@kui/foundations-react";
+import { readButtonLink, renderButton } from "../button/button.js";
+import { renderText } from "../text/text.js";
 
 const h = React.createElement;
 
@@ -36,12 +38,7 @@ function readFeatured(block) {
   const moreLink = headRow?.querySelector("a[href]");
   return {
     heading: text(headRow?.querySelector("h1, h2, h3")) || text(headRow?.firstElementChild),
-    more: moreLink && {
-      href: moreLink.href,
-      rel: moreLink.rel || undefined,
-      target: moreLink.target || undefined,
-      text: moreLink.textContent.replace(/\([^)]*\)/, "").trim() || "View More",
-    },
+    more: readButtonLink(moreLink, { kind: "secondary" }),
     intro: text(introRow?.firstElementChild) || text(introRow),
     hero: rows[2] ? parseArticle(rows[2]) : null,
     items: rows.slice(3).map(parseArticle),
@@ -53,8 +50,9 @@ const tagPills = (tags) =>
   && h(
     "div",
     { className: "featured-tags" },
-    tags.map((tag, i) => h(Text, { asChild: true, key: i, kind: "label/regular/sm" },
-      h("span", { className: "featured-tag" }, tag))),
+    tags.map((tag, i) => renderText(tag, {
+      className: "featured-tag", key: i, kind: "label/regular/sm", tag: "span",
+    })),
   );
 
 const mediaImg = (image) =>
@@ -66,10 +64,9 @@ function articleBody(a, titleKind) {
     Flex,
     { direction: "col", gap: "3" },
     tagPills(a.tags),
-    a.date && h(Text, { asChild: true, kind: "label/regular/md" },
-      h("p", { className: "featured-date" }, a.date)),
-    a.title && h(Text, { asChild: true, kind: titleKind }, h("h3", null, a.title)),
-    a.desc && h(Text, { asChild: true, kind: "body/regular/md" }, h("p", null, a.desc)),
+    renderText(a.date, { className: "featured-date", kind: "label/regular/md", tag: "p" }),
+    renderText(a.title, { kind: titleKind, tag: "h3" }),
+    renderText(a.desc, { kind: "body/regular/md", tag: "p" }),
   );
 }
 
@@ -85,15 +82,10 @@ function FeaturedView({ heading, hero, intro, items, more }) {
     h(
       "div",
       { className: "featured-head" },
-      heading && h(Text, { asChild: true, kind: "display/sm" }, h("h2", null, heading)),
-      more && h(
-        Button,
-        { asChild: true, color: "brand", kind: "secondary" },
-        h("a", { href: more.href, rel: more.rel, target: more.target }, more.text),
-      ),
+      renderText(heading, { kind: "display/sm", tag: "h2" }),
+      more && renderButton(more),
     ),
-    intro && h(Text, { asChild: true, kind: "body/regular/lg" },
-      h("p", { className: "featured-intro" }, intro)),
+    renderText(intro, { className: "featured-intro", kind: "body/regular/lg", tag: "p" }),
     // Hero: image beside content (2-column layout), Kaizen Text inside.
     hero && h(
       "div",

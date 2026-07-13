@@ -17,7 +17,7 @@ const LINE_HEIGHTS = ["100", "125", "150", "175"];
 //   "title/lg h1"                 -> Kaizen kind + <h1>
 //   "48 bold italic underline"    -> fontSize/weight/style/underline
 //   "size:32 weight:semibold sans line:150 h2"
-function parseStyle(styleText) {
+export function parseTextStyle(styleText) {
   const tokens = (styleText || "")
     .split(/[\s,]+/).map((t) => t.trim().toLowerCase()).filter(Boolean);
   let tag = "p";
@@ -37,17 +37,36 @@ function parseStyle(styleText) {
   return { tag, props };
 }
 
+export function renderText(value, options = {}) {
+  if (!value) return null;
+  const {
+    className,
+    key,
+    style,
+    tag: authoredTag,
+    ...textProps
+  } = options;
+  const { tag: styleTag, props } = parseTextStyle(style);
+  const tag = authoredTag || styleTag;
+
+  return h(
+    Text,
+    { asChild: true, key, ...props, ...textProps },
+    h(tag, className ? { className } : null, value),
+  );
+}
+
 // Authored as a "text" block: content in cell 1, style options in cell 2.
 export default function decorate(block) {
   const row = block.firstElementChild;
   const cells = row ? [...row.children] : [];
   const content = (cells[0]?.textContent || "").trim();
-  const { tag, props } = parseStyle(cells[1]?.textContent || block.dataset.style);
+  const style = cells[1]?.textContent || block.dataset.style;
 
   block.textContent = "";
   block.classList.add("nv-theme-kui11");
 
   flushSync(() => {
-    createRoot(block).render(h(Text, { asChild: true, ...props }, h(tag, null, content)));
+    createRoot(block).render(renderText(content, { style }));
   });
 }

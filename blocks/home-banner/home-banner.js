@@ -8,9 +8,10 @@ import {
   Hero,
   ProgressBar,
   SegmentedControl,
-  Text,
 } from "@kui/foundations-react";
 import { toClassName } from "../../scripts/aem.js";
+import { readButtonLink, readButtonMeta, renderButton } from "../button/button.js";
+import { renderText } from "../text/text.js";
 
 const h = React.createElement;
 
@@ -18,9 +19,6 @@ const AUTO_ROTATE_MS = 6000;
 const PROGRESS_TICK_MS = 100;
 const HEADINGS = "h1, h2, h3, h4, h5, h6";
 const LINK_PARAGRAPH = "a[href]";
-const BUTTON_COLORS = ["brand", "neutral", "danger"];
-const BUTTON_KINDS = ["primary", "secondary", "tertiary"];
-const BUTTON_SIZES = ["tiny", "small", "medium", "large"];
 const TEXT_ALIGNS = ["default", "left", "center", "right"];
 const TEXT_SIZES = ["default", "compact"];
 const SOURCE_PROPS = { class: "className", srcset: "srcSet" };
@@ -136,42 +134,11 @@ function isCategoryRow(row) {
   );
 }
 
-function buttonKind(link) {
-  const authored = choose(link.dataset.buttonKind, BUTTON_KINDS);
-  if (authored) return authored;
-  if (link.classList.contains("secondary")) return "secondary";
-  if (link.classList.contains("accent")) return "tertiary";
-  return "primary";
-}
-
 function linkCta(row, metaCta) {
   const link = row.querySelector(LINK_PARAGRAPH);
-  if (link) {
-    return {
-      color: choose(link.dataset.buttonColor, BUTTON_COLORS, "brand"),
-      href: link.href,
-      kind: buttonKind(link),
-      rel: link.rel || undefined,
-      size: choose(link.dataset.buttonSize, BUTTON_SIZES, "large"),
-      target: link.target || undefined,
-      text: text(link),
-    };
-  }
+  if (link) return readButtonLink(link, { size: "large" });
 
-  if (!metaCta) return null;
-
-  const [label, href, kind = "primary", color = "brand", size = "large"] =
-    metaCta.split("|").map((part) => part.trim());
-
-  return (
-    href && {
-      color: choose(color, BUTTON_COLORS, "brand"),
-      href,
-      kind: choose(kind, BUTTON_KINDS, "primary"),
-      size: choose(size, BUTTON_SIZES, "large"),
-      text: label,
-    }
-  );
+  return readButtonMeta(metaCta, { size: "large" });
 }
 
 function imageFromElement(img, key) {
@@ -382,19 +349,7 @@ function heroAttributes(textSize, textAlign) {
 }
 
 function SlideActions({ cta }) {
-  return (
-    cta &&
-    h(
-      Button,
-      {
-        asChild: true,
-        color: cta.color,
-        kind: cta.kind,
-        size: cta.size,
-      },
-      h("a", { href: cta.href, rel: cta.rel, target: cta.target }, cta.text),
-    )
-  );
+  return cta && renderButton(cta);
 }
 
 function StoryRail({ activeIndex, onSelect, paused, progress, slides }) {
@@ -426,15 +381,11 @@ function StoryRail({ activeIndex, onSelect, paused, progress, slides }) {
           size: "small",
           value: activeIndex === index ? progress : 0,
         }),
-        h(
-          Text,
-          {
-            className: "home-banner-story-title",
-            kind:
-              activeIndex === index ? "body/bold/xl" : "body/regular/xl",
-          },
-          slide.title,
-        ),
+        renderText(slide.title, {
+          className: "home-banner-story-title",
+          kind: activeIndex === index ? "body/bold/xl" : "body/regular/xl",
+          tag: "span",
+        }),
       ),
     ),
   );

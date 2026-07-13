@@ -1,13 +1,11 @@
 import React from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { Button, Hero } from "@kui/foundations-react";
+import { Hero } from "@kui/foundations-react";
+import { readButtonLink, renderButton } from "../button/button.js";
 
 const h = React.createElement;
 
-const BUTTON_COLORS = ["brand", "neutral", "danger"];
-const BUTTON_KINDS = ["primary", "secondary", "tertiary"];
-const BUTTON_SIZES = ["tiny", "small", "medium", "large"];
 const HERO_MEDIA_THEMES = ["dark", "light"];
 
 const ATTRIBUTE_ALIASES = {
@@ -24,22 +22,6 @@ function reactProps(element) {
     props[ATTRIBUTE_ALIASES[name] || name] = value;
     return props;
   }, {});
-}
-
-function buttonKind(link) {
-  const authoredKind = dataOption(link.dataset.buttonKind, BUTTON_KINDS);
-  if (authoredKind) return authoredKind;
-  if (link.classList.contains("secondary")) return "secondary";
-  if (link.classList.contains("accent")) return "tertiary";
-  return "primary";
-}
-
-function buttonColor(link) {
-  return dataOption(link.dataset.buttonColor, BUTTON_COLORS, "brand");
-}
-
-function buttonSize(link) {
-  return dataOption(link.dataset.buttonSize, BUTTON_SIZES, "medium");
 }
 
 function mediaTheme(block) {
@@ -86,15 +68,7 @@ function readHero(block) {
     .filter((paragraph) => !paragraph.querySelector("a[href]"));
 
   return {
-    actions: links.map((link) => ({
-      color: buttonColor(link),
-      href: link.href,
-      kind: buttonKind(link),
-      rel: link.rel || undefined,
-      size: buttonSize(link),
-      target: link.target || undefined,
-      text: link.textContent.trim(),
-    })),
+    actions: links.map((link) => readButtonLink(link)),
     body: paragraphs.map((paragraph) => paragraph.textContent.trim()).filter(Boolean).join(" "),
     heading: heading?.textContent.trim() || "",
     media: heroMedia(block),
@@ -106,17 +80,7 @@ function HeroActions({ actions }) {
   if (!actions.length) return null;
 
   return actions.map((action) =>
-    h(
-      Button,
-      {
-        asChild: true,
-        color: action.color,
-        key: action.href,
-        kind: action.kind,
-        size: action.size,
-      },
-      h("a", { href: action.href, rel: action.rel, target: action.target }, action.text),
-    ),
+    h(React.Fragment, { key: action.href }, renderButton(action)),
   );
 }
 

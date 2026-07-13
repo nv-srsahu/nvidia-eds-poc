@@ -23,6 +23,90 @@
     ]
   },
   {
+    "id": "button",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "text",
+        "label": "Label"
+      },
+      {
+        "component": "aem-content",
+        "valueType": "string",
+        "name": "href",
+        "label": "Link"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "kind",
+        "label": "Kind",
+        "value": "primary",
+        "options": [
+          {
+            "name": "Primary",
+            "value": "primary"
+          },
+          {
+            "name": "Secondary",
+            "value": "secondary"
+          },
+          {
+            "name": "Tertiary",
+            "value": "tertiary"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "color",
+        "label": "Color",
+        "value": "brand",
+        "options": [
+          {
+            "name": "Brand",
+            "value": "brand"
+          },
+          {
+            "name": "Neutral",
+            "value": "neutral"
+          },
+          {
+            "name": "Danger",
+            "value": "danger"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "size",
+        "label": "Size",
+        "value": "medium",
+        "options": [
+          {
+            "name": "Tiny",
+            "value": "tiny"
+          },
+          {
+            "name": "Small",
+            "value": "small"
+          },
+          {
+            "name": "Medium",
+            "value": "medium"
+          },
+          {
+            "name": "Large",
+            "value": "large"
+          }
+        ]
+      }
+    ]
+  },
+  {
     "id": "cards",
     "fields": []
   },
@@ -228,6 +312,24 @@
             "value": "url"
           }
         ]
+      }
+    ]
+  },
+  {
+    "id": "text",
+    "fields": [
+      {
+        "component": "richtext",
+        "valueType": "string",
+        "name": "content",
+        "label": "Content"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "style",
+        "label": "Style",
+        "description": "Space or comma-separated KUI style tokens, e.g. title/lg h2 or size:32 bold."
       }
     ]
   }

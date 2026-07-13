@@ -1,7 +1,8 @@
 import React from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { InputShell, InputDismissButton, Button } from "@kui/foundations-react";
+import { InputShell, InputDismissButton } from "@kui/foundations-react";
+import { parseButton, renderButton } from "../button/button.js";
 
 const h = React.createElement;
 const { useId, useRef, useState } = React;
@@ -11,10 +12,6 @@ const SIZES = ["small", "medium", "large"];
 const LAYOUTS = ["horizontal", "vertical"];
 const INPUT_TYPES = ["text", "email", "search", "tel", "url", "password", "number"];
 
-const BTN_KINDS = ["primary", "secondary", "tertiary"];
-const BTN_COLORS = ["brand", "neutral", "danger"];
-const BTN_SIZES = ["tiny", "small", "medium", "large"];
-
 function dataOption(value, allowed, fallback) {
   return allowed.includes(value) ? value : fallback;
 }
@@ -23,15 +20,7 @@ function dataOption(value, allowed, fallback) {
 function parseSubmit(text, fallbackSize) {
   const trimmed = (text || "").trim();
   if (!trimmed) return null;
-  const optsMatch = trimmed.match(/\(([^)]*)\)/);
-  const label = trimmed.replace(/\([^)]*\)/, "").trim() || "Submit";
-  const opts = optsMatch ? optsMatch[1].split(",").map((o) => o.trim().toLowerCase()) : [];
-  return {
-    label,
-    kind: opts.find((o) => BTN_KINDS.includes(o)) || "primary",
-    color: opts.find((o) => BTN_COLORS.includes(o)) || "brand",
-    size: opts.find((o) => BTN_SIZES.includes(o)) || fallbackSize,
-  };
+  return parseButton(trimmed, { label: "Submit", size: fallbackSize });
 }
 
 // Authored row cells: [0] label, [1] placeholder, [2] optional submit button.
@@ -92,11 +81,7 @@ function InputField({ dismissible, kind, label, layout, name, placeholder, size,
         dismissible && h(InputDismissButton, { "aria-label": "Clear", onClick: clear }),
       ),
       submit
-        && h(
-          Button,
-          { color: submit.color, kind: submit.kind, onClick: doSubmit, size: submit.size },
-          submit.label,
-        ),
+        && renderButton({ ...submit, onClick: doSubmit }),
     ),
     submitted && h("p", { className: "input-shell-success" }, `Thanks — we'll be in touch at ${value}.`),
   );

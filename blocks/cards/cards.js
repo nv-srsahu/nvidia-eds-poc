@@ -1,14 +1,13 @@
 import React from "react";
 import { flushSync } from "react-dom";
 import { createRoot } from "react-dom/client";
-import { Badge, Button, Card, Flex, Grid, Text } from "@kui/foundations-react";
+import { Badge, Card, Flex, Grid } from "@kui/foundations-react";
+import { readButtonLink, renderButton } from "../button/button.js";
+import { renderText } from "../text/text.js";
 
 const h = React.createElement;
 const { useState } = React;
 
-const BUTTON_COLORS = ["brand", "neutral", "danger"];
-const BUTTON_KINDS = ["primary", "secondary", "tertiary"];
-const BUTTON_SIZES = ["tiny", "small", "medium", "large"];
 const CARD_DENSITIES = ["compact", "standard", "spacious"];
 const CARD_KINDS = ["solid", "float", "gradient"];
 const CARD_LAYOUTS = ["horizontal", "vertical"];
@@ -72,26 +71,6 @@ function parseTags(str) {
     .filter((t) => t.label);
 }
 
-function parseButtonOptions(t) {
-  const om = t.match(/\(([^)]*)\)/);
-  const opts = om ? om[1].split(",").map((o) => o.trim().toLowerCase()) : [];
-  return {
-    label: t.replace(/\([^)]*\)/, "").trim(),
-    kind: opts.find((o) => BUTTON_KINDS.includes(o)),
-    color: opts.find((o) => BUTTON_COLORS.includes(o)),
-    size: opts.find((o) => BUTTON_SIZES.includes(o)),
-  };
-}
-function buttonKind(link) {
-  const k = dataOption(link.dataset.buttonKind, BUTTON_KINDS);
-  if (k) return k;
-  if (link.classList.contains("secondary")) return "secondary";
-  if (link.classList.contains("accent")) return "tertiary";
-  return "primary";
-}
-function buttonColor(link) { return dataOption(link.dataset.buttonColor, BUTTON_COLORS, "brand"); }
-function buttonSize(link) { return dataOption(link.dataset.buttonSize, BUTTON_SIZES, "medium"); }
-
 // Tags -> stock Kaizen Badge pills (color/kind authored per tag).
 const tagList = (tags) =>
   tags.length > 0
@@ -99,7 +78,7 @@ const tagList = (tags) =>
     tags.map((tag, i) => h(Badge, { color: tag.color, key: i, kind: tag.kind }, tag.label)));
 
 const line = (kind, tag, value, className) =>
-  value && h(Text, { asChild: true, kind }, h(tag, className ? { className } : null, value));
+  renderText(value, { className, kind, tag });
 
 // UNIVERSAL card. Every field is optional; author only what you need:
 //   Image        -> card image (Kaizen Card media)
@@ -117,7 +96,6 @@ function readCard(row) {
   const link = row.querySelector("a[href]");
   const tagsEl = row.querySelector("h5");
   const { opt, body } = collectText(row);
-  const btn = link && parseButtonOptions(link.textContent.trim());
   return {
     tags: parseTags(tagsEl?.textContent),
     eyebrow: text(row.querySelector("h6")),
@@ -125,15 +103,7 @@ function readCard(row) {
     subheader: text(row.querySelector("h4")),
     body,
     image: icon && { alt: icon.alt || "", src: icon.currentSrc || icon.src },
-    link: link && {
-      color: btn.color || buttonColor(link),
-      href: link.href,
-      kind: btn.kind || buttonKind(link),
-      rel: link.rel || undefined,
-      size: btn.size || buttonSize(link),
-      target: link.target || undefined,
-      text: btn.label || link.textContent.trim(),
-    },
+    link: readButtonLink(link),
     density: opt.find((t) => CARD_DENSITIES.includes(t)) || cardDataOption(row, "cardDensity", CARD_DENSITIES),
     kind: opt.find((t) => CARD_KINDS.includes(t)) || cardDataOption(row, "cardKind", CARD_KINDS, "solid"),
     layout: opt.find((t) => CARD_LAYOUTS.includes(t)) || cardDataOption(row, "cardLayout", CARD_LAYOUTS),
@@ -173,13 +143,7 @@ function CardView(card) {
       line("body/bold/md", "h4", subheader),
       line("body/regular/sm", "p", body),
       link && h("div", { className: "cards-cta" },
-        h(Button, {
-          asChild: true,
-          color: link.color,
-          kind: link.kind,
-          onClick: (e) => e.stopPropagation(),
-          size: link.size,
-        }, h("a", { href: link.href, rel: link.rel, target: link.target }, link.text))),
+        renderButton({ ...link, onClick: (e) => e.stopPropagation() })),
     ),
   );
 }
