@@ -276,11 +276,27 @@ export function decorateTemplateAndTheme() {
   if (theme) addClasses(document.body, theme);
 }
 
+export function moveInstrumentation(from, to, { includeClass = false } = {}) {
+  if (!from || !to) return;
+
+  [...from.attributes]
+    .filter(({ name }) => (
+      name.startsWith('data-aue')
+      || name.startsWith('data-richtext')
+      || (includeClass && name === 'class')
+    ))
+    .forEach(({ name, value }) => {
+      to.setAttribute(name, value);
+      from.removeAttribute(name);
+    });
+}
+
 export function wrapTextNodes(block) {
   const validWrappers = ['P', 'PRE', 'UL', 'OL', 'PICTURE', 'TABLE', 'H1', 'H2', 'H3', 'H4', 'H5', 'H6'];
   const wrap = (el) => {
     const wrapper = document.createElement('p');
     wrapper.append(...el.childNodes);
+    moveInstrumentation(el, wrapper, { includeClass: true });
     el.append(wrapper);
   };
   block.querySelectorAll(':scope > div > div').forEach((blockColumn) => {
