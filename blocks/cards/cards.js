@@ -6,13 +6,14 @@ import { readButtonLink, renderButton } from "../button/button.js";
 import { renderText } from "../text/text.js";
 
 const h = React.createElement;
-const { useState } = React;
+const { useEffect, useState } = React;
 
 const CARD_DENSITIES = ["compact", "standard", "spacious"];
 const CARD_KINDS = ["solid", "float", "gradient"];
 const CARD_LAYOUTS = ["horizontal", "vertical"];
 const CARD_MEDIA_THEMES = ["dark", "light"];
 const CARD_MEDIA_POSITIONS = ["start", "end"];
+const MOBILE_CARD_QUERY = "(max-width: 899px)";
 const CARD_TOKENS = new Set([
   ...CARD_KINDS,
   ...CARD_LAYOUTS,
@@ -121,6 +122,20 @@ const tagList = (tags) =>
 
 const line = (kind, tag, value, className, key) =>
   renderText(value, { className, kind, key, tag });
+
+function useMediaQuery(query) {
+  const [matches, setMatches] = useState(() => window.matchMedia(query).matches);
+
+  useEffect(() => {
+    const media = window.matchMedia(query);
+    const onChange = () => setMatches(media.matches);
+    onChange();
+    media.addEventListener("change", onChange);
+    return () => media.removeEventListener("change", onChange);
+  }, [query]);
+
+  return matches;
+}
 
 // UNIVERSAL card. Every field is optional; author only what you need:
 //   Image        -> card image (Kaizen Card media)
@@ -243,6 +258,7 @@ function CardView(card) {
 
 function CardsApp({ cards }) {
   const [selected, setSelected] = useState(cards.findIndex((c) => c.selected));
+  const mobile = useMediaQuery(MOBILE_CARD_QUERY);
   return h(
     Grid,
     { asChild: true, colMinWidth: 280, gap: "10" },
@@ -256,11 +272,14 @@ function CardsApp({ cards }) {
             key: i,
             style: {
               display: "grid",
-              gridColumn: card.layout === "horizontal" ? "1 / -1" : undefined,
+              gridColumn:
+                !mobile && card.layout === "horizontal" ? "1 / -1" : undefined,
             },
           },
           h(CardView, {
             ...card,
+            layout:
+              mobile && card.layout === "horizontal" ? "vertical" : card.layout,
             onSelect: () => setSelected(i === selected ? -1 : i),
             selected: i === selected,
           }),
