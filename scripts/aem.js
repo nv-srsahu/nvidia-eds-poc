@@ -329,6 +329,63 @@ function decorateIcon(span, prefix = '', alt = '') {
   span.append(img);
 }
 
+function addSectionClasses(section, classes) {
+  `${classes}`.split(',').forEach((c) => {
+    const className = toClassName(c.trim());
+    if (className) section.classList.add(className);
+  });
+}
+
+function applySectionConfig(section, config) {
+  const backgroundColor = config.backgroundColor || config['background-color'];
+  const theme = toClassName(config.theme);
+
+  if (backgroundColor && CSS.supports('color', backgroundColor)) {
+    section.style.backgroundColor = backgroundColor;
+  }
+  if (['dark', 'light'].includes(theme)) section.classList.add(`nv-${theme}`);
+  if (config.style) addSectionClasses(section, config.style);
+}
+
+function readSectionConfigParagraphs(section) {
+  const config = {};
+  section.querySelectorAll(':scope > p').forEach((p) => {
+    const match = p.textContent.trim().match(/^\[([^\]]+)\]$/);
+    let hasConfig = false;
+    if (!match) return;
+
+    match[1].split(',').forEach((entry) => {
+      const [key, ...rest] = entry.split(':');
+      const name = toClassName(key);
+      const value = rest.join(':').trim();
+      if (!value) return;
+      if (name === 'background') {
+        config['background-color'] = value;
+        hasConfig = true;
+      } else if (['background-color', 'theme', 'style'].includes(name)) {
+        config[name] = value;
+        hasConfig = true;
+      }
+    });
+
+    if (hasConfig) p.remove();
+  });
+  return config;
+}
+
+function decorateSectionMetadata(section) {
+  [...section.children].forEach((child) => {
+    const firstCell = child.querySelector(':scope > div:first-child > div:first-child');
+    if (
+      !child.classList.contains('section-metadata')
+      && toClassName(firstCell?.textContent) !== 'section-metadata'
+    ) return;
+
+    applySectionConfig(section, readBlockConfig(child));
+    child.remove();
+  });
+}
+
 export function decorateIcons(element, prefix = '') {
   element.querySelectorAll('span.icon').forEach((span) => decorateIcon(span, prefix));
 }
@@ -349,11 +406,9 @@ export function decorateBlock(block) {
 
 export function decorateSections(main) {
   main.querySelectorAll(':scope > div').forEach((section) => {
-    const { backgroundColor, theme } = section.dataset;
-    if (backgroundColor && CSS.supports('color', backgroundColor)) {
-      section.style.backgroundColor = backgroundColor;
-    }
-    if (['dark', 'light'].includes(theme)) section.classList.add(`nv-${theme}`);
+    applySectionConfig(section, section.dataset);
+    applySectionConfig(section, readSectionConfigParagraphs(section));
+    decorateSectionMetadata(section);
     const wrappers = [];
     let defaultContent = false;
     [...section.children].forEach((e) => {
