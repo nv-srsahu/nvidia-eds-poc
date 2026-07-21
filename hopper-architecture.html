@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="NVIDIA Hopper Architecture page built with existing EDS blocks.">
+  <title>NVIDIA Hopper Architecture</title>
+  <link rel="icon" href="/icons/icon.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="/styles/styles.css">
+  <link rel="stylesheet" href="/scripts/kui/foundations-react.bundle.css">
+  <script nonce="aem" type="importmap">
+  {
+    "imports": {
+      "react": "https://esm.sh/react@19.2.7",
+      "react/jsx-runtime": "https://esm.sh/react@19.2.7/jsx-runtime",
+      "react-dom": "https://esm.sh/react-dom@19.2.7?external=react",
+      "react-dom/client": "https://esm.sh/react-dom@19.2.7/client?external=react",
+      "@kui/foundations-react": "/scripts/kui/foundations-react.bundle.js"
+    }
+  }
+  </script>
+  <script nonce="aem" src="/scripts/scripts.js" type="module"></script>
+</head>
+<body>
+  <main>
+    <div>
+      <div class="hero">
+        <div data-hero-media-theme="dark">
+          <div>
+            <picture>
+              <source media="(min-width: 900px)" srcset="https://www.nvidia.com/content/dam/en-zz/Solutions/data-center/hopper-architecture/hpc-h200-bb460_420-d.jpg">
+              <img src="https://www.nvidia.com/content/dam/en-zz/Solutions/data-center/hopper-architecture/hpc-h200-bb460_420-l.jpg" alt="NVIDIA Hopper architecture platform" loading="eager">
+            </picture>
+            <h1>NVIDIA Hopper Architecture</h1>
+            <p>The engine for the world’s AI infrastructure makes an order-of-magnitude performance leap.</p>
+            <p><strong><a href="https://resources.nvidia.com/en-us-tensor-core" target="_blank" rel="noopener">Learn More</a></strong></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <h2>The Accelerated Computing Platform for Next-Generation Workloads</h2>
+      <p>Learn about the next massive leap in accelerated computing with the NVIDIA Hopper™ architecture. Hopper securely scales diverse workloads in every data center, from small enterprise to exascale high-performance computing (HPC) and trillion-parameter AI—so brilliant innovators can fulfill their life's work at the fastest pace in human history.</p>
+    </div>
+
+    <div>
+      <h2>Explore the Technology Breakthroughs</h2>
+      <p>Built with over 80 billion transistors using a cutting edge TSMC 4N process, Hopper features five groundbreaking innovations that fuel the NVIDIA H200 and H100 Tensor Core GPUs and combine to deliver incredible speedups over the prior generation on generative AI training and inference.</p>
+
+      <div class="cards">
+        <div data-card-kind="float" data-card-layout="horizontal" data-card-density="spacious" data-card-media-theme="dark">
+          <div>
+            <picture>
+              <img src="https://www.nvidia.com/content/dam/en-zz/Solutions/gtcs22/technologies/hopper-architecture/hopper-arch-transformer-2c50-d.jpg" alt="Transformer Engine visualization" loading="lazy">
+            </picture>
+          </div>
+          <div>
+            <h3>Transformer Engine</h3>
+            <p>The NVIDIA Hopper architecture advances Tensor Core technology with the Transformer Engine, designed to accelerate the training of AI models. Hopper Tensor Cores have the capability to apply mixed FP8 and FP16 precisions to dramatically accelerate AI calculations for transformers. Hopper also triples the floating-point operations per second (FLOPS) for TF32, FP64, FP16, and INT8 precisions over the prior generation. Combined with Transformer Engine and fourth-generation NVIDIA® NVLink®, Hopper Tensor Cores power an order-of-magnitude speedup on HPC and AI workloads.</p>
+            <p><a class="link-arrow" href="https://blogs.nvidia.com/blog/hopper-transformer-engine/" target="_blank" rel="noopener">Learn More About Hopper Transformer Engine</a></p>
+          </div>
+        </div>
+        <div data-card-kind="float" data-card-layout="horizontal" data-card-density="spacious" data-card-media-theme="dark" data-card-media-position="end">
+          <div>
+            <picture>
+              <img src="https://www.nvidia.com/content/dam/en-zz/Solutions/gtcs22/technologies/hopper-architecture/nvlink-switch-system-2c50-d.jpg" alt="NVLink Switch System visualization" loading="lazy">
+            </picture>
+          </div>
+          <div>
+            <h3>NVLink, NVSwitch, and NVLink Switch System</h3>
+            <p>To move at the speed of business, exascale HPC and trillion-parameter AI models need high-speed, seamless communication between every GPU in a server cluster to accelerate at scale.</p>
+            <p>Fourth-generation NVLink can scale multi-GPU input and output (IO) with NVIDIA DGX™ and HGX™ servers at 900 gigabytes per second (GB/s) bidirectional per GPU, over 7X the bandwidth of PCIe Gen5.</p>
+            <p>Third-generation NVIDIA NVSwitch™ supports Scalable Hierarchical Aggregation and Reduction Protocol (SHARP)™ in-network computing, previously only available on Infiniband, and provides a 2X increase in all-reduce throughput within eight H200 or H100 GPU servers compared to the previous-generation A100 Tensor Core GPU systems.</p>
+            <p>DGX GH200 systems with NVLink Switch System support clusters of up to 256 connected H200s and deliver 57.6 terabytes per second (TB/s) of all-to-all bandwidth.</p>
+            <p><a class="link-arrow" href="https://www.nvidia.com/en-us/data-center/nvlink/" target="_blank" rel="noopener">Learn More About NVLink and NVSwitch</a></p>
+          </div>
+        </div>
+        <div data-card-kind="float" data-card-layout="horizontal" data-card-density="spacious" data-card-media-theme="dark">
+          <div>
+            <picture>
+              <img src="https://www.nvidia.com/content/dam/en-zz/Solutions/gtcs22/technologies/hopper-architecture/hopper-arch-confidential-computing-2c50-d.jpg" alt="Confidential computing visualization" loading="lazy">
+            </picture>
+          </div>
+          <div>
+            <h3>NVIDIA Confidential Computing</h3>
+            <p>Hardware security features help protect applications and data while they are being processed in accelerated environments.</p>
+            <p><a class="link-arrow" href="https://www.nvidia.com/en-us/data-center/solutions/confidential-computing/" target="_blank" rel="noopener">Learn More About NVIDIA Confidential Computing</a></p>
+          </div>
+        </div>
+        <div data-card-kind="float" data-card-layout="horizontal" data-card-density="spacious" data-card-media-theme="dark" data-card-media-position="end">
+          <div>
+            <picture>
+              <img src="https://www.nvidia.com/content/dam/en-zz/Solutions/gtcs22/technologies/hopper-architecture/hopper-mig-2c50-d.jpg" alt="Multi-Instance GPU visualization" loading="lazy">
+            </picture>
+          </div>
+          <div>
+            <h3>Second-Generation MIG</h3>
+            <p>Multi-Instance GPU support helps teams partition GPU capacity for isolated users and right-sized accelerated workloads.</p>
+            <p><a class="link-arrow" href="https://www.nvidia.com/en-us/technologies/multi-instance-gpu/" target="_blank" rel="noopener">Learn More About MIG</a></p>
+          </div>
+        </div>
+        <div data-card-kind="float" data-card-layout="horizontal" data-card-density="spacious" data-card-media-theme="dark">
+          <div>
+            <picture>
+              <img src="https://www.nvidia.com/content/dam/en-zz/Solutions/gtcs22/technologies/hopper-architecture/hopper-arch-dpx-2c50-d.jpg" alt="DPX instructions visualization" loading="lazy">
+            </picture>
+          </div>
+          <div>
+            <h3>DPX Instructions</h3>
+            <p>DPX instructions accelerate dynamic programming workloads used in routing, genomics, graph analytics, and scientific computing.</p>
+            <p><a class="link-arrow" href="https://blogs.nvidia.com/blog/what-is-dynamic-programming/" target="_blank" rel="noopener">Learn More About DPX Instructions</a></p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div data-background-color="#f7f7f7" >
+      <h2>Ready for Enterprise AI?</h2>
+      <p>NVIDIA H100 Tensor Core GPUs pair with enterprise software and data center platforms to help organizations deploy accelerated AI infrastructure.</p>
+      <p><strong><a href="https://www.nvidia.com/en-us/data-center/activate-license/" target="_blank" rel="noopener">Activate NVIDIA AI Enterprise</a></strong></p>
+    </div>
+    <div data-background-color="#666" data-theme="dark">
+      <h2>Take a deep dive into the NVIDIA Hopper architecture.</h2>
+      <p><strong><a href="https://resources.nvidia.com/en-us-hopper-architecture/nvidia-h100-tensor-c" target="_blank" rel="noopener">Activate NVIDIA AI Enterprise</a></strong></p>
+    </div>
+  </main>
+</body>
+</html>

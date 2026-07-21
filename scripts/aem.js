@@ -349,6 +349,11 @@ export function decorateBlock(block) {
 
 export function decorateSections(main) {
   main.querySelectorAll(':scope > div').forEach((section) => {
+    const { backgroundColor, theme } = section.dataset;
+    if (backgroundColor && CSS.supports('color', backgroundColor)) {
+      section.style.backgroundColor = backgroundColor;
+    }
+    if (['dark', 'light'].includes(theme)) section.classList.add(`nv-${theme}`);
     const wrappers = [];
     let defaultContent = false;
     [...section.children].forEach((e) => {
