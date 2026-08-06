@@ -17,7 +17,12 @@
         "home-banner",
         "accordion",
         "input-shell",
-        "featured"
+        "featured",
+        "quote",
+        "quote-kui",
+        "panel",
+        "kcards",
+        "kpanel"
       ]
     }
   ]
