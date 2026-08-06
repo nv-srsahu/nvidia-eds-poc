@@ -349,7 +349,7 @@ function applySectionConfig(section, config) {
 
 function readSectionConfigParagraphs(section) {
   const config = {};
-  section.querySelectorAll(':scope > p').forEach((p) => {
+  section.querySelectorAll('p').forEach((p) => {
     const match = p.textContent.trim().match(/^\[([^\]]+)\]$/);
     let hasConfig = false;
     if (!match) return;
@@ -421,6 +421,8 @@ export function decorateSections(main) {
       wrappers[wrappers.length - 1].append(e);
     });
     wrappers.forEach((wrapper) => section.append(wrapper));
+    // Second pass: catch config paragraphs that landed inside wrappers.
+    applySectionConfig(section, readSectionConfigParagraphs(section));
     section.classList.add('section');
     section.dataset.sectionStatus = 'initialized';
     section.style.display = 'none';

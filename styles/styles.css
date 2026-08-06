@@ -162,12 +162,32 @@ main {
   margin: 0 auto;
 }
 
+.section.home-banner-container,
+.section.hero-container,
+.section.hero-section {
+  padding-inline: 0;
+}
+
+.section.home-banner-container > div,
+.section.hero-container > div,
+.section.hero-section > div {
+  max-width: none;
+}
+
 .section > div + div {
   margin-top: var(--space-xl);
 }
 
 .section > .default-content-wrapper {
   text-align: center;
+}
+
+.section.nv-dark :is(h1, h2, h3, h4, h5, h6) {
+  color: var(--text-color-primary);
+}
+
+.section.nv-dark p {
+  color: var(--text-color-subtle);
 }
 
 /* Buttons — NVIDIA-branded, three variants */
