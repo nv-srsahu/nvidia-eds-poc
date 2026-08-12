@@ -1,19 +1,23 @@
-import React, { useEffect, useMemo, useRef, useState } from "react";
-import { flushSync } from "react-dom";
-import { createRoot } from "react-dom/client";
 import {
   Button,
+  CarouselArrowButton,
+  CarouselItems,
+  CarouselRoot,
   Flex,
-  Grid,
   Hero,
   ProgressBar,
+  React,
   SegmentedControl,
+  createRoot,
+  flushSync,
+  useCarouselContext,
 } from "@kui/foundations-react";
 import { toClassName } from "../../scripts/aem.js";
 import { readButtonLink, readButtonMeta, renderButton } from "../button/button.js";
 import { renderText } from "../text/text.js";
 
 const h = React.createElement;
+const { useEffect, useMemo, useRef, useState } = React;
 
 const AUTO_ROTATE_MS = 6000;
 const PROGRESS_TICK_MS = 100;
@@ -21,6 +25,7 @@ const HEADINGS = "h1, h2, h3, h4, h5, h6";
 const LINK_PARAGRAPH = "a[href]";
 const TEXT_ALIGNS = ["default", "left", "center", "right"];
 const TEXT_SIZES = ["default", "compact"];
+const MEDIA_THEMES = ["dark", "light"];
 const SOURCE_PROPS = { class: "className", srcset: "srcSet" };
 const ALIGN_CLASSES = {
   center: "text-center",
@@ -153,7 +158,7 @@ function imageFromElement(img, key) {
 function pictureFromElement(picture) {
   return h(
     "picture",
-    { ...elementProps(picture), className: "home-banner-picture" },
+    elementProps(picture),
     [...picture.children].map((child, key) => {
       if (child.tagName === "SOURCE")
         return h("source", { ...elementProps(child), key });
@@ -199,7 +204,7 @@ function imageFromMetadata(meta) {
 
   return h(
     "picture",
-    { className: "home-banner-picture" },
+    null,
     images.mobile.src &&
       h("source", {
         key: "mobile",
@@ -255,6 +260,12 @@ function readSlide(row, index) {
     row.querySelector("[data-text-align]")?.dataset.textAlign ||
     meta["text-align"] ||
     "default";
+  const mediaTheme =
+    row.dataset.mediaTheme ||
+    row.querySelector("[data-media-theme]")?.dataset.mediaTheme ||
+    meta["media-theme"] ||
+    meta.theme ||
+    "dark";
 
   return {
     categoryLabel: category,
@@ -263,6 +274,7 @@ function readSlide(row, index) {
     description: meta.description || copy[heading || meta.title ? 0 : 1] || "",
     eyebrow,
     media: readMedia(row, meta),
+    mediaTheme: choose(option(mediaTheme), MEDIA_THEMES, "dark"),
     textAlign: choose(option(textAlign), TEXT_ALIGNS, "default"),
     textSize: choose(option(meta["text-size"] || ""), TEXT_SIZES, ""),
     title: meta.title || heading || copy[0] || `Slide ${index + 1}`,
@@ -306,45 +318,16 @@ function readHomeBanner(block) {
   };
 }
 
-function alignment(textAlign) {
-  if (textAlign === "center") {
-    return {
-      HeroContent: {
-        style: { alignItems: "center", marginInline: "auto", textAlign },
-      },
-      HeroFooter: { style: { justifyContent: "center" } },
-    };
-  }
-  if (textAlign === "right") {
-    return {
-      HeroContent: {
-        style: { alignItems: "flex-end", marginInline: "auto 0", textAlign },
-      },
-      HeroFooter: { style: { justifyContent: "flex-end" } },
-    };
-  }
-  if (textAlign === "left") {
-    return {
-      HeroContent: { style: { alignItems: "flex-start", textAlign } },
-      HeroFooter: { style: { justifyContent: "flex-start" } },
-    };
-  }
-  return {};
-}
-
-function heroAttributes(textSize, textAlign) {
+function heroAttributes(textSize) {
   const compact = textSize === "compact" ? " home-banner-text-compact" : "";
-  const align = alignment(textAlign);
 
   return {
     ...HERO_PARTS,
-    HeroContent: { ...HERO_PARTS.HeroContent, ...align.HeroContent },
     HeroHeading: { className: `${HERO_PARTS.HeroHeading.className}${compact}` },
     HeroSubheading: {
       className: `${HERO_PARTS.HeroSubheading.className}${compact}`,
     },
     HeroBody: { className: `${HERO_PARTS.HeroBody.className}${compact}` },
-    HeroFooter: { ...HERO_PARTS.HeroFooter, ...align.HeroFooter },
   };
 }
 
@@ -352,16 +335,26 @@ function SlideActions({ cta }) {
   return cta && renderButton(cta);
 }
 
-function StoryRail({ activeIndex, onSelect, paused, progress, slides }) {
+function CarouselSync({ activeIndex }) {
+  const { hydrated, scrollToPage } = useCarouselContext();
+
+  useEffect(() => {
+    if (hydrated) scrollToPage(activeIndex);
+  }, [activeIndex, hydrated, scrollToPage]);
+
+  return null;
+}
+
+function StoryRail({ activeIndex, onSelect, progress, slides }) {
   return h(
-    Grid,
+    Flex,
     {
-      "aria-label": "Home banner stories",
-      colMinWidth: 180,
-      className: `home-banner-story-rail${paused ? " is-paused" : ""}`,
+      "aria-label": "Home banner story navigation",
+      className: "home-banner-story-rail",
       gap: "7",
       role: "group",
-      style: { flex: "1 1 auto", minWidth: 0, width: "auto" },
+      style: { flex: "1 1 0", minWidth: 0, width: "auto" },
+      wrap: "nowrap",
     },
     slides.map((slide, index) =>
       h(
@@ -373,6 +366,7 @@ function StoryRail({ activeIndex, onSelect, paused, progress, slides }) {
           className: "home-banner-story",
           key: slide.value,
           onClick: () => onSelect(index),
+          style: { flex: "1 1 0" },
           type: "button",
         },
         h(ProgressBar, {
@@ -383,7 +377,7 @@ function StoryRail({ activeIndex, onSelect, paused, progress, slides }) {
         }),
         renderText(slide.title, {
           className: "home-banner-story-title",
-          kind: activeIndex === index ? "body/bold/xl" : "body/regular/xl",
+          kind: activeIndex === index ? "body/bold/md" : "body/regular/md",
           tag: "span",
         }),
       ),
@@ -391,11 +385,11 @@ function StoryRail({ activeIndex, onSelect, paused, progress, slides }) {
   );
 }
 
-function ControlButton({ icon, label, onClick }) {
+function PauseButton({ paused, onClick }) {
   return h(
     Button,
     {
-      "aria-label": label,
+      "aria-label": paused ? "Resume stories" : "Pause stories",
       color: "brand",
       kind: "secondary",
       onClick,
@@ -403,7 +397,7 @@ function ControlButton({ icon, label, onClick }) {
     },
     h("span", {
       "aria-hidden": "true",
-      className: `home-banner-control-icon home-banner-control-icon-${icon}`,
+      className: `home-banner-control-icon home-banner-control-icon-${paused ? "play" : "pause"}`,
     }),
   );
 }
@@ -422,16 +416,10 @@ function HomeBanner({ activeCategory, categories, options, slides }) {
   const segmentItems = useMemo(
     () =>
       categories.map((item) => ({
-        children: h(
-          "span",
-          {
-            className: `home-banner-segment-label${item.value === category ? " is-selected" : ""}`,
-          },
-          item.label,
-        ),
+        children: item.label,
         value: item.value,
       })),
-    [categories, category],
+    [categories],
   );
 
   useEffect(() => {
@@ -478,12 +466,11 @@ function HomeBanner({ activeCategory, categories, options, slides }) {
     setCategory(value);
     setActiveIndex(0);
   };
-  const heroClassName = `home-banner-hero${ALIGN_CLASSES[slide.textAlign] ? ` ${ALIGN_CLASSES[slide.textAlign]}` : ""}`;
 
   return h(
     Flex,
     {
-      className: "home-banner-shell nv-theme-kui11",
+      className: "nv-theme-kui11",
       direction: "col",
       gap: "5",
     },
@@ -506,61 +493,72 @@ function HomeBanner({ activeCategory, categories, options, slides }) {
           value: category,
         }),
       ),
-    h(Hero, {
-      "aria-label": `${activeIndex + 1} of ${activeSlides.length}: ${slide.title}`,
-      "aria-roledescription": "slide",
-      attributes: heroAttributes(
-        slide.textSize || options.textSize,
-        slide.textAlign,
-      ),
-      className: heroClassName,
-      mediaTheme: "dark",
-      slotActions: h(SlideActions, { cta: slide.cta }),
-      slotBody: slide.description,
-      slotHeading: slide.title,
-      slotMedia: slide.media,
-      slotSubheading: slide.eyebrow,
-      role: "group",
-    }),
     h(
-      Flex,
+      CarouselRoot,
       {
-        align: "start",
-        className: "home-banner-footer",
-        gap: "7",
-        wrap: "wrap",
+        "aria-label": "Home banner slides",
+        itemsPerView: 1,
+        loop: true,
+        onPageChange: (page) => {
+          if (page !== activeIndex) selectSlide(page);
+        },
+        style: { "--nv-carousel-item-gap": "0px" },
       },
-      h(StoryRail, {
-        activeIndex,
-        onSelect: selectSlide,
-        paused,
-        progress,
-        slides: activeSlides,
-      }),
+      h(CarouselSync, { activeIndex }),
+      h(
+        CarouselItems,
+        null,
+        activeSlides.map((item) =>
+          h(Hero, {
+            attributes: heroAttributes(item.textSize || options.textSize),
+            className: `home-banner-hero${ALIGN_CLASSES[item.textAlign] ? ` ${ALIGN_CLASSES[item.textAlign]}` : ""}`,
+            key: item.value,
+            mediaTheme: item.mediaTheme,
+            slotActions: h(SlideActions, { cta: item.cta }),
+            slotBody: item.description,
+            slotHeading: item.title,
+            slotMedia: item.media,
+            slotSubheading: item.eyebrow,
+          }),
+        ),
+      ),
       h(
         Flex,
         {
-          className: "home-banner-controls",
-          gap: "3",
-          justify: "center",
-          style: { flex: "0 0 auto" },
-          wrap: "nowrap",
+          align: "start",
+          gap: "7",
+          wrap: "wrap",
         },
-        h(ControlButton, {
-          icon: "previous",
-          label: "Previous story",
-          onClick: () => selectSlide(activeIndex - 1),
+        h(StoryRail, {
+          activeIndex,
+          onSelect: selectSlide,
+          progress,
+          slides: activeSlides,
         }),
-        h(ControlButton, {
-          icon: paused ? "play" : "pause",
-          label: paused ? "Resume stories" : "Pause stories",
-          onClick: () => setPaused(!paused),
-        }),
-        h(ControlButton, {
-          icon: "next",
-          label: "Next story",
-          onClick: () => selectSlide(activeIndex + 1),
-        }),
+        h(
+          Flex,
+          {
+            className: "home-banner-controls",
+            gap: "3",
+            justify: "center",
+            style: { flex: "0 0 auto" },
+            wrap: "nowrap",
+          },
+          h(CarouselArrowButton, {
+            "aria-label": "Previous story",
+            direction: "previous",
+            kind: "secondary",
+          }),
+          h(PauseButton, {
+            paused,
+            onClick: () => setPaused(!paused),
+          }),
+          h(CarouselArrowButton, {
+            "aria-label": "Next story",
+            direction: "next",
+            kind: "secondary",
+          }),
+        ),
       ),
     ),
   );

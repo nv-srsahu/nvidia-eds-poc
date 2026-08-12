@@ -9,6 +9,7 @@
 // Keep theme-light after theme-dark so the page default stays light while
 // scoped .nv-dark components, such as the hero, can resolve dark tokens.
 import "@kui/foundations-css/dist/base/variables.css";
+import "@kui/foundations-css/dist/base/icons.css";
 import "@kui/foundations-css/dist/base/theme-dark.css";
 import "@kui/foundations-css/dist/base/theme-light.css";
 import "@kui/foundations-css/dist/components/primitive.css";
@@ -16,6 +17,7 @@ import "@kui/foundations-css/dist/components/hero.css";
 import "@kui/foundations-css/dist/components/grid.css";
 import "@kui/foundations-css/dist/components/flex.css";
 import "@kui/foundations-css/dist/components/card.css";
+import "@kui/foundations-css/dist/components/carousel.css";
 import "@kui/foundations-css/dist/components/segmented-control.css";
 import "@kui/foundations-css/dist/components/progress-bar.css";
 import "@kui/foundations-css/dist/components/text.css";
@@ -33,9 +35,15 @@ export { flushSync } from "react-dom";
 export { createRoot } from "react-dom/client";
 
 // Matches block imports such as:
-// import { Badge, Button, Card, Flex, Grid, Hero, ProgressBar, SegmentedControl, Text } from "@kui/foundations-react";
+// import { Badge, Button, Card, CarouselArrowButton, CarouselItems, CarouselRoot, Flex, Grid, Hero, ProgressBar, SegmentedControl, Text } from "@kui/foundations-react";
 export { Button } from "@kui/foundations-react/Button";
 export { Card } from "@kui/foundations-react/Card";
+export {
+  CarouselArrowButton,
+  CarouselItems,
+  CarouselRoot,
+  useCarouselContext,
+} from "@kui/foundations-react/Carousel";
 export { Flex } from "@kui/foundations-react/Flex";
 export { Grid } from "@kui/foundations-react/Grid";
 export { Hero } from "@kui/foundations-react/Hero";

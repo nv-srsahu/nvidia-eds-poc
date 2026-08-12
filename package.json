@@ -36,8 +36,8 @@
   },
   "license": "Apache-2.0",
   "dependencies": {
-    "@kui/foundations-css": "^1.1.2",
-    "@kui/foundations-react": "^1.1.2",
+    "@kui/foundations-css": "^1.8.3",
+    "@kui/foundations-react": "^1.8.3",
     "react": "19.2.7",
     "react-dom": "19.2.7"
   }
