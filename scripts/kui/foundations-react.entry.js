@@ -35,13 +35,13 @@ export { flushSync } from "react-dom";
 export { createRoot } from "react-dom/client";
 
 // Matches block imports such as:
-// import { Badge, Button, Card, CarouselArrowButton, CarouselItems, CarouselRoot, Flex, Grid, Hero, ProgressBar, SegmentedControl, Text } from "@kui/foundations-react";
+// import { Badge, Button, Card, Carousel, CarouselArrowButton, CarouselControls, Flex, Grid, Hero, ProgressBar, SegmentedControl, Text } from "@kui/foundations-react";
 export { Button } from "@kui/foundations-react/Button";
 export { Card } from "@kui/foundations-react/Card";
 export {
+  Carousel,
   CarouselArrowButton,
-  CarouselItems,
-  CarouselRoot,
+  CarouselControls,
   useCarouselContext,
 } from "@kui/foundations-react/Carousel";
 export { Flex } from "@kui/foundations-react/Flex";

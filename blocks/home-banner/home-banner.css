@@ -5,10 +5,6 @@
     margin-inline: auto;
 }
 
-.home-banner .nv-carousel-items + .nv-flex {
-    margin-top: var(--spacing-density-2xl);
-}
-
 .home-banner .sr-only {
     position: absolute;
     width: 1px;
@@ -96,6 +92,10 @@ picture.home-banner-hero-media.nv-hero-media img {
 
 .home-banner-story[aria-current="true"] {
     color: var(--text-color-primary);
+}
+
+.home-banner-story-progress .nv-progress-bar-indicator {
+    transition: none;
 }
 
 .home-banner-controls .nv-button {

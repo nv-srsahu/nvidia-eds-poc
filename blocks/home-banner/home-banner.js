@@ -1,8 +1,7 @@
 import {
   Button,
+  Carousel,
   CarouselArrowButton,
-  CarouselItems,
-  CarouselRoot,
   Flex,
   Hero,
   ProgressBar,
@@ -20,11 +19,9 @@ const h = React.createElement;
 const { useEffect, useMemo, useRef, useState } = React;
 
 const AUTO_ROTATE_MS = 6000;
-const PROGRESS_TICK_MS = 100;
 const HEADINGS = "h1, h2, h3, h4, h5, h6";
 const LINK_PARAGRAPH = "a[href]";
 const TEXT_ALIGNS = ["default", "left", "center", "right"];
-const TEXT_SIZES = ["default", "compact"];
 const MEDIA_THEMES = ["dark", "light"];
 const SOURCE_PROPS = { class: "className", srcset: "srcSet" };
 const ALIGN_CLASSES = {
@@ -33,13 +30,8 @@ const ALIGN_CLASSES = {
   right: "text-right",
 };
 
-const HERO_PARTS = {
+const HERO_ATTRIBUTES = {
   HeroMedia: { className: "home-banner-hero-media" },
-  HeroContent: { className: "home-banner-hero-content" },
-  HeroHeading: { className: "home-banner-title" },
-  HeroSubheading: { className: "home-banner-eyebrow" },
-  HeroBody: { className: "home-banner-description" },
-  HeroFooter: { className: "home-banner-actions" },
 };
 
 const choose = (value, allowed, fallback) =>
@@ -118,18 +110,6 @@ function readCategories(row) {
       selected: selected && label.toLowerCase() === selected,
       value: toClassName(label) || `category-${index}`,
     }));
-}
-
-function readOptions(row) {
-  const { meta } = readText(row, "p, li", false);
-
-  return {
-    textSize: choose(
-      option(meta["text-size"] || "default"),
-      TEXT_SIZES,
-      "default",
-    ),
-  };
 }
 
 function isCategoryRow(row) {
@@ -276,7 +256,6 @@ function readSlide(row, index) {
     media: readMedia(row, meta),
     mediaTheme: choose(option(mediaTheme), MEDIA_THEMES, "dark"),
     textAlign: choose(option(textAlign), TEXT_ALIGNS, "default"),
-    textSize: choose(option(meta["text-size"] || ""), TEXT_SIZES, ""),
     title: meta.title || heading || copy[0] || `Slide ${index + 1}`,
     value: `slide-${index}`,
   };
@@ -313,26 +292,8 @@ function readHomeBanner(block) {
       categories.find((category) => category.selected)?.value ||
       categories[0]?.value,
     categories,
-    options: categoryRow ? readOptions(categoryRow) : {},
     slides: rows.map(readSlide).filter((slide) => slide.title || slide.media),
   };
-}
-
-function heroAttributes(textSize) {
-  const compact = textSize === "compact" ? " home-banner-text-compact" : "";
-
-  return {
-    ...HERO_PARTS,
-    HeroHeading: { className: `${HERO_PARTS.HeroHeading.className}${compact}` },
-    HeroSubheading: {
-      className: `${HERO_PARTS.HeroSubheading.className}${compact}`,
-    },
-    HeroBody: { className: `${HERO_PARTS.HeroBody.className}${compact}` },
-  };
-}
-
-function SlideActions({ cta }) {
-  return cta && renderButton(cta);
 }
 
 function CarouselSync({ activeIndex }) {
@@ -376,7 +337,6 @@ function StoryRail({ activeIndex, onSelect, progress, slides }) {
           value: activeIndex === index ? progress : 0,
         }),
         renderText(slide.title, {
-          className: "home-banner-story-title",
           kind: activeIndex === index ? "body/bold/md" : "body/regular/md",
           tag: "span",
         }),
@@ -402,7 +362,7 @@ function PauseButton({ paused, onClick }) {
   );
 }
 
-function HomeBanner({ activeCategory, categories, options, slides }) {
+function HomeBanner({ activeCategory, categories, slides }) {
   const [category, setCategory] = useState(activeCategory);
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -412,7 +372,6 @@ function HomeBanner({ activeCategory, categories, options, slides }) {
     () => slidesForCategory(category, categories, slides),
     [categories, category, slides],
   );
-  const slide = activeSlides[activeIndex] || activeSlides[0];
   const segmentItems = useMemo(
     () =>
       categories.map((item) => ({
@@ -425,7 +384,7 @@ function HomeBanner({ activeCategory, categories, options, slides }) {
   useEffect(() => {
     if (paused || activeSlides.length <= 1) return undefined;
 
-    let timer;
+    let frame;
     const startedAt =
       window.performance.now() - (progressRef.current / 100) * AUTO_ROTATE_MS;
     const update = () => {
@@ -441,17 +400,18 @@ function HomeBanner({ activeCategory, categories, options, slides }) {
         progressRef.current = 0;
         setProgress(0);
         setActiveIndex((index) => (index + 1) % activeSlides.length);
-        window.clearInterval(timer);
+        return;
       }
+
+      frame = window.requestAnimationFrame(update);
     };
 
-    timer = window.setInterval(update, PROGRESS_TICK_MS);
-    update();
+    frame = window.requestAnimationFrame(update);
 
-    return () => window.clearInterval(timer);
+    return () => window.cancelAnimationFrame(frame);
   }, [activeIndex, activeSlides.length, category, paused]);
 
-  if (!slide) return null;
+  if (!activeSlides.length) return null;
 
   const resetProgress = () => {
     progressRef.current = 0;
@@ -494,7 +454,7 @@ function HomeBanner({ activeCategory, categories, options, slides }) {
         }),
       ),
     h(
-      CarouselRoot,
+      Carousel,
       {
         "aria-label": "Home banner slides",
         itemsPerView: 1,
@@ -502,63 +462,63 @@ function HomeBanner({ activeCategory, categories, options, slides }) {
         onPageChange: (page) => {
           if (page !== activeIndex) selectSlide(page);
         },
+        slotFooter: h(
+          React.Fragment,
+          null,
+          h(CarouselSync, { activeIndex }),
+          h(
+            Flex,
+            {
+              align: "start",
+              gap: "7",
+              wrap: "wrap",
+            },
+            h(StoryRail, {
+              activeIndex,
+              onSelect: selectSlide,
+              progress,
+              slides: activeSlides,
+            }),
+            h(
+              Flex,
+              {
+                className: "home-banner-controls",
+                gap: "3",
+                justify: "center",
+                style: { flex: "0 0 auto" },
+                wrap: "nowrap",
+              },
+              h(CarouselArrowButton, {
+                "aria-label": "Previous story",
+                direction: "previous",
+                kind: "secondary",
+              }),
+              h(PauseButton, {
+                paused,
+                onClick: () => setPaused(!paused),
+              }),
+              h(CarouselArrowButton, {
+                "aria-label": "Next story",
+                direction: "next",
+                kind: "secondary",
+              }),
+            ),
+          ),
+        ),
         style: { "--nv-carousel-item-gap": "0px" },
       },
-      h(CarouselSync, { activeIndex }),
-      h(
-        CarouselItems,
-        null,
-        activeSlides.map((item) =>
-          h(Hero, {
-            attributes: heroAttributes(item.textSize || options.textSize),
-            className: `home-banner-hero${ALIGN_CLASSES[item.textAlign] ? ` ${ALIGN_CLASSES[item.textAlign]}` : ""}`,
-            key: item.value,
-            mediaTheme: item.mediaTheme,
-            slotActions: h(SlideActions, { cta: item.cta }),
-            slotBody: item.description,
-            slotHeading: item.title,
-            slotMedia: item.media,
-            slotSubheading: item.eyebrow,
-          }),
-        ),
-      ),
-      h(
-        Flex,
-        {
-          align: "start",
-          gap: "7",
-          wrap: "wrap",
-        },
-        h(StoryRail, {
-          activeIndex,
-          onSelect: selectSlide,
-          progress,
-          slides: activeSlides,
+      activeSlides.map((item) =>
+        h(Hero, {
+          attributes: HERO_ATTRIBUTES,
+          className: `home-banner-hero${ALIGN_CLASSES[item.textAlign] ? ` ${ALIGN_CLASSES[item.textAlign]}` : ""}`,
+          key: item.value,
+          mediaTheme: item.mediaTheme,
+          slotActions: item.cta && renderButton(item.cta),
+          slotBody: item.description,
+          slotHeading: item.title,
+          slotMedia: item.media,
+          slotSubheading: item.eyebrow,
         }),
-        h(
-          Flex,
-          {
-            className: "home-banner-controls",
-            gap: "3",
-            justify: "center",
-            style: { flex: "0 0 auto" },
-            wrap: "nowrap",
-          },
-          h(CarouselArrowButton, {
-            "aria-label": "Previous story",
-            direction: "previous",
-            kind: "secondary",
-          }),
-          h(PauseButton, {
-            paused,
-            onClick: () => setPaused(!paused),
-          }),
-          h(CarouselArrowButton, {
-            "aria-label": "Next story",
-            direction: "next",
-            kind: "secondary",
-          }),
-        ),
       ),
     ),
   );
