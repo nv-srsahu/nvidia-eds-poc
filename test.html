@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <script src="https://www.nvidia.com/content/dam/en-zz/Solutions/librarian/bundle-search-prod-pub-v3.1.js"
+        defer></script>
+    <div id="librarian-search"></div>
+    <script defer>
+        setTimeout(() => {
+            LIBRARIAN.Home.mount({
+                elementId: 'librarian-search',
+                overlayHeading: 'What can I help you with?',
+                placeholder: 'Ask AI',
+                site: 'https://www.nvidia.com',
+                overlay: false,
+                expandPills: true,
+                suggestedSearchPills: []
+            })
+        }, 1000)
+    </script>
+
+
+</body>
+
+</html>

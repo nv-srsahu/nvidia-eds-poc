@@ -134,10 +134,12 @@ h4 {
     font-size: var(--font-size-lg);
     font-weight: 600;
 }
+
 h5 {
     font-size: var(--font-size-md);
     font-weight: 600;
 }
+
 h6 {
     font-size: var(--font-size-base);
     font-weight: 600;

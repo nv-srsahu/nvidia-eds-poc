@@ -57,6 +57,16 @@ function readKeyValues(scope) {
   return cfg;
 }
 
+function articleFromConfig(cfg, image) {
+  return {
+    image: image || parseImgText(cfg.image),
+    tags: parseTags(cfg.tags || cfg.eyebrow),
+    date: cfg.date,
+    title: cfg.title,
+    desc: cfg.description || cfg.body,
+  };
+}
+
 function fromConfig(block, cfg) {
   const img = block.querySelector("img");
   const moreCta = parseCTAtext(cfg["view more"] || cfg.more);
@@ -64,14 +74,23 @@ function fromConfig(block, cfg) {
     heading: cfg.heading,
     more: moreCta && { href: moreCta.href, text: moreCta.text },
     intro: cfg.intro,
-    hero: {
-      image: img ? { alt: img.alt || "", src: img.currentSrc || img.src } : parseImgText(cfg.image),
-      tags: parseTags(cfg.tags || cfg.eyebrow),
-      date: cfg.date,
-      title: cfg.title,
-      desc: cfg.description || cfg.body,
-    },
+    hero: articleFromConfig(cfg, img && { alt: img.alt || "", src: img.currentSrc || img.src }),
     items: [],
+  };
+}
+
+function fromConfigRows(block, rowConfigs) {
+  const cfg = readKeyValues(block);
+  const moreCta = parseCTAtext(cfg["view more"] || cfg.more);
+  const articles = rowConfigs.filter((row) =>
+    row.title || row.description || row.body || row.image || row.tags || row.date);
+
+  return {
+    heading: cfg.heading,
+    more: moreCta && { href: moreCta.href, text: moreCta.text },
+    intro: cfg.intro,
+    hero: articleFromConfig(articles[0] || {}),
+    items: articles.slice(1).map((row) => articleFromConfig(row)),
   };
 }
 
@@ -107,6 +126,10 @@ function fromHeadings(block) {
 }
 
 function readFeatured(block) {
+  const rowConfigs = [...block.children].map(readKeyValues);
+  const configuredRows = rowConfigs.filter((cfg) => FEAT_KEYS.some((k) => k in cfg));
+  if (configuredRows.length > 1) return fromConfigRows(block, rowConfigs);
+
   const cfg = readKeyValues(block);
   return FEAT_KEYS.some((k) => k in cfg) ? fromConfig(block, cfg) : fromHeadings(block);
 }
@@ -132,7 +155,7 @@ function articleBody(a, titleKind) {
 }
 
 function gridCard(a) {
-  return h(Card, { kind: "solid", slotHeader: mediaImg(a.image) }, articleBody(a, "title/md"));
+  return h(Card, { kind: "float", slotHeader: mediaImg(a.image) }, articleBody(a, "title/md"));
 }
 
 function FeaturedView({ heading, hero, intro, items, more }) {

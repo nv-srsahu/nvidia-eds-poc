@@ -23,6 +23,52 @@
     ]
   },
   {
+    "id": "ai-search",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading",
+        "value": "What can I help you with?"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "placeholder",
+        "label": "Placeholder",
+        "value": "Ask AI"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "site",
+        "label": "Site",
+        "value": "https://www.nvidia.com"
+      },
+      {
+        "component": "boolean",
+        "valueType": "boolean",
+        "name": "overlay",
+        "label": "Overlay",
+        "value": false
+      },
+      {
+        "component": "boolean",
+        "valueType": "boolean",
+        "name": "expandPills",
+        "label": "Expand Pills",
+        "value": true
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "pills",
+        "label": "Suggested Search Pills"
+      }
+    ]
+  },
+  {
     "id": "button",
     "fields": [
       {

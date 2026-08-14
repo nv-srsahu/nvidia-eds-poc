@@ -1,0 +1,30 @@
+.path-tabs.block {
+  width: 100%;
+}
+
+.path-tabs-head {
+  max-width: 960px;
+  margin: clamp(48px, 7vw, 104px) auto var(--spacing-density-4xl);
+  text-align: center;
+}
+
+.path-tabs-controls {
+  display: flex;
+  justify-content: center;
+  margin-bottom: clamp(48px, 8vw, 120px);
+}
+
+.path-tabs-control.nv-segmented-control-root {
+  --background-color-component-track: var(--color-gray-000);
+  --background-color-interaction-selected: var(--color-gray-1000);
+
+  box-shadow: var(--shadow-md);
+}
+
+.path-tabs-control .nv-segmented-control-item:has(.nv-segmented-control-input:checked) {
+  color: var(--color-gray-000);
+}
+
+.path-tabs-panel[hidden] {
+  display: none;
+}
