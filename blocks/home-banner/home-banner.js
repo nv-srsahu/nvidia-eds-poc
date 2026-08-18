@@ -1,7 +1,4 @@
 import {
-  Button,
-  Carousel,
-  CarouselArrowButton,
   Flex,
   Hero,
   ProgressBar,
@@ -13,6 +10,7 @@ import {
 } from "@kui/foundations-react";
 import { toClassName } from "../../scripts/aem.js";
 import { readButtonLink, readButtonMeta, renderButton } from "../button/button.js";
+import { CarouselButtons, renderCarousel } from "../carousel/carousel.js";
 import { renderText } from "../text/text.js";
 
 const h = React.createElement;
@@ -345,23 +343,6 @@ function StoryRail({ activeIndex, onSelect, progress, slides }) {
   );
 }
 
-function PauseButton({ paused, onClick }) {
-  return h(
-    Button,
-    {
-      "aria-label": paused ? "Resume stories" : "Pause stories",
-      color: "brand",
-      kind: "secondary",
-      onClick,
-      type: "button",
-    },
-    h("span", {
-      "aria-hidden": "true",
-      className: `home-banner-control-icon home-banner-control-icon-${paused ? "play" : "pause"}`,
-    }),
-  );
-}
-
 function HomeBanner({ activeCategory, categories, slides }) {
   const [category, setCategory] = useState(activeCategory);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -453,8 +434,7 @@ function HomeBanner({ activeCategory, categories, slides }) {
           value: category,
         }),
       ),
-    h(
-      Carousel,
+    renderCarousel(
       {
         "aria-label": "Home banner slides",
         itemsPerView: 1,
@@ -479,30 +459,10 @@ function HomeBanner({ activeCategory, categories, slides }) {
               progress,
               slides: activeSlides,
             }),
-            h(
-              Flex,
-              {
-                className: "home-banner-controls",
-                gap: "3",
-                justify: "center",
-                style: { flex: "0 0 auto" },
-                wrap: "nowrap",
-              },
-              h(CarouselArrowButton, {
-                "aria-label": "Previous story",
-                direction: "previous",
-                kind: "secondary",
-              }),
-              h(PauseButton, {
-                paused,
-                onClick: () => setPaused(!paused),
-              }),
-              h(CarouselArrowButton, {
-                "aria-label": "Next story",
-                direction: "next",
-                kind: "secondary",
-              }),
-            ),
+            h(CarouselButtons, {
+              onPauseClick: () => setPaused(!paused),
+              paused,
+            }),
           ),
         ),
         style: { "--nv-carousel-item-gap": "0px" },

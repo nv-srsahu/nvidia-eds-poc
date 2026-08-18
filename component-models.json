@@ -195,6 +195,94 @@
     ]
   },
   {
+    "id": "carousel",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "ariaLabel",
+        "label": "Accessibility label",
+        "value": "Carousel"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "type",
+        "label": "Type",
+        "value": "home-banner",
+        "options": [
+          {
+            "name": "Home Banner",
+            "value": "home-banner"
+          },
+          {
+            "name": "Success Stories",
+            "value": "success-stories"
+          }
+        ]
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "itemsPerView",
+        "label": "Items per view",
+        "value": "1"
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "itemWidth",
+        "label": "Item width"
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "loop",
+        "label": "Loop",
+        "value": "true",
+        "options": [
+          {
+            "name": "True",
+            "value": "true"
+          },
+          {
+            "name": "False",
+            "value": "false"
+          }
+        ]
+      },
+      {
+        "component": "select",
+        "valueType": "string",
+        "name": "controls",
+        "label": "Controls",
+        "value": "footer",
+        "options": [
+          {
+            "name": "Footer",
+            "value": "footer"
+          },
+          {
+            "name": "None",
+            "value": "none"
+          }
+        ]
+      }
+    ]
+  },
+  {
+    "id": "carousel-slide",
+    "fields": [
+      {
+        "component": "richtext",
+        "name": "content",
+        "label": "Slide content",
+        "valueType": "string",
+        "required": true
+      }
+    ]
+  },
+  {
     "id": "columns",
     "fields": [
       {

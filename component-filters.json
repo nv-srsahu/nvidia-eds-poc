@@ -12,6 +12,12 @@
     ]
   },
   {
+    "id": "carousel",
+    "components": [
+      "carousel-slide"
+    ]
+  },
+  {
     "id": "home-banner",
     "components": [
       "home-banner-slide"
