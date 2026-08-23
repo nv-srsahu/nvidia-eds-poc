@@ -14,7 +14,7 @@ import {
   useCarouselContext,
 } from "@kui/foundations-react";
 import { loadCSS } from "../../scripts/aem.js";
-import { readButtonLink, renderButton } from "../button/button.js";
+import { readButtonLink, readButtonMeta, renderButton } from "../button/button.js";
 
 const h = React.createElement;
 
@@ -210,18 +210,25 @@ function readImage(row) {
   };
 }
 
+function readImageMeta(value = "") {
+  const [src, alt = ""] = value.split("|").map((part) => part.trim());
+  return src ? { alt, src } : null;
+}
+
 function readSuccessHeader(row) {
+  const meta = row ? readMeta(row) : {};
   const link = row?.querySelector("a[href]");
   const body = row && readPlainParagraphs(row);
+  const ctaDefaults = {
+    color: "brand",
+    kind: "secondary",
+    size: "large",
+  };
 
   return {
-    cta: link && readButtonLink(link, {
-      color: "brand",
-      kind: "secondary",
-      size: "large",
-    }),
-    intro: text(body?.[0]),
-    title: text(row?.querySelector(HEADING_SELECTOR)) || "Success Stories",
+    cta: link ? readButtonLink(link, ctaDefaults) : readButtonMeta(meta.cta, ctaDefaults),
+    intro: meta.intro || meta.description || text(body?.[0]),
+    title: meta.title || meta.heading || text(row?.querySelector(HEADING_SELECTOR)) || "Success Stories",
   };
 }
 
@@ -230,15 +237,16 @@ function readSuccessSlide(row) {
   const link = row.querySelector("a[href]");
   const body = readPlainParagraphs(row);
   const title = meta.title || text(row.querySelector("h1, h2, h3, h4, h5"));
+  const ctaDefaults = {
+    color: "brand",
+    kind: "tertiary",
+    size: "large",
+  };
 
   return {
-    cta: link && readButtonLink(link, {
-      color: "brand",
-      kind: "tertiary",
-      size: "large",
-    }),
+    cta: link ? readButtonLink(link, ctaDefaults) : readButtonMeta(meta.cta, ctaDefaults),
     description: meta.description || text(body[0]),
-    image: readImage(row),
+    image: readImage(row) || readImageMeta(meta.image),
     logo: meta.logo || meta.brand,
     logoImage: meta["logo-image"] || meta.logoimage || meta["logo-url"],
     tag: meta.tag || meta.category || text(row.querySelector("h6")),
