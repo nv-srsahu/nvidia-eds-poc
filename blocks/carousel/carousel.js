@@ -171,7 +171,7 @@ function IconButton({ disabled = false, icon, label, onClick }) {
     {
       "aria-disabled": disabled || undefined,
       "aria-label": label,
-      color: "brand",
+      color: "neutral",
       kind: "tertiary",
       onClick: disabled ? undefined : onClick,
       type: "button",
