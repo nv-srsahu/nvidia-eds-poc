@@ -54,3 +54,9 @@ export { Accordion } from "@kui/foundations-react/Accordion";
 export { Tabs } from "@kui/foundations-react/Tabs";
 export { InputShell, InputDismissButton } from "@kui/foundations-react/InputShell";
 export { Badge } from "@kui/foundations-react/Badge";
+export {
+  ChevronLeft,
+  ChevronRight,
+  Pause,
+  Play,
+} from "@nv-brand-assets/react-icons-inline";

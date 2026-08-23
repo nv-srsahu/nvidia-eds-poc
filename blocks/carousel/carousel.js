@@ -1,13 +1,17 @@
 import {
   Button,
   Carousel,
-  CarouselArrowButton,
+  ChevronLeft,
+  ChevronRight,
   Flex,
+  Pause,
+  Play,
   ProgressBar,
   React,
   Text,
   createRoot,
   flushSync,
+  useCarouselContext,
 } from "@kui/foundations-react";
 import { loadCSS } from "../../scripts/aem.js";
 import { readButtonLink, renderButton } from "../button/button.js";
@@ -102,33 +106,6 @@ export function CarouselButtons({
   onPreviousClick,
   paused = false,
 }) {
-  const renderArrow = (direction, onClick) => {
-    const label = direction === "previous" ? "Previous slide" : "Next slide";
-
-    if (onClick) {
-      return h(
-        Button,
-        {
-          "aria-label": label,
-          color: "brand",
-          kind: "tertiary",
-          onClick,
-          type: "button",
-        },
-        h("span", {
-          "aria-hidden": "true",
-          className: `carousel-control-icon carousel-control-icon-${direction}`,
-        }),
-      );
-    }
-
-    return h(CarouselArrowButton, {
-      "aria-label": label,
-      direction,
-      kind: "tertiary",
-    });
-  };
-
   return h(
     Flex,
     {
@@ -138,23 +115,74 @@ export function CarouselButtons({
       style: { flex: "0 0 auto" },
       wrap: "nowrap",
     },
-    renderArrow("previous", onPreviousClick),
+    h(CarouselControlButton, {
+      direction: "previous",
+      icon: ChevronLeft,
+      onClick: onPreviousClick,
+    }),
     onPauseClick &&
-      h(
-        Button,
-        {
-          "aria-label": paused ? "Resume carousel" : "Pause carousel",
-          color: "brand",
-          kind: "tertiary",
-          onClick: onPauseClick,
-          type: "button",
-        },
-        h("span", {
-          "aria-hidden": "true",
-          className: `carousel-control-icon carousel-control-icon-${paused ? "play" : "pause"}`,
-        }),
-      ),
-    renderArrow("next", onNextClick),
+      h(IconButton, {
+        icon: paused ? Play : Pause,
+        label: paused ? "Resume carousel" : "Pause carousel",
+        onClick: onPauseClick,
+      }),
+    h(CarouselControlButton, {
+      direction: "next",
+      icon: ChevronRight,
+      onClick: onNextClick,
+    }),
+  );
+}
+
+function CarouselControlButton({ direction, icon, onClick }) {
+  if (onClick) {
+    return h(IconButton, {
+      icon,
+      label: direction === "previous" ? "Previous slide" : "Next slide",
+      onClick,
+    });
+  }
+
+  return h(CarouselContextIconButton, { direction, icon });
+}
+
+function CarouselContextIconButton({ direction, icon }) {
+  const carousel = useCarouselContext();
+  const isPrevious = direction === "previous";
+  const disabled = isPrevious
+    ? !carousel.canScrollPrevious
+    : !carousel.canScrollNext;
+
+  return h(IconButton, {
+    disabled,
+    icon,
+    label: isPrevious ? "Previous slide" : "Next slide",
+    onClick: () => {
+      if (isPrevious) carousel.scrollPrevious();
+      else carousel.scrollNext();
+    },
+  });
+}
+
+function IconButton({ disabled = false, icon, label, onClick }) {
+  const Icon = icon;
+  return h(
+    Button,
+    {
+      "aria-disabled": disabled || undefined,
+      "aria-label": label,
+      color: "brand",
+      kind: "tertiary",
+      onClick: disabled ? undefined : onClick,
+      type: "button",
+    },
+    h(Icon, {
+      "aria-hidden": "true",
+      className: "carousel-control-icon",
+      height: "28px",
+      variant: "line",
+      width: "28px",
+    }),
   );
 }
 

@@ -38,6 +38,7 @@
   "dependencies": {
     "@kui/foundations-css": "^1.9.0",
     "@kui/foundations-react": "^1.9.0",
+    "@nv-brand-assets/react-icons-inline": "^3.10.1",
     "react": "19.2.7",
     "react-dom": "19.2.7"
   }
