@@ -17,6 +17,12 @@
     color: currentcolor;
 }
 
+.carousel-success {
+    width: 100%;
+    max-width: var(--container-max-width);
+    margin-inline: auto;
+}
+
 .carousel-success-header {
     padding-inline: clamp(0px, 2vw, 32px);
 }
