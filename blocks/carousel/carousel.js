@@ -352,7 +352,9 @@ function SuccessStoryRail({ active, onSelect, progress, slides }) {
 function SuccessStoriesCarousel({ header, options, slides }) {
   const [active, setActive] = React.useState(0);
   const [progress, setProgress] = React.useState(0);
+  const rootRef = React.useRef(null);
   const progressRef = React.useRef(0);
+  const [isVisible, setIsVisible] = React.useState(false);
   const resetProgress = () => {
     progressRef.current = 0;
     setProgress(0);
@@ -364,7 +366,23 @@ function SuccessStoriesCarousel({ header, options, slides }) {
   const go = (step) => select(active + step);
 
   React.useEffect(() => {
-    if (slides.length <= 1) return undefined;
+    const element = rootRef.current;
+    if (!element || !("IntersectionObserver" in window)) {
+      setIsVisible(true);
+      return undefined;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0.25 },
+    );
+
+    observer.observe(element);
+    return () => observer.disconnect();
+  }, []);
+
+  React.useEffect(() => {
+    if (!isVisible || slides.length <= 1) return undefined;
 
     let frame;
     const startedAt =
@@ -389,7 +407,7 @@ function SuccessStoriesCarousel({ header, options, slides }) {
 
     frame = window.requestAnimationFrame(update);
     return () => window.cancelAnimationFrame(frame);
-  }, [active, slides.length]);
+  }, [active, isVisible, slides.length]);
 
   const slotHeader = h(
     Flex,
@@ -420,7 +438,7 @@ function SuccessStoriesCarousel({ header, options, slides }) {
 
   return h(
     Flex,
-    { className: "carousel-success", direction: "col", gap: "8" },
+    { className: "carousel-success", direction: "col", gap: "8", ref: rootRef },
     renderCarousel(
       {
         "aria-label": options.ariaLabel,
