@@ -38,6 +38,8 @@
 
 .cards .cards-links a {
   color: var(--color-text, #1a1a1a);
+  display: inline-block;
+  line-height: 1.4;
   text-decoration: underline;
   text-decoration-color: var(--text-color-brand, #76b900);
   text-underline-offset: 3px;
@@ -47,10 +49,8 @@
   color: var(--text-color-brand, #76b900);
 }
 
-
 /* tighter link list */
 .cards .cards-links li { margin: 0; }
-.cards .cards-links a { display: inline-block; line-height: 1.4; }
 
 /* Hover: dark outline highlight on the card. */
 .cards .nv-card-root {

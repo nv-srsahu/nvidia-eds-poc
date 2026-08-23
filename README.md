@@ -212,7 +212,7 @@ npm run lint:fix      # auto-fix all fixable issues
 ```
 
 Rules:
-- **JS**: ESLint with `airbnb-base` ruleset (see `.eslintrc.js`)
+- **JS**: ESLint with `airbnb-base` ruleset (see `.eslintrc.cjs`)
 - **CSS**: Stylelint with `stylelint-config-standard` (see `.stylelintrc.json`)
 
 Run `npm run lint` before committing. The CI pipeline (`.github/workflows/main.yaml`) runs it automatically on every push.

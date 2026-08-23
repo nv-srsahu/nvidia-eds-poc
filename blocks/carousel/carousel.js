@@ -179,6 +179,7 @@ function IconButton({ disabled = false, icon, label, onClick }) {
     h(Icon, {
       "aria-hidden": "true",
       className: "carousel-control-icon",
+      color: "#000000",
       height: "28px",
       variant: "line",
       width: "28px",
@@ -254,11 +255,22 @@ function readSuccessSlide(row) {
   };
 }
 
+function isSuccessHeaderRow(row) {
+  if (!row || row.querySelector("img")) return false;
+
+  const meta = readMeta(row);
+  return Boolean(
+    row.querySelector(HEADING_SELECTOR) ||
+      meta.title ||
+      meta.heading ||
+      meta.intro ||
+      meta.description ||
+      meta.cta,
+  );
+}
+
 function readSuccessStories(options, rows) {
-  const headerRow =
-    rows[0] && rows[0].querySelector(HEADING_SELECTOR) && !rows[0].querySelector("img")
-      ? rows[0]
-      : null;
+  const headerRow = isSuccessHeaderRow(rows[0]) ? rows[0] : null;
   const slideRows = headerRow ? rows.slice(1) : rows;
 
   return {

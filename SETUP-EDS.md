@@ -4,10 +4,6 @@ Author pages in Google Docs → Adobe's pipeline converts them to HTML → your
 code (blocks, styles) comes from GitHub → preview & publish with the AEM
 Sidekick. No local converter, no build step on the server.
 
-> The local `scripts/build-page.js` converter we built is **not used** in this
-> flow — Adobe's pipeline does the doc→HTML conversion automatically. It stays
-> as a local preview aid only.
-
 ---
 
 ## What connects to what

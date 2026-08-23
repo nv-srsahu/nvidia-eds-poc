@@ -478,7 +478,7 @@ Developer creates feature branch
 | `component-filters.json` | Global container rules | Built from `_*.json` files | UE nesting constraints |
 | `fstab.yaml` | Content mount config | — | Points EDS to AEM Author |
 | `paths.json` | AEM ↔ EDS path mappings | — | Maps `/content/...` → `/` |
-| `.eslintrc.js` | JS lint rules | — | ESLint (airbnb-base) |
+| `.eslintrc.cjs` | JS lint rules | — | ESLint (airbnb-base) |
 | `.stylelintrc.json` | CSS lint rules | — | Stylelint (standard) |
 | `.editorconfig` | Editor formatting | — | Indent/charset/EOL rules |
 | `.github/workflows/main.yaml` | CI pipeline | — | Runs `npm run lint` on push |

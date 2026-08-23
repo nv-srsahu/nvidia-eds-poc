@@ -6,8 +6,6 @@ const h = React.createElement;
 const BADGE_COLORS = ["green", "red", "yellow", "purple", "teal", "gray", "blue"];
 const BADGE_KINDS = ["solid", "outline"];
 const BTN_KINDS = ["primary", "secondary", "tertiary"];
-const BTN_COLORS = ["brand", "neutral", "danger"];
-const BTN_SIZES = ["tiny", "small", "medium", "large"];
 
 const LIST_RESET = { listStyle: "none", margin: 0, padding: 0 };
 
