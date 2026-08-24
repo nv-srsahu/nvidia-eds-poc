@@ -29,3 +29,9 @@ Thumbs.db
 /doc-blocks.html
 /assets/remix/
 master.md
+
+.cursor/
+.codex/
+.agents/
+.claude/
+.vscode/

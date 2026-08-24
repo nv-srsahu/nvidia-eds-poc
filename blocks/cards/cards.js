@@ -61,9 +61,12 @@ function parseCardOptions(str) {
   return null;
 }
 
-function collectText(scope) {
+function collectText(scope, imageMeta) {
   const paras = [...scope.querySelectorAll("p")].filter(
-    (p) => !p.querySelector("a[href], img, picture") && p.textContent.trim(),
+    (p) =>
+      p !== imageMeta &&
+      !p.querySelector("a[href], img, picture") &&
+      p.textContent.trim(),
   );
   let opt = [];
   const body = [];
@@ -77,6 +80,29 @@ function collectText(scope) {
     if (t) body.push(t);
   });
   return { opt, body };
+}
+
+function readImage(row) {
+  const icon = row.querySelector("img");
+  const meta = [...row.querySelectorAll("p")].find((p) =>
+    /^Image:\s*/i.test(p.textContent.trim()),
+  );
+  if (icon)
+    return {
+      element: meta,
+      image: { alt: icon.alt || "", src: icon.currentSrc || icon.src },
+    };
+  if (!meta) return {};
+
+  const [url, ...alt] = meta.textContent
+    .trim()
+    .replace(/^Image:\s*/i, "")
+    .split("|");
+  const src = meta.querySelector("a[href]")?.href || url.trim();
+  return {
+    element: meta,
+    image: src && { alt: alt.join("|").trim(), src },
+  };
 }
 
 // One tag: "Label" or "Label (color)" or "Label (color, outline)".
@@ -136,7 +162,7 @@ function useMediaQuery(query) {
 }
 
 // UNIVERSAL card. Every field is optional; author only what you need:
-//   Image        -> card image (Kaizen Card media)
+//   Image or "Image: URL | alt text" -> card image (Kaizen Card media)
 //   Heading 5    -> tag(s): comma-separated -> Kaizen Badge pills.
 //                   Per tag: "Label (color)" / "Label (color, outline)".
 //                   color = green|red|yellow|purple|teal|gray|blue (default gray)
@@ -147,17 +173,19 @@ function useMediaQuery(query) {
 //   Bold link    -> CTA button, options in parens e.g. "Read More (secondary, neutral)"
 //   "[...]" line -> card options: kind, layout, density, selected
 function readCard(row) {
-  const icon = row.querySelector("img");
-  const link = row.querySelector("a[href]");
+  const { element: imageMeta, image } = readImage(row);
+  const link = [...row.querySelectorAll("a[href]")].find(
+    (candidate) => !imageMeta?.contains(candidate) && !candidate.querySelector("img, picture"),
+  );
   const tagsEl = row.querySelector("h5");
-  const { opt, body } = collectText(row);
+  const { opt, body } = collectText(row, imageMeta);
   return {
     tags: parseTags(tagsEl?.textContent),
     eyebrow: text(row.querySelector("h6")),
     title: text(row.querySelector("h1, h2, h3")),
     subheader: text(row.querySelector("h4")),
     body,
-    image: icon && { alt: icon.alt || "", src: icon.currentSrc || icon.src },
+    image,
     link: link && readButtonLink(link, { color: "brand", kind: "tertiary" }),
     density:
       opt.find((t) => CARD_DENSITIES.includes(t)) ||
