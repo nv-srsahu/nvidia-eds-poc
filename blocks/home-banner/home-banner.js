@@ -63,13 +63,13 @@ function metaKey(value) {
 function readText(row, selector = "p", skipLinks = true) {
   return [...row.querySelectorAll(selector)].reduce(
     (data, element) => {
-      if (skipLinks && element.querySelector(LINK_PARAGRAPH)) return data;
+      const hasLink = skipLinks && element.querySelector(LINK_PARAGRAPH);
 
       textLines(element).forEach((value) => {
         const key = metaKey(value);
 
         if (key) data.meta[key] = value.replace(/^([^:]+)\s*:/, "").trim();
-        else data.body.push(value);
+        else if (!hasLink) data.body.push(value);
       });
 
       return data;
