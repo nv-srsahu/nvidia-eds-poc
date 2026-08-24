@@ -10,13 +10,21 @@ import {
 } from "@kui/foundations-react";
 import { toClassName } from "../../scripts/aem.js";
 import { readButtonLink, readButtonMeta, renderButton } from "../button/button.js";
-import { CarouselButtons, renderCarousel } from "../carousel/carousel.js";
+import {
+  CarouselButtons,
+  renderCarousel,
+  scrollInlineIntoView,
+} from "../carousel/carousel.js";
 import { renderText } from "../text/text.js";
 
 const h = React.createElement;
 const { useEffect, useMemo, useRef, useState } = React;
 
 const AUTO_ROTATE_MS = 6000;
+const SEGMENT_BREAKPOINTS = {
+  mobile: 600,
+  tablet: 960,
+};
 const HEADINGS = "h1, h2, h3, h4, h5, h6";
 const LINK_PARAGRAPH = "a[href]";
 const TEXT_ALIGNS = ["default", "left", "center", "right"];
@@ -35,6 +43,14 @@ const HERO_ATTRIBUTES = {
 const choose = (value, allowed, fallback) =>
   allowed.includes(value) ? value : fallback;
 const option = (value = "") => value.trim().toLowerCase().replace(/\s+/g, "-");
+const scrollFocusedItem = (event, selector) =>
+  scrollInlineIntoView(event.target.closest?.(selector));
+function segmentSize() {
+  if (window.innerWidth <= SEGMENT_BREAKPOINTS.mobile) return "tiny";
+  if (window.innerWidth <= SEGMENT_BREAKPOINTS.tablet) return "small";
+  return "large";
+}
+
 function nodeText(node) {
   if (node.nodeName === "BR") return "\n";
   if (node.nodeType === 3) return node.textContent || "";
@@ -305,14 +321,21 @@ function CarouselSync({ activeIndex }) {
 }
 
 function StoryRail({ activeIndex, onSelect, progress, slides }) {
+  const railRef = useRef(null);
+
+  useEffect(() => {
+    scrollInlineIntoView(railRef.current?.querySelector('[aria-current="true"]'));
+  }, [activeIndex]);
+
   return h(
     Flex,
     {
       "aria-label": "Home banner story navigation",
       className: "home-banner-story-rail",
       gap: "7",
+      onFocusCapture: (event) => scrollFocusedItem(event, ".home-banner-story"),
+      ref: railRef,
       role: "group",
-      style: { flex: "1 1 0", minWidth: 0, width: "auto" },
       wrap: "nowrap",
     },
     slides.map((slide, index) =>
@@ -325,7 +348,6 @@ function StoryRail({ activeIndex, onSelect, progress, slides }) {
           className: "home-banner-story",
           key: slide.value,
           onClick: () => onSelect(index),
-          style: { flex: "1 1 0" },
           type: "button",
         },
         h(ProgressBar, {
@@ -348,7 +370,9 @@ function HomeBanner({ activeCategory, categories, slides }) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [controlSize, setControlSize] = useState(segmentSize);
   const progressRef = useRef(0);
+  const segmentsRef = useRef(null);
   const activeSlides = useMemo(
     () => slidesForCategory(category, categories, slides),
     [categories, category, slides],
@@ -361,6 +385,13 @@ function HomeBanner({ activeCategory, categories, slides }) {
       })),
     [categories],
   );
+
+  useEffect(() => {
+    const onResize = () => setControlSize(segmentSize());
+
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   useEffect(() => {
     if (paused || activeSlides.length <= 1) return undefined;
@@ -392,6 +423,14 @@ function HomeBanner({ activeCategory, categories, slides }) {
     return () => window.cancelAnimationFrame(frame);
   }, [activeIndex, activeSlides.length, category, paused]);
 
+  useEffect(() => {
+    const activeTab = segmentsRef.current
+      ?.querySelector(".nv-segmented-control-input:checked")
+      ?.closest(".nv-segmented-control-item");
+
+    scrollInlineIntoView(activeTab);
+  }, [category]);
+
   if (!activeSlides.length) return null;
 
   const resetProgress = () => {
@@ -421,6 +460,9 @@ function HomeBanner({ activeCategory, categories, slides }) {
         {
           "aria-label": "Home banner categories",
           className: "home-banner-segments-scroll",
+          onFocusCapture: (event) =>
+            scrollFocusedItem(event, ".nv-segmented-control-item"),
+          ref: segmentsRef,
           role: "region",
           tabIndex: 0,
         },
@@ -430,7 +472,7 @@ function HomeBanner({ activeCategory, categories, slides }) {
           items: segmentItems,
           name: "home-banner-category",
           onValueChange: selectCategory,
-          size: "large",
+          size: controlSize,
           value: category,
         }),
       ),
@@ -450,6 +492,7 @@ function HomeBanner({ activeCategory, categories, slides }) {
             Flex,
             {
               align: "start",
+              className: "home-banner-footer",
               gap: "7",
               wrap: "wrap",
             },

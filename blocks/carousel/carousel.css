@@ -160,6 +160,19 @@
     }
 
     .carousel-success-rail {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
+        display: flex;
+        gap: 24px;
+        overflow-x: auto;
+        scrollbar-width: none;
+        scroll-snap-type: x mandatory;
+    }
+
+    .carousel-success-rail::-webkit-scrollbar {
+        display: none;
+    }
+
+    .carousel-success-tab {
+        flex: 0 0 150px;
+        scroll-snap-align: start;
     }
 }

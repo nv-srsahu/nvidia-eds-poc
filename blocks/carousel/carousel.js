@@ -39,6 +39,34 @@ const AUTO_ROTATE_MS = 6000;
 const keyName = (value) => value.trim().toLowerCase().replace(/\s+/g, "-");
 const text = (element) => element?.textContent.trim() || "";
 
+function inlineScroller(element) {
+  let scroller = element?.parentElement;
+
+  while (
+    scroller &&
+    scroller !== document.body &&
+    scroller.scrollWidth <= scroller.clientWidth
+  ) {
+    scroller = scroller.parentElement;
+  }
+
+  return scroller === document.body ? null : scroller;
+}
+
+export function scrollInlineIntoView(element) {
+  const scroller = inlineScroller(element);
+  if (!element || !scroller) return;
+
+  const elementRect = element.getBoundingClientRect();
+  const scrollerRect = scroller.getBoundingClientRect();
+  const offset =
+    elementRect.left -
+    scrollerRect.left -
+    (scrollerRect.width - elementRect.width) / 2;
+
+  scroller.scrollTo({ left: scroller.scrollLeft + offset, behavior: "smooth" });
+}
+
 function optionFromRow(row) {
   const cells = [...row.children];
   const raw =
@@ -317,11 +345,22 @@ function SuccessStorySlide({ id, slide }) {
 }
 
 function SuccessStoryRail({ active, onSelect, progress, slides }) {
+  const railRef = React.useRef(null);
+
+  React.useEffect(() => {
+    scrollInlineIntoView(
+      railRef.current?.querySelector('[aria-selected="true"]'),
+    );
+  }, [active]);
+
   return h(
     "div",
     {
       "aria-label": "Success story slides",
       className: "carousel-success-rail",
+      onFocusCapture: (event) =>
+        scrollInlineIntoView(event.target.closest?.(".carousel-success-tab")),
+      ref: railRef,
       role: "tablist",
     },
     slides.map((slide, index) => {
