@@ -1,3 +1,9 @@
+.cards {
+    width: 100%;
+    max-width: var(--container-max-width);
+    margin-inline: auto;
+}
+
 .cards .cards-img {
     aspect-ratio: 16 / 10;
     display: block;
