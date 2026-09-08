@@ -479,6 +479,31 @@
     ]
   },
   {
+    "id": "modal",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "trigger",
+        "label": "Trigger label",
+        "required": true
+      },
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "heading",
+        "label": "Heading"
+      },
+      {
+        "component": "aem-content",
+        "valueType": "string",
+        "name": "content",
+        "label": "Content fragment",
+        "required": true
+      }
+    ]
+  },
+  {
     "id": "nim-cards",
     "fields": [
       {

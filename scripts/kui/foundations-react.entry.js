@@ -26,6 +26,7 @@ import "@kui/foundations-css/dist/components/accordion.css";
 import "@kui/foundations-css/dist/components/tabs.css";
 import "@kui/foundations-css/dist/components/input-shell.css";
 import "@kui/foundations-css/dist/components/badge.css";
+import "@kui/foundations-css/dist/components/modal.css";
 
 // React is now bundled in (self-hosted, no esm.sh). Re-export it here so blocks
 // import React/createRoot/flushSync from this same bundle — guaranteeing ONE
@@ -54,6 +55,7 @@ export { Accordion } from "@kui/foundations-react/Accordion";
 export { Tabs } from "@kui/foundations-react/Tabs";
 export { InputShell, InputDismissButton } from "@kui/foundations-react/InputShell";
 export { Badge } from "@kui/foundations-react/Badge";
+export { Modal } from "@kui/foundations-react/Modal";
 export {
   ChevronLeft,
   ChevronRight,

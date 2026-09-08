@@ -4,6 +4,11 @@
     margin-inline: auto;
 }
 
+.cards .nv-card-root--layout-vertical .nv-card-media {
+    flex: none;
+    width: 100%;
+}
+
 .cards .cards-img {
     aspect-ratio: 16 / 10;
     display: block;
