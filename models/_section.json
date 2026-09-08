@@ -23,7 +23,8 @@
         "quote-kui",
         "panel",
         "kcards",
-        "kpanel"
+        "kpanel",
+        "raw-html"
       ]
     }
   ]

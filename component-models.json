@@ -515,6 +515,17 @@
     ]
   },
   {
+    "id": "raw-html",
+    "fields": [
+      {
+        "component": "text",
+        "valueType": "string",
+        "name": "html",
+        "label": "HTML"
+      }
+    ]
+  },
+  {
     "id": "text",
     "fields": [
       {
