@@ -15,6 +15,7 @@ import {
   useCarouselContext,
 } from "@kui/foundations-react";
 import { loadCSS } from "../../scripts/aem.js";
+import readFieldRecords from "../../scripts/authoring.js";
 import { readButtonLink, readButtonMeta, renderButton } from "../button/button.js";
 
 const h = React.createElement;
@@ -353,7 +354,7 @@ function readPlainParagraphs(row) {
 }
 
 function readImage(row) {
-  const img = row.querySelector("img");
+  const img = row?.querySelector("img");
   return img && {
     alt: img.alt || "",
     src: img.currentSrc || img.src,
@@ -365,9 +366,9 @@ function readImageMeta(value = "") {
   return src ? { alt, src } : null;
 }
 
-function readSuccessHeader(row) {
-  const meta = row ? readMeta(row) : {};
-  const link = row?.querySelector("a[href]");
+function readSuccessHeader(row, fields) {
+  const meta = fields?.meta || (row ? readMeta(row) : {});
+  const link = (fields ? fields.cells.cta : row)?.querySelector("a[href]");
   const body = row && readPlainParagraphs(row);
   const ctaDefaults = {
     color: "brand",
@@ -382,11 +383,11 @@ function readSuccessHeader(row) {
   };
 }
 
-function readSuccessSlide(row) {
-  const meta = readMeta(row);
-  const link = row.querySelector("a[href]");
-  const body = readPlainParagraphs(row);
-  const title = meta.title || text(row.querySelector("h1, h2, h3, h4, h5"));
+function readSuccessSlide(row, fields) {
+  const meta = fields?.meta || readMeta(row);
+  const link = (fields ? fields.cells.cta : row)?.querySelector("a[href]");
+  const body = fields ? [] : readPlainParagraphs(row);
+  const title = meta.title || text(row?.querySelector("h1, h2, h3, h4, h5"));
   const ctaDefaults = {
     color: "brand",
     kind: "tertiary",
@@ -396,10 +397,11 @@ function readSuccessSlide(row) {
   return {
     cta: link ? readButtonLink(link, ctaDefaults) : readButtonMeta(meta.cta, ctaDefaults),
     description: meta.description || text(body[0]),
-    image: readImage(row) || readImageMeta(meta.image),
+    image: readImage(fields ? fields.cells.image : row) || readImageMeta(meta.image),
     logo: meta.logo || meta.brand,
-    logoImage: meta["logo-image"] || meta.logoimage || meta["logo-url"],
-    tag: meta.tag || meta.category || text(row.querySelector("h6")),
+    logoImage: readImage(fields?.cells["logo-image"])?.src
+      || meta["logo-image"] || meta.logoimage || meta["logo-url"],
+    tag: meta.tag || meta.category || text(row?.querySelector("h6")),
     title: title || text(link),
   };
 }
@@ -419,13 +421,21 @@ function isSuccessHeaderRow(row) {
 }
 
 function readSuccessStories(options, rows) {
+  const fields = readFieldRecords(rows, "category");
+  if (fields) {
+    return {
+      header: readSuccessHeader(null, fields.header),
+      options,
+      slides: fields.items.map((item) => readSuccessSlide(null, item)),
+    };
+  }
   const headerRow = isSuccessHeaderRow(rows[0]) ? rows[0] : null;
   const slideRows = headerRow ? rows.slice(1) : rows;
 
   return {
     header: readSuccessHeader(headerRow),
     options,
-    slides: slideRows.map(readSuccessSlide).filter((slide) => slide.title || slide.image),
+    slides: slideRows.map((row) => readSuccessSlide(row)).filter((slide) => slide.title || slide.image),
   };
 }
 

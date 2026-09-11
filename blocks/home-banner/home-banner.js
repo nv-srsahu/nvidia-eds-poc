@@ -9,6 +9,7 @@ import {
   useCarouselContext,
 } from "@kui/foundations-react";
 import { toClassName } from "../../scripts/aem.js";
+import readFieldRecords from "../../scripts/authoring.js";
 import { readButtonLink, readButtonMeta, renderButton } from "../button/button.js";
 import {
   CarouselButtons,
@@ -94,10 +95,14 @@ function readText(row, selector = "p", skipLinks = true) {
   );
 }
 
-function readCategories(row) {
+function readCategories(row, selectedValue) {
   const { meta } = readText(row, "p, li", false);
-  const selected = meta.selected?.toLowerCase();
-  const items = [...row.querySelectorAll("p, li")]
+  const selected = (selectedValue || meta.selected)?.toLowerCase();
+  const elements = [...row.children].flatMap((cell) => {
+    const paragraphs = [...cell.querySelectorAll("p, li")];
+    return paragraphs.length ? paragraphs : [cell];
+  });
+  const items = elements
     .flatMap((element, index) =>
       textLines(element).map((label, lineIndex) => {
         if (metaKey(label)) return null;
@@ -127,6 +132,9 @@ function readCategories(row) {
 }
 
 function isCategoryRow(row) {
+  if (row.children.length === 2 && /^(category|selected)$/i.test(text(row.firstElementChild))) {
+    return false;
+  }
   return (
     readCategories(row).length > 1 &&
     !row.querySelector(`${HEADINGS}, ${LINK_PARAGRAPH}, img, picture`)
@@ -134,7 +142,7 @@ function isCategoryRow(row) {
 }
 
 function linkCta(row, metaCta) {
-  const link = row.querySelector(LINK_PARAGRAPH);
+  const link = row?.querySelector(LINK_PARAGRAPH);
   if (link) return readButtonLink(link, { size: "large" });
 
   return readButtonMeta(metaCta, { size: "large" });
@@ -221,18 +229,18 @@ function imageFromMetadata(meta) {
 }
 
 function readMedia(row, meta) {
-  const picture = row.querySelector("picture");
+  const picture = row?.querySelector("picture");
   if (picture) return pictureFromElement(picture);
 
-  const img = row.querySelector("img");
+  const img = row?.querySelector("img");
   if (img) return imageFromElement(img);
 
   return imageFromMetadata(meta);
 }
 
-function readSlide(row, index) {
-  const heading = text(row.querySelector(HEADINGS));
-  const { body, meta } = readText(row);
+function readSlide(row, index, fields) {
+  const heading = text(row?.querySelector(HEADINGS));
+  const { body, meta } = fields ? { body: [], meta: fields.meta } : readText(row);
   const authoredEyebrow = meta.eyebrow || meta.subheading;
   let eyebrowIndex = -1;
 
@@ -244,19 +252,19 @@ function readSlide(row, index) {
   const eyebrow = authoredEyebrow || body[eyebrowIndex] || "";
   const copy = body.filter((_, bodyIndex) => bodyIndex !== eyebrowIndex);
   const category =
-    row.dataset.category ||
-    row.querySelector("[data-category]")?.dataset.category ||
+    row?.dataset.category ||
+    row?.querySelector("[data-category]")?.dataset.category ||
     meta.category ||
     eyebrow.split("|")[0]?.trim() ||
     "";
   const textAlign =
-    row.dataset.textAlign ||
-    row.querySelector("[data-text-align]")?.dataset.textAlign ||
+    row?.dataset.textAlign ||
+    row?.querySelector("[data-text-align]")?.dataset.textAlign ||
     meta["text-align"] ||
     "default";
   const mediaTheme =
-    row.dataset.mediaTheme ||
-    row.querySelector("[data-media-theme]")?.dataset.mediaTheme ||
+    row?.dataset.mediaTheme ||
+    row?.querySelector("[data-media-theme]")?.dataset.mediaTheme ||
     meta["media-theme"] ||
     meta.theme ||
     "dark";
@@ -264,10 +272,10 @@ function readSlide(row, index) {
   return {
     categoryLabel: category,
     categoryValue: toClassName(category),
-    cta: linkCta(row, meta.cta),
+    cta: linkCta(fields ? fields.cells.cta : row, meta.cta),
     description: meta.description || copy[heading || meta.title ? 0 : 1] || "",
     eyebrow,
-    media: readMedia(row, meta),
+    media: readMedia(fields ? fields.cells.image : row, meta),
     mediaTheme: choose(option(mediaTheme), MEDIA_THEMES, "dark"),
     textAlign: choose(option(textAlign), TEXT_ALIGNS, "default"),
     title: meta.title || heading || copy[0] || `Slide ${index + 1}`,
@@ -299,14 +307,20 @@ function slidesForCategory(categoryValue, categories, slides) {
 function readHomeBanner(block) {
   const rows = [...block.children];
   const categoryRow = rows[0] && isCategoryRow(rows[0]) ? rows.shift() : null;
-  const categories = categoryRow ? readCategories(categoryRow) : [];
+  const selectedRow = rows[0]?.children.length === 2
+    && text(rows[0].firstElementChild).toLowerCase() === "selected" ? rows.shift() : null;
+  const categories = categoryRow ? readCategories(categoryRow, text(selectedRow?.lastElementChild)) : [];
+  const fields = readFieldRecords(rows, "category");
 
   return {
     activeCategory:
       categories.find((category) => category.selected)?.value ||
       categories[0]?.value,
     categories,
-    slides: rows.map(readSlide).filter((slide) => slide.title || slide.media),
+    slides: (fields
+      ? fields.items.map((item, index) => readSlide(null, index, item))
+      : rows.map((row, index) => readSlide(row, index)))
+      .filter((slide) => slide.title || slide.media),
   };
 }
 

@@ -1,5 +1,6 @@
 import { React, createRoot, flushSync } from "@kui/foundations-react";
 import { Badge, Button, Card, Flex, Grid, Text } from "@kui/foundations-react";
+import readFieldRecords from "../../scripts/authoring.js";
 
 const h = React.createElement;
 
@@ -124,6 +125,22 @@ function fromHeadings(block) {
 }
 
 function readFeatured(block) {
+  const fields = readFieldRecords([...block.children], "tags");
+  if (fields) {
+    const { meta } = fields.header;
+    const more = parseCTAtext(meta["view-more"] || meta.more);
+    const articles = fields.items.map((item) => {
+      const img = item.cells.image?.querySelector("img");
+      return articleFromConfig(item.meta, img && { alt: img.alt, src: img.currentSrc || img.src });
+    });
+    return {
+      heading: meta.heading,
+      intro: meta.intro,
+      more,
+      hero: articles[0],
+      items: articles.slice(1),
+    };
+  }
   const rowConfigs = [...block.children].map(readKeyValues);
   const configuredRows = rowConfigs.filter((cfg) => FEAT_KEYS.some((k) => k in cfg));
   if (configuredRows.length > 1) return fromConfigRows(block, rowConfigs);
